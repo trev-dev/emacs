@@ -1,0 +1,626 @@
+* Emacs Configuration
+  Herein lies my Emacs configuration. Use it well.
+* Package Management
+
+#+begin_src emacs-lisp
+(require 'package)
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
+
+(setq package-enable-at-startup nil)
+(package-initialize)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+#+end_src
+
+* General Setting
+
+#+begin_src emacs-lisp
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode)
+(global-hl-line-mode 1)
+(global-visual-line-mode t)
+(setq inhibit-startup-screen t)
+(setq-default show-trailing-whitespace t)
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+(electric-pair-mode 1)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(setq backup-directory-alist `(("." . "~/.cache/emacs")))
+(setq fill-column 80)
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+(fringe-mode '(4 . 0))
+(setq initial-scratch-message "")
+(global-so-long-mode 1)
+
+;; Performance
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024))
+
+;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
+(custom-set-variables
+  '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
+  '(backup-directory-alist '((".*" . "~/.emacs.d/backups/"))))
+
+;; create the autosave dir if necessary, since emacs won't.
+(make-directory "~/.emacs.d/autosaves/" t)
+
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+
+;; Bind M-y or M-n to yes or no questions
+(load "~/.dotfiles/emacs/quick-yes")
+#+end_src
+
+* Helper Functions
+
+#+begin_src emacs-lisp
+(defun on-filetype(pattern func) "Checks the extension and fires a callback if it matches"
+  (when (and (stringp buffer-file-name)
+             (string-match pattern buffer-file-name))
+  (funcall func)))
+#+end_src
+
+* Packages
+  This is where all of the use-case packages are installed/configured.
+** General
+   Packages that extend and augment emacs in a general way
+*** Ace Jump
+
+#+begin_src emacs-lisp
+(use-package ace-jump-mode
+  :ensure t
+  :bind ("C-'" . ace-jump-mode))
+#+end_src
+
+*** Evil!
+I like vim bindings
+
+#+begin_src emacs-lisp
+(use-package evil
+  :ensure t
+  :init
+  (setq evil-want-keybinding nil)
+  (setq evil-shift-width tab-width)
+  (evil-mode 1))
+
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+
+(use-package evil-collection
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
+#+End_src
+
+*** Ivy
+Consists of 3 separate but integrated packages
+
+#+begin_src emacs-lisp
+(use-package counsel
+  :ensure t
+  :config
+  (counsel-mode 1))
+
+(use-package swiper
+  :ensure t
+  :config
+  (counsel-mode 1))
+
+(use-package ivy
+  :ensure t
+  :requires (counsel swiper)
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  ;; enable this if you want `swiper' to use it
+  ;; (setq search-default-mode #'char-fold-to-regexp)
+  (global-set-key "\C-s" 'swiper)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f6>") 'ivy-resume)
+  (global-set-key (kbd "M-x") 'counsel-M-x))
+#+end_src
+
+*** Projectile
+#+begin_src emacs-lisp
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode +1)
+  (setq projectile-completion-systen 'ivy)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (setq projectile-project-search-path '("~/Projects/")))
+#+end_src
+
+*** Which-key
+
+#+begin_src emacs-lisp
+(use-package which-key
+  :ensure t
+  :config 
+  (which-key-mode))
+#+end_src
+
+*** Treemacs
+
+#+begin_src emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay      0.5
+          treemacs-directory-name-transformer    #'identity
+          treemacs-display-in-side-window        t
+          treemacs-eldoc-display                 t
+          treemacs-file-event-delay              5000
+          treemacs-file-extension-regex          treemacs-last-period-regex-value
+          treemacs-file-follow-delay             0.2
+          treemacs-file-name-transformer         #'identity
+          treemacs-follow-after-init             t
+          treemacs-expand-after-init             t
+          treemacs-git-command-pipe              ""
+          treemacs-goto-tag-strategy             'refetch-index
+          treemacs-indentation                   2
+          treemacs-indentation-string            " "
+          treemacs-is-never-other-window         nil
+          treemacs-max-git-entries               5000
+          treemacs-missing-project-action        'ask
+          treemacs-move-forward-on-expand        nil
+          treemacs-no-png-images                 nil
+          treemacs-no-delete-other-windows       t
+          treemacs-project-follow-cleanup        nil
+          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                      'left
+          treemacs-read-string-input             'from-child-frame
+          treemacs-recenter-distance             0.1
+          treemacs-recenter-after-file-follow    nil
+          treemacs-recenter-after-tag-follow     nil
+          treemacs-recenter-after-project-jump   'always
+          treemacs-recenter-after-project-expand 'on-distance
+          treemacs-litter-directories            '("/node_modules" "/.venv" "/.cask")
+          treemacs-show-cursor                   nil
+          treemacs-show-hidden-files             t
+          treemacs-silent-filewatch              nil
+          treemacs-silent-refresh                nil
+          treemacs-sorting                       'alphabetic-asc
+          treemacs-space-between-root-nodes      t
+          treemacs-tag-follow-cleanup            t
+          treemacs-tag-follow-delay              1.5
+          treemacs-user-mode-line-format         nil
+          treemacs-user-header-line-format       nil
+          treemacs-width                         35
+          treemacs-width-is-initially-locked     t
+          treemacs-workspace-switch-cleanup      nil)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-evil
+  :after (treemacs evil)
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :after (treemacs dired)
+  :ensure t
+  :config (treemacs-icons-dired-mode))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
+#+end_src
+
+*** Yasnippet
+
+#+begin_src emacs-lisp
+(use-package yasnippet
+  :ensure t
+  :config
+  (setq yas-snippet-dirs `(
+  "~/.dotfiles/emacs/yasnippets"))
+  :hook (prog-mode . yas-minor-mode))
+
+(use-package yasnippet-snippets :ensure t)
+#+end_src
+
+** Git Integration
+*** Magit
+
+#+begin_src emacs-lisp
+(use-package magit
+  :ensure t
+  :config
+  (global-set-key (kbd "C-c g") 'magit-status))
+#+end_src
+
+*** Diff-hl
+
+#+begin_src emacs-lisp
+(use-package diff-hl
+  :ensure t
+  :init (global-diff-hl-mode)
+  :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
+    (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
+#+end_src
+
+** Look & Feel
+*** Font Setup
+
+#+begin_src emacs-lisp
+(set-language-environment "UTF-8")
+(set-default-coding-systems 'utf-8)
+(add-to-list 'default-frame-alist '(font . "Fira Code Retina 10" ))
+
+(load "~/.dotfiles/emacs/ligature")
+;; Enable ligatures in programming modes
+(ligature-set-ligatures 'prog-mode '(
+  "www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\" "{-" "::"
+  ":::" ":=" "!!" "!=" "!==" "-}" "----" "-->" "->" "->>"
+  "-<" "-<<" "-~" "#{" "#[" "##" "###" "####" "#(" "#?" "#_"
+  "#_(" ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*" "/**"
+  "/=" "/==" "/>" "//" "///" "&&" "||" "||=" "|=" "|>" "^=" "$>"
+  "++" "+++" "+>" "=:=" "==" "===" "==>" "=>" "=>>" "<="
+  "=<<" "=/=" ">-" ">=" ">=>" ">>" ">>-" ">>=" ">>>" "<*"
+  "<*>" "<|" "<|>" "<$" "<$>" "<!--" "<-" "<--" "<->" "<+"
+  "<+>" "<=" "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<"
+  "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%")
+)
+
+(global-ligature-mode 't)
+#+end_src
+
+*** DOOM
+/"Against all the evil that Hell can conjure, all the wickedness that
+mankind can produce, we will send unto them... only you. Rip and tear, until
+it is done."/
+
+#+begin_src
+                   ..
+         ..        ::            ..
+         ..        :-:
+                   .::
+                     ..    ......
+                 ..::::--:---:----:
+             ..::::::-:::.     ..::
+                     :-:-.
+                      -::    .
+                      :::    :.
+                :     .-:    ::
+                :.    :-:   :-:
+                .:    .-:..-:
+                  :   :-:-:.
+                      :-::
+         ...    ...:--::-         .
+          ..     :-:. :-:       ...
+                      .-:
+                       :.
+                       :.
+                       .
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package all-the-icons :ensure t)
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+(use-package doom-themes
+  :ensure t
+  :requires all-the-icons
+  :config
+  ;; global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-material-dark t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; enable custom neotree theme (all-the-icons must be installed!)
+  ;; (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+
+#+end_src
+
+** Syntax Support
+   Not just packages but syntax-related editor settings
+*** Company Completions
+
+#+begin_src emacs-lisp
+(use-package company
+  :ensure t
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
+  :config
+  (setq company-backends '(
+    (company-files company-keywords company-capf company-yasnippet)
+    (company-abbrev company-dabbrev)
+  ))
+  :custom
+  (company-idle-delay 0.0))
+#+end_src
+
+*** CSS/SCSS
+
+#+begin_src emacs-lisp
+(setq css-indent-level 2)
+#+end_src
+
+*** Emmet
+
+#+begin_src emacs-lisp
+(use-package emmet-mode
+  :ensure t
+  :config
+  (add-hook 'sgml-mode-hook 'emmet-mode)
+  (add-hook 'css-mode-hook 'emmet-mode)
+  (setq emmet-expand-jsx-className t))
+#+end_src
+
+*** Flycheck
+
+#+begin_src emacs-lisp
+(define-fringe-bitmap 'flycheck-fringe-bitmap-caret
+    (vector #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b10000000
+            #b11000000
+            #b11100000
+            #b11110000
+            #b11100000
+            #b11000000
+            #b10000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000))
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode)
+  :config
+  (flycheck-define-error-level 'error
+    :severity 100
+    :compilation-level 2
+    :overlay-category 'flycheck-error-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-caret
+    :fringe-face 'flycheck-fringe-error
+    :error-list-face 'flycheck-error-list-error)
+  (flycheck-define-error-level 'warning
+    :severity 100
+    :compilation-level 1
+    :overlay-category 'flycheck-warning-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-caret
+    :fringe-face 'flycheck-fringe-warning
+    :warning-list-face 'flycheck-warning-list-warning)
+  (flycheck-define-error-level 'info
+    :severity 100
+    :compilation-level 1
+    :overlay-category 'flycheck-info-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-caret
+    :fringe-face 'flycheck-fringe-info
+    :info-list-face 'flycheck-info-list-info))
+#+end_src
+
+*** Treesitter
+
+#+begin_src emacs-lisp
+(use-package tree-sitter
+  :ensure t
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+(use-package tree-sitter-langs :ensure t)
+#+end_src
+
+*** LSP
+
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+         (typescript-mode . lsp)
+         (rjsx-mode . lsp)
+         (js-mode . lsp)
+         (css-mode . lsp)
+         (scss-mode . lsp)
+         (html-mode . lsp)
+         (yaml-mode . lsp)
+         (json-mode . lsp)
+         (go-mode . lsp)
+         (web-mode . lsp)
+         (rust-mode . lsp)
+         (svelte-mode . lsp)
+         ;; if you want which-key integration
+         (lsp-mode . lsp-enable-which-key-integration))
+  :custom
+  (lsp-clients-typescript-server-args '("--stdio" "--tsserver-log-file" "/dev/stderr"))
+  :commands lsp)
+
+(use-package lsp-ui
+  :requires lsp-mode
+  :ensure t
+  :commands lsp-ui-mode)
+(use-package lsp-ivy
+  :requires ivy
+  :ensure t
+  :commands lsp-ivy-workspace-symbol)
+#+end_src
+
+*** Org
+
+#+begin_src emacs-lisp
+(use-package org
+  :ensure t
+  :config
+  (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+  (eval-after-load "org" '(require 'ox-md nil t))
+  (use-package ox-gfm
+    :ensure t
+    :config
+    (eval-after-load "org" '(require 'ox-gfm nil t)))
+    (setq org-log-done 'time))
+(setq org-startup-folded t)
+(setq org-src-preserve-indentation t)
+#+end_src
+
+*** TypeScript & JavaScript
+
+#+begin_src emacs-lisp
+(defun setup-tide-mode()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (setq tide-format-options '(:indentSize 2 :tabSize: 2))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  (company-mode +1))
+
+(use-package rjsx-mode :ensure t)
+
+(use-package tide
+  :ensure t
+  :after
+  (rjsx-mode company flycheck)
+  (typescript-mode company flycheck)
+  :hook (typescript-mode . setup-tide-mode)
+        (js-mode . setup-tide-mode))
+#+end_src
+
+*** Web Mode
+
+#+begin_src emacs-lisp
+(use-package web-mode
+  :ensure t
+  :config
+  (setq web-mode-enable-auto-pairing nil)
+  :mode
+  ("\\.html\\'" . web-mode)
+  ("\\.liquid\\'" . web-mode))
+#+end_src
+
+*** YAML
+
+#+begin_src emacs-lisp
+(use-package yaml-mode
+  :ensure t)
+#+end_src
+
+*** Markdown
+
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+#+end_src
+
+*** Rainbow Delimiters
+
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+#+end_src
+
+*** Rainbow Mode
+
+#+begin_src emacs-lisp
+(use-package rainbow-mode :ensure t)
+#+end_src
+
+*** Prettier
+
+#+begin_src emacs-lisp
+(use-package prettier-js
+  :ensure t)
+#+end_src
+
+*** Liquid
+
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.css.liquid\\'" . css-mode))
+(add-to-list 'auto-mode-alist '("\\.scss.liquid\\'" . scss-mode))
+
+(defvar liquid-electric-pairs '((?% . ?%)) "Electric pairs for liquid syntax.")
+(defun liquid-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs liquid-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(add-hook 'web-mode-hook (lambda () (on-filetype "\\.liquid\\'" #'liquid-add-electric-pairs)))
+
+;; Shopify template lsp with theme-check
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-language-id-configuration
+    '(web-mode . "\\.liquid\\'"))
+
+  (lsp-register-client
+    (make-lsp-client :new-connection (lsp-stdio-connection "theme-check-language-server")
+                     :activation-fn (lsp-activate-on "\\.liquid\\'")
+                     :server-id 'theme-check)))
+#+end_src
+
+*** Svelte
+
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode))
+#+end_src
