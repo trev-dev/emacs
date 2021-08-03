@@ -389,7 +389,7 @@ it is done."/
 *** CSS/SCSS
 
 #+begin_src emacs-lisp
-(setq css-indent-level 2)
+(setq css-indent-level tab-width)
 #+end_src
 
 *** Emmet
@@ -540,15 +540,26 @@ it is done."/
   (typescript-mode company flycheck)
   :hook (typescript-mode . setup-tide-mode)
         (js-mode . setup-tide-mode))
+(setq js-indent-level tab-width)
 #+end_src
 
 *** Web Mode
 
 #+begin_src emacs-lisp
+(defun unify-web-mode-spacing()
+  "Web-mode doesn't respect emac's own settings as a fucking default"
+   (setq web-mode-markup-indent-offset tab-width)
+   (setq web-mode-css-indent-offset tab-width)
+   (setq web-mode-code-indent-offset tab-width)
+   (setq web-mode-style-padding tab-width)
+   (setq web-mode-script-padding tab-width))
+
 (use-package web-mode
   :ensure t
   :config
   (setq web-mode-enable-auto-pairing nil)
+  :hook
+    (web-mode . unify-web-mode-spacing)
   :mode
   ("\\.html\\'" . web-mode)
   ("\\.liquid\\'" . web-mode))
