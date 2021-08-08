@@ -1,0 +1,688 @@
+* Emacs Configuration
+Herein lies my Emacs configuration. Use it well
+** Performance Tweaks
+Give the garbage collector free-reign at start-up, then take it back to 8M. Use so-long-mode for editor-breaking minified css/js.
+
+#+begin_src emacs-lisp
+;; Minimize garbage collection during startup
+(setq gc-cons-threshold most-positive-fixnum)
+
+;; Lower threshold back to 8 MiB (default is 800kB)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (expt 2 23))))
+
+(setq read-process-output-max (* 1024 1024))
+
+;; Don't die when handling large, minified files
+(global-so-long-mode 1)
+#+end_src
+
+** Autosaves & Backups
+I hate seeing project folders get all cluttered up
+
+#+begin_src emacs-lisp
+;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
+(custom-set-variables
+  '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
+  '(backup-directory-alist '((".*" . "~/.emacs.d/backups/"))))
+
+;; create the autosave dir if necessary, since emacs won't.
+(make-directory "~/.emacs.d/autosaves/" t)
+
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+#+end_src
+
+** Package Management
+We need packages, so we're going to setup some repos and pre-install use-package for packages later on in this config
+
+#+begin_src emacs-lisp
+(require 'package)
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
+
+(setq package-enable-at-startup nil)
+(package-initialize)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+#+end_src
+
+** Look & Feel
+*** DOOM
+/"Against all the evil that Hell can conjure, all the wickedness that
+mankind can produce, we will send unto them... only you. Rip and tear, until
+it is done."/
+
+#+begin_src
+                   ..
+         ..        ::            ..
+         ..        :-:
+                   .::
+                     ..    ......
+                 ..::::--:---:----:
+             ..::::::-:::.     ..::
+                     :-:-.
+                      -::    .
+                      :::    :.
+                :     .-:    ::
+                :.    :-:   :-:
+                .:    .-:..-:
+                  :   :-:-:.
+                      :-::
+         ...    ...:--::-         .
+          ..     :-:. :-:       ...
+                      .-:
+                       :.
+                       :.
+                       .
+#+end_src
+
+Doom's themes and modeline are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
+
+#+begin_src emacs-lisp
+(use-package all-the-icons :ensure t)
+
+;; I will write/store my custom doom (and non-doom?) themes here
+(add-to-list 'custom-theme-load-path "~/.dotfiles/emacs/themes")
+(use-package doom-themes
+  :ensure t
+  :requires all-the-icons
+  :config
+  ;; global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-material-dark t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; enable custom neotree theme (all-the-icons must be installed!)
+  ;; (doom-themes-neotree-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  ;; corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+
+#+end_src
+
+*** Emacs
+Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well
+
+#+begin_src emacs-lisp
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(global-display-line-numbers-mode)
+(setq display-line-numbers-type 'relative)
+(global-hl-line-mode 1)
+(global-visual-line-mode t)
+(fringe-mode '(4 . 0))
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message "")
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+*** Font Setup
+Need UTF-8 for programming, would also like to enjoy Fira Code with ligatures.
+
+#+begin_src emacs-lisp
+(set-language-environment "UTF-8")
+(set-default-coding-systems 'utf-8)
+(add-to-list 'default-frame-alist '(font . "Fira Code Retina 10" ))
+
+(require 'ligature)
+;; Enable ligatures in programming modes
+(ligature-set-ligatures 'prog-mode '(
+  "www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\" "{-" "::"
+  ":::" ":=" "!!" "!=" "!==" "-}" "----" "-->" "->" "->>"
+  "-<" "-<<" "-~" "#{" "#[" "##" "###" "####" "#(" "#?" "#_"
+  "#_(" ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*" "/**"
+  "/=" "/==" "/>" "//" "///" "&&" "||" "||=" "|=" "|>" "^=" "$>"
+  "++" "+++" "+>" "=:=" "==" "===" "==>" "=>" "=>>" "<="
+  "=<<" "=/=" ">-" ">=" ">=>" ">>" ">>-" ">>=" ">>>" "<*"
+  "<*>" "<|" "<|>" "<$" "<$>" "<!--" "<-" "<--" "<->" "<+"
+  "<+>" "<=" "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<"
+  "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%")
+)
+
+(global-ligature-mode 't)
+#+end_src
+
+** Utility Packages
+Packages that extend and augment emacs in a general way
+*** AG
+C based file content grepping <3
+
+#+begin_src emacs-lisp
+(use-package ag :ensure t)
+#+end_src
+
+*** Diff-hl
+Show me the diffs in the fringe!
+
+#+begin_src emacs-lisp
+(use-package diff-hl
+  :ensure t
+  :after magit
+  :init (global-diff-hl-mode)
+  :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
+    (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
+#+end_src
+
+*** Evil!
+I like Vim bindings. Many of the plugins included here are commonly enjoyed in Vim. Most of them can be looked up [[https://www.emacswiki.org/emacs/Evil#h5o-6][in the wiki]].
+
+#+begin_src emacs-lisp
+(use-package evil
+  :ensure t
+  :init
+  (setq evil-undo-system 'undo-tree)
+  (setq evil-want-keybinding nil)
+  (setq evil-shift-width tab-width)
+  (evil-mode 1))
+
+;; Easily wrap selections/motions in pairs
+(use-package evil-surround
+  :requires evil
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+
+;; A collection of vim-rebinds that evil doesn't cover
+(use-package evil-collection
+  :requires evil
+  :after evil
+  :ensure t
+  :config
+  (evil-collection-init))
+
+;; Org mode keybind improvements
+(use-package evil-org
+  :requires evil
+  :ensure t
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
+;; Highlight text when yanked, popped, deleted or changed with motions. Helps me visually grok what a motion has done.
+(use-package evil-goggles
+  :requires evil
+  :ensure t
+  :custom-face
+  (evil-goggles-delete-face ((t (:foreground "#620707" :background "#F57373"))))
+  (evil-goggles-paste-face ((t (:foreground "#426214" :background "#C3E88D"))))
+  (evil-goggles-default-face ((t (:foreground "#002A82" :background "#82AAFF"))))
+  :config
+  (evil-goggles-mode))
+
+;; Easy commenting
+(use-package evil-commentary
+  :requires evil
+  :ensure t
+  :config (evil-commentary-mode))
+
+;; Think Ace Jump, but it's Vim. I've intentionally set the scope to much larger than the default of "after where you are on this line".
+(use-package evil-snipe
+  :requires evil
+  :ensure t
+  :config
+  (evil-snipe-mode 1)
+  (evil-snipe-override-mode 1)
+  (setq evil-snipe-scope 'whole-visible)
+  (setq evil-snipe-spillover-scope 'whole-buffer))
+#+End_src
+
+*** Flycheck Aspell
+This requires [[*Flycheck][flycheck]] to be loaded and ready. This permits spell checking while writing documentation on the fly.
+
+#+begin_src emacs-lisp
+(defun flycheck-maybe-recheck (_)
+  (when (bound-and-true-p flycheck-mode)
+  (flycheck-buffer)))
+
+(use-package flycheck-aspell
+  :requires flycheck
+  :init
+  :ensure t
+  :config
+  (setq ispell-personal-dictionary "~/.dotfiles/aspell.en.pwd")
+  (flycheck-aspell-define-checker "org"
+    "Org" ("--add-filter" "url")
+    (org-mode))
+  (add-to-list 'flycheck-checkers 'markdown-aspell-dynamic)
+  (add-to-list 'flycheck-checkers 'org-aspell-dynamic)
+  (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck))
+#+end_src
+
+*** Magit
+Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
+
+#+begin_src emacs-lisp
+(use-package magit
+  :ensure t
+  :config
+  (global-set-key (kbd "C-c g") 'magit-status))
+#+end_src
+
+*** Ivy
+Nicer command completions for emacs. Not as bloated as Helm. Ivy requires 3 packages
+
+#+begin_src emacs-lisp
+;; Completions with counsel
+(use-package counsel
+  :ensure t
+  :config
+  (counsel-mode 1))
+
+;; Search better with swiper
+(use-package swiper
+  :ensure t
+  :config
+  (counsel-mode 1))
+
+;; The interface for swiper/counsel
+(use-package ivy
+  :ensure t
+  :requires (counsel swiper)
+  :config
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  ;; enable this if you want `swiper' to use it
+  ;; (setq search-default-mode #'char-fold-to-regexp)
+  (global-set-key "\C-s" 'swiper)
+  (global-set-key (kbd "C-c C-r") 'ivy-resume)
+  (global-set-key (kbd "<f6>") 'ivy-resume)
+  (global-set-key (kbd "M-x") 'counsel-M-x))
+#+end_src
+
+*** Projectile
+Project management. Makes it very easy to quickly switch to a project root (folder with git initialized) and then quickly pull up files or search file contents.
+
+#+begin_src emacs-lisp
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode +1)
+  (setq projectile-completion-systen 'ivy)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p s s") 'counsel-ag)
+  (define-key projectile-mode-map (kbd "C-c p s r") 'counsel-rg)
+  (define-key projectile-mode-map (kbd "C-c p s g") 'counsel-grep-or-swiper)
+  (setq projectile-project-search-path '("~/Projects/")))
+#+end_src
+
+*** Undo-Tree
+Mostly want undo tree for better redo support for Evil
+
+#+begin_src emacs-lisp
+(use-package undo-tree
+  :ensure t
+  :config (global-undo-tree-mode))
+#+end_src
+
+*** VTerm
+A real-ish terminal for emacs that doesn't make me hurt inside. Requires =libvterm=. [[https://github.com/jixiuf/emacs-libvterm][Documentation is here]]. This needs to be installed & compiled /after/ magit, because for [[https://github.com/magit/with-editor/issues/86][whatever reason]], attempting to install vterm first breaks magit.
+
+#+begin_src emacs-lisp
+(use-package vterm
+  :ensure t
+  :bind ("C-c t" . vterm))
+#+end_src
+
+*** Which-key
+What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
+
+#+begin_src emacs-lisp
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode))
+#+end_src
+
+** Syntax Support
+We're getting into to the language specific stuff now. Much of this is specifically tailored for Shopify, TypeScript and JavaScript development. Many if not all of these features stay out of the way when you're not in the language mode. There's also a very tedious attempt to make all of these disjointed program modes listen to my gosh dang tab-width setting instead of doing their own thing as an insane default.
+*** Company Completions
+Completions at point!
+
+#+begin_src emacs-lisp
+(use-package company
+  :ensure t
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
+  :config
+  (setq company-backends '(
+    (company-files company-keywords company-capf company-yasnippet)
+    (company-abbrev company-dabbrev)
+  ))
+  :custom
+  (company-idle-delay 0.0))
+#+end_src
+
+*** CSS/SCSS
+
+#+begin_src emacs-lisp
+(setq css-indent-level tab-width)
+#+end_src
+
+*** Emmet
+.Emmet[data-love="true"]
+
+#+begin_src emacs-lisp
+(use-package emmet-mode
+  :ensure t
+  :config
+  (setq emmet-expand-jsx-className t)
+  :hook
+  (sgml-mode-hook . emmet-mode)
+  (css-mode-hook . emmet-mode)
+  (web-mode . emmet-mode)
+  (svelte-mode . emmet-mode))
+#+end_src
+
+*** Flycheck
+Linting, mostly for lsp-mode :D. I did not like the default fringe markers as the expect a minimum fringe of 8-16px, so I followed a [[https://emacs.stackexchange.com/questions/36363/how-to-change-flycheck-symbol-like-spacemacs#answer-36373][tip on how to change up the marker]] for a 4px fringe.
+
+#+begin_src emacs-lisp
+(define-fringe-bitmap 'flycheck-fringe-bitmap-caret
+    (vector #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b10000000
+            #b11000000
+            #b11100000
+            #b11110000
+            #b11100000
+            #b11000000
+            #b10000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000))
+
+(use-package flycheck
+  :ensure t
+  :hook (lsp-mode . flycheck-mode)
+  :bind ("C-c f" . flycheck-mode)
+  :config
+  (setq flycheck-checker-error-threshold 1000)
+  (flycheck-define-error-level 'error
+    :severity 100
+    :compilation-level 2
+    :overlay-category 'flycheck-error-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-caret
+    :fringe-face 'flycheck-fringe-error
+    :error-list-face 'flycheck-error-list-error)
+  (flycheck-define-error-level 'warning
+    :severity 100
+    :compilation-level 1
+    :overlay-category 'flycheck-warning-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-caret
+    :fringe-face 'flycheck-fringe-warning
+    :warning-list-face 'flycheck-warning-list-warning)
+  (flycheck-define-error-level 'info
+    :severity 100
+    :compilation-level 1
+    :overlay-category 'flycheck-info-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-caret
+    :fringe-face 'flycheck-fringe-info
+    :info-list-face 'flycheck-info-list-info))
+#+end_src
+
+*** LSP
+The meat and potatoes of the modern text editor turned IDE, all thanks to Microsoft doing an open source thing with VSCode.
+
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+         (typescript-mode . lsp)
+         (rjsx-mode . lsp)
+         (js-mode . lsp)
+         (css-mode . lsp)
+         (scss-mode . lsp)
+         (html-mode . lsp)
+         (yaml-mode . lsp)
+         (json-mode . lsp)
+         (go-mode . lsp)
+         (rust-mode . lsp)
+         (svelte-mode . lsp)
+         (shopify-mode . lsp)
+         ;; if you want which-key integration
+         (lsp-mode . lsp-enable-which-key-integration))
+  :custom
+  ;; Please don't log garbage in my project folders
+  (lsp-clients-typescript-server-args '("--stdio" "--tsserver-log-file" "/dev/stderr"))
+  :commands lsp)
+
+(use-package lsp-ui
+  :requires lsp-mode
+  :ensure t
+  :commands lsp-ui-mode)
+
+(use-package lsp-ivy
+  :requires ivy
+  :ensure t
+  :commands lsp-ivy-workspace-symbol)
+#+end_src
+
+*** Markdown
+The free software documentation language of the Internet.
+
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+#+end_src
+
+*** Org
+Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is.
+
+#+begin_src emacs-lisp
+(use-package org
+  :ensure t
+  :hook (org-mode . (lambda() (org-indent-mode) (yas-minor-mode)))
+  :config
+  (require 'ox-md nil t)
+  (setq org-startup-folded t)
+  (setq org-src-preserve-indentation t))
+
+(use-package org-bullets
+  :ensure t
+  :hook
+  (org-mode . (lambda () (org-bullets-mode 1))))
+
+(use-package ox-gfm
+  :requires org
+  :ensure t
+  :config
+  (setq org-log-done 'time))
+#+end_src
+
+*** Prettier
+An opinionated way to clean up my web-dev code quickly.
+
+#+begin_src emacs-lisp
+(use-package prettier-js
+  :ensure t)
+#+end_src
+
+*** Prog Mode
+A few settings that are useful in programming buffers
+
+#+begin_src emacs-lisp
+(add-hook 'prog-mode-hook (lambda ()
+  (setq-local fill-column 80)
+  (setq-local show-trailing-whitespace t)
+  #'display-fill-column-indicator-mode
+  (electric-pair-local-mode)
+  (yas-minor-mode)
+))
+#+end_src
+
+*** Rainbow Delimiters
+This comes in handier than you think it would. Especially with these (lisp '((config . files)))
+
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+#+end_src
+
+*** Rainbow Mode
+LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
+
+#+begin_src emacs-lisp
+(use-package rainbow-mode :ensure t)
+#+end_src
+
+*** Shopify Mode
+This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
+
+#+begin_src emacs-lisp
+; Derive liquid-mode from web-mode
+(define-derived-mode shopify-mode web-mode "Shopify"
+  "Use web mode to highlight shopify liquid files")
+(provide 'shopify-mode)
+
+(add-to-list 'auto-mode-alist '("\\.liquid\\'" . shopify-mode))
+
+(defvar liquid-electric-pairs '((?% . ?%)) "Electric pairs for liquid syntax.")
+(defun inhibit-pair-when-not-before (predicate char)
+  "Don't pair if the PREDECATE does not come before the CHAR.")
+
+(defun liquid-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs liquid-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
+
+;; Shopify template lsp with theme-check
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-language-id-configuration
+    '(shopify-mode . "shopify"))
+
+  (lsp-register-client
+    (make-lsp-client :new-connection (lsp-stdio-connection "theme-check-language-server")
+                     :activation-fn (lsp-activate-on "shopify")
+                     :server-id 'theme-check)))
+#+end_src
+
+*** Svelte
+Fake-out a "svelte-mode" for the purposes of activating lsp-mode with the svelte-language-server. I'm extending web-mode because it highlights =.svelte= files well.
+
+#+begin_src emacs-lisp
+(define-derived-mode svelte-mode web-mode "Svelte"
+ "I just want web-mode highlighting with .svelte files")
+(provide 'svelte-mode)
+#+end_src
+
+*** Treesitter
+Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
+
+#+begin_src emacs-lisp
+(use-package tree-sitter
+  :ensure t
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+(use-package tree-sitter-langs :ensure t)
+#+end_src
+
+*** TypeScript & JavaScript
+Use tide-mode for all things TS/JS.
+
+#+begin_src emacs-lisp
+(defun setup-tide-mode()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (setq tide-format-options '(:indentSize 2 :tabSize: 2))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  (company-mode +1))
+
+;; Syntax highlighting starts with rjsx-mode before it's made better by tree sitter
+(use-package rjsx-mode :ensure t)
+
+(use-package tide
+  :ensure t
+  :after
+  (rjsx-mode company flycheck)
+  (typescript-mode company flycheck)
+  :hook (typescript-mode . setup-tide-mode)
+        (js-mode . setup-tide-mode))
+
+(setq js-indent-level tab-width)
+(setq typescript-indent-level tab-width)
+#+end_src
+
+*** Web Mode
+There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
+
+#+begin_src emacs-lisp
+(defun unify-web-mode-spacing()
+  "Web-mode doesn't respect emac's own settings as a fucking default"
+   (setq web-mode-markup-indent-offset tab-width)
+   (setq web-mode-css-indent-offset tab-width)
+   (setq web-mode-code-indent-offset tab-width)
+   (setq web-mode-style-padding tab-width)
+   (setq web-mode-script-padding tab-width))
+
+(use-package web-mode
+  :ensure t
+  :config
+  (setq web-mode-enable-auto-pairing nil)
+  (setq web-mode-enable-auto-quoting nil)
+  :hook
+    (web-mode . unify-web-mode-spacing)
+  :mode
+  ("\\.html\\'" . web-mode))
+#+end_src
+
+*** YAML
+YAML's a really nice way to configure software, containers and projects. I use it when I can.
+
+#+begin_src emacs-lisp
+(use-package yaml-mode
+  :ensure t)
+#+end_src
+
+*** Yasnippet
+Snippets! They're helpful.
+
+#+begin_src emacs-lisp
+(use-package yasnippet
+  :ensure t
+  :config
+  (setq yas-snippet-dirs `(
+  "~/.dotfiles/emacs/yasnippets"))
+  (yas-reload-all))
+
+(use-package yasnippet-snippets :ensure t)
+#+end_src
