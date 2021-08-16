@@ -378,6 +378,7 @@ Completions at point!
 
 #+begin_src emacs-lisp
 (setq css-indent-level tab-width)
+(setq css-indent-offset tab-width)
 #+end_src
 
 *** Emmet
