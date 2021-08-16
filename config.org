@@ -616,6 +616,7 @@ Fake-out a "svelte-mode" for the purposes of activating lsp-mode with the svelte
 (define-derived-mode svelte-mode web-mode "Svelte"
  "I just want web-mode highlighting with .svelte files")
 (provide 'svelte-mode)
+(add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
 #+end_src
 
 *** Treesitter
