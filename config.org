@@ -382,7 +382,7 @@ Completions at point!
 #+end_src
 
 *** Emmet
-.Emmet[data-love="true"]
+=.Emmet[data-love="true"]=
 
 #+begin_src emacs-lisp
 (use-package emmet-mode
@@ -500,7 +500,7 @@ The free software documentation language of the Internet.
 #+end_src
 
 *** Org
-Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is.
+Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is. The fancy font-size setup is stolen from [[https://github.com/daviwil/emacs-from-scratch][Emacs from Scratch]] by [[https://www.youtube.com/c/SystemCrafters][System Crafters]]. Check them out :)
 
 #+begin_src emacs-lisp
 (use-package org
@@ -513,6 +513,22 @@ Customizations for what is one of the best features that emacs comes with. If we
 
 (use-package org-bullets
   :ensure t
+  :config
+  (setq org-bullets-bullet-list '(
+    ;;"◉" "○" "•" "·"
+    "" "❯" "»" "›" 
+  ))
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :weight 'semi-bold :height (cdr face)))
   :hook
   (org-mode . (lambda () (org-bullets-mode 1))))
 
