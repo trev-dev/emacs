@@ -468,6 +468,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
          (rust-mode . lsp)
          (svelte-mode . lsp)
          (shopify-mode . lsp)
+         (vue-mode . lsp)
          ;; if you want which-key integration
          (lsp-mode . lsp-enable-which-key-integration))
   :custom
