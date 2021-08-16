@@ -661,6 +661,15 @@ Use tide-mode for all things TS/JS.
 (setq typescript-indent-level tab-width)
 #+end_src
 
+*** VueJS
+
+#+begin_src emacs-lisp
+(define-derived-mode vue-mode web-mode "VueJS"
+ "I just want web-mode highlighting with .svelte files")
+(provide 'vue-mode)
+(add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
+#+end_src
+
 *** Web Mode
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
