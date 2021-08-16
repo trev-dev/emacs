@@ -322,7 +322,7 @@ Project management. Makes it very easy to quickly switch to a project root (fold
   (define-key projectile-mode-map (kbd "C-c p s s") 'counsel-ag)
   (define-key projectile-mode-map (kbd "C-c p s r") 'counsel-rg)
   (define-key projectile-mode-map (kbd "C-c p s g") 'counsel-grep-or-swiper)
-  (setq projectile-project-search-path '("~/Projects/")))
+  (setq projectile-project-search-path '(("~/Projects/" . 2))))
 #+end_src
 
 *** Undo-Tree
