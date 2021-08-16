@@ -654,7 +654,8 @@ Use tide-mode for all things TS/JS.
   (rjsx-mode company flycheck)
   (typescript-mode company flycheck)
   :hook (typescript-mode . setup-tide-mode)
-        (js-mode . setup-tide-mode))
+        (js-mode . setup-tide-mode)
+        (rjsx-mode . setup-tide-mode))
 
 (setq js-indent-level tab-width)
 (setq typescript-indent-level tab-width)
