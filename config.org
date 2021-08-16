@@ -89,7 +89,7 @@ Doom's themes and modeline are hard to beat. They're easy to install, highly cus
 (use-package all-the-icons :ensure t)
 
 ;; I will write/store my custom doom (and non-doom?) themes here
-(add-to-list 'custom-theme-load-path "~/.dotfiles/emacs/themes")
+(add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (use-package doom-themes
   :ensure t
   :requires all-the-icons
@@ -140,7 +140,7 @@ Need UTF-8 for programming, would also like to enjoy Fira Code with ligatures.
 #+begin_src emacs-lisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "Fira Code Retina 10" ))
+(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 10" ))
 
 (require 'ligature)
 ;; Enable ligatures in programming modes
