@@ -589,8 +589,6 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
 (add-to-list 'auto-mode-alist '("\\.liquid\\'" . shopify-mode))
 
 (defvar liquid-electric-pairs '((?% . ?%)) "Electric pairs for liquid syntax.")
-(defun inhibit-pair-when-not-before (predicate char)
-  "Don't pair if the PREDECATE does not come before the CHAR.")
 
 (defun liquid-add-electric-pairs ()
   (setq-local electric-pair-pairs (append electric-pair-pairs liquid-electric-pairs))
