@@ -522,20 +522,95 @@ Customizations for what is one of the best features that emacs comes with. If we
 #+begin_src emacs-lisp
 (use-package org
   :ensure t
-  :hook (org-mode . (lambda() (org-indent-mode) (yas-minor-mode)))
+  :hook (org-mode . (lambda()
+                      (org-indent-mode)
+                      (yas-minor-mode)
+                      (org-clock-persistence-insinuate)))
   :config
   (require 'ox-md nil t)
-  (setq org-startup-folded t)
-  (setq org-src-preserve-indentation t))
+  :bind
+  ("C-c a" . org-agenda)
+  :custom
+  (org-directory "~/Org")
+  (org-log-done 'time)
+  (org-log-into-drawer t)
+  (org-src-preserve-indentation t)
+  (org-clock-persist 'history)
+  (org-agenda-block-separator "──────────")
+  (org-agenda-files '(
+     "~/Org"
+     "~/Org/Voltage"))
+  (org-tag-alist '(
+       (:startgroup)
+       ; Put mutually exclusive tags here
+       (:endgroup)
+       ("@home" . ?H)
+       ("@work" . ?W)
+       ("urgent" . ?U)
+       ("learning" . ?l)
+       ("foss" . ?f)
+       ("blog" . ?b)
+       ("idea" . ?i)))
+  (org-todo-keywords `(
+    (sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+    (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+  (org-agenda-custom-commands '(
+    ("d" "Dashboard"
+      ((agenda "" ((org-deadline-warning-days 7)))
+        (todo "NEXT"
+          ((org-agenda-overriding-header "Next Tasks")))
+        (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+    ("n" "Next Tasks"
+     ((todo "NEXT"
+        ((org-agenda-overriding-header "Next Tasks")))))
+
+    ("U" "Urgent Tasks" tags-todo "+urgent")
+
+    ;; Low-effort next actions
+    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+     ((org-agenda-overriding-header "Low Effort Tasks")
+      (org-agenda-max-todos 20)
+      (org-agenda-files org-agenda-files)))
+
+    ("w" "Workflow Status"
+     ((todo "WAIT"
+            ((org-agenda-overriding-header "Waiting on External")
+             (org-agenda-files org-agenda-files)))
+      (todo "REVIEW"
+            ((org-agenda-overriding-header "In Review")
+             (org-agenda-files org-agenda-files)))
+      (todo "PLAN"
+            ((org-agenda-overriding-header "In Planning")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "BACKLOG"
+            ((org-agenda-overriding-header "Project Backlog")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "READY"
+            ((org-agenda-overriding-header "Ready for Work")
+             (org-agenda-files org-agenda-files)))
+      (todo "ACTIVE"
+            ((org-agenda-overriding-header "Active Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "COMPLETED"
+            ((org-agenda-overriding-header "Completed Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "CANC"
+            ((org-agenda-overriding-header "Cancelled Projects")
+             (org-agenda-files org-agenda-files))))))))
 
 (use-package org-bullets
   :ensure t
-  :config
-  (setq org-bullets-bullet-list '(
+  :custom
+  (org-bullets-bullet-list '(
     ;;"◉" "○" "•" "·"
     "" "❯" "»" "›" 
   ))
-
+  (org-ellipsis " ")
+  :config
   ;; Set faces for heading levels
   (dolist (face '((org-level-1 . 1.2)
                   (org-level-2 . 1.1)
@@ -551,9 +626,32 @@ Customizations for what is one of the best features that emacs comes with. If we
 
 (use-package ox-gfm
   :requires org
+  :ensure t)
+
+(defun org-visual-fill-setup()
+  "Center the column 100 characters wide"
+    (setq-local visual-fill-column-width 100
+                visual-fill-column-center-text t)
+                (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
   :ensure t
+  :hook (org-mode . org-visual-fill-setup))
+
+(use-package org-alert
+  :ensure t
+  :custom
+  (alert-default-style 'libnotify)
   :config
-  (setq org-log-done 'time))
+  (org-alert-enable))
+
+(use-package org-trello
+  :requires org
+  :ensure t
+  :custom
+  (org-trello-files '(
+    "~/Org/Voltage/kytebaby.trello.org"
+    "~/Org/Voltage/resthouse.trello.org")))
 #+end_src
 
 *** Prettier
