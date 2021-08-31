@@ -824,7 +824,7 @@ Snippets! They're helpful.
   :ensure t
   :config
   (setq yas-snippet-dirs `(
-  "~/.dotfiles/emacs/yasnippets"))
+  "~/.config/emacs/yasnippets"))
   (yas-reload-all))
 
 (use-package yasnippet-snippets :ensure t)
