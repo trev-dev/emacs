@@ -1,4 +1,5 @@
 * Emacs Configuration
+#+STARTUP: content
 Herein lies my Emacs configuration. Use it well
 ** Performance Tweaks
 Give the garbage collector free-reign at start-up, then take it back to 8M. Use so-long-mode for editor-breaking minified css/js.
