@@ -159,6 +159,20 @@ Need UTF-8 for programming, would also like to enjoy Fira Code with ligatures.
 (global-ligature-mode 't)
 #+end_src
 
+*** Dired
+
+#+begin_src emacs-lisp
+(add-hook 'dired-mode-hook (lambda()
+  (dired-hide-details-mode)))
+
+(use-package all-the-icons-dired
+  :requires all-the-icons
+  :ensure t
+  :hook (dired-mode . all-the-icons-dired-mode)
+  :config
+  (setq all-the-icons-dired-monochrome nil))
+#+end_src
+
 ** Utility Packages
 Packages that extend and augment emacs in a general way
 *** AG
