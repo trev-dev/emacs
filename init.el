@@ -15,8 +15,8 @@
 
 "Load org config"
 ;;; Code:
-(add-to-list 'load-path "~/.dotfiles/emacs/packages")
-(org-babel-load-file "~/.dotfiles/emacs/config.org")
+(add-to-list 'load-path "~/.config/emacs/packages")
+(org-babel-load-file "~/.config/emacs/config.org")
 
 (provide 'emacs)
 ;;; init.el ends here
