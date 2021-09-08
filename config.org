@@ -544,6 +544,8 @@ Customizations for what is one of the best features that emacs comes with. If we
   (org-directory "~/Org")
   (org-log-done 'time)
   (org-log-into-drawer t)
+  (org-enforce-todo-dependencies t)
+  (org-enforce-todo-checkbox-dependencies t)
   (org-src-preserve-indentation t)
   (org-clock-persist 'history)
   (org-agenda-block-separator "──────────")
