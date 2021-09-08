@@ -498,9 +498,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
   :commands lsp)
 
 (with-eval-after-load 'lsp-mode
-  (add-to-list 'lsp-file-watch-ignored-directories '(
-    "env"
-    "__pycache__")))
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
 
 (use-package lsp-ui
   :requires lsp-mode
