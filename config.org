@@ -142,7 +142,7 @@ Need UTF-8 for programming, would also like to enjoy Fira Code with ligatures.
 (add-to-list 'default-frame-alist '(font . "Source Code Pro Semibold 10" ))
 #+end_src
 
-Ligature support currently disabled due to unexpected side effects with [doom-modeline](https://github.com/seagle0128/doom-modeline/issues/465). If I feel like this is important enough to fix I'll do it.
+Ligature support currently disabled due to unexpected side effects with [[https://github.com/seagle0128/doom-modeline/issues/465][doom-modeline]]. If I feel like this is important enough to fix I'll do it.
 #+begin_src
 (add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 10" ))
 (require 'ligature)
