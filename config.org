@@ -139,8 +139,12 @@ Need UTF-8 for programming, would also like to enjoy Fira Code with ligatures.
 #+begin_src emacs-lisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 10" ))
+(add-to-list 'default-frame-alist '(font . "Source Code Pro Semibold 10" ))
+#+end_src
 
+Ligature support currently disabled due to unexpected side effects with [doom-modeline](https://github.com/seagle0128/doom-modeline/issues/465). If I feel like this is important enough to fix I'll do it.
+#+begin_src
+(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 10" ))
 (require 'ligature)
 ;; Enable ligatures in programming modes
 (ligature-set-ligatures 'prog-mode '(
@@ -156,7 +160,7 @@ Need UTF-8 for programming, would also like to enjoy Fira Code with ligatures.
   "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%")
 )
 
-(global-ligature-mode 't)
+(add-hook 'prog-mode-hook #'ligature-mode)
 #+end_src
 
 *** Dired
