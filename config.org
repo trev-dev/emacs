@@ -478,6 +478,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
          (html-mode . lsp)
          (js-mode . lsp)
          (json-mode . lsp)
+         (python-mode . lsp-deferred)
          (rjsx-mode . lsp)
          (rust-mode . lsp)
          (scss-mode . lsp)
@@ -495,6 +496,11 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
   ;; Please don't log garbage in my project folders
   (lsp-clients-typescript-server-args '("--stdio" "--tsserver-log-file" "/dev/stderr"))
   :commands lsp)
+
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-file-watch-ignored-directories '(
+    "env"
+    "__pycache__")))
 
 (use-package lsp-ui
   :requires lsp-mode
@@ -679,6 +685,23 @@ A few settings that are useful in programming buffers
   (electric-pair-local-mode)
   (yas-minor-mode)
 ))
+#+end_src
+
+*** Python
+<3 Python
+
+#+begin_src emacs-lisp
+(use-package lsp-python-ms
+  :ensure t
+  :init (setq lsp-python-ms-auto-install-server t)
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-python-ms)
+                          (lsp-deferred))))
+
+(use-package pyvenv :ensure t)
+(use-package pipenv
+  :ensure t
+  :hook (python-mode . pipenv-mode))
 #+end_src
 
 *** Rainbow Delimiters
