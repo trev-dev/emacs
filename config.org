@@ -55,6 +55,20 @@ We need packages, so we're going to setup some repos and pre-install use-package
 #+end_src
 
 ** Look & Feel
+*** Dired
+
+#+begin_src emacs-lisp
+(add-hook 'dired-mode-hook (lambda()
+                             (dired-hide-details-mode)))
+
+(use-package all-the-icons-dired
+  :requires all-the-icons
+  :ensure t
+  :hook (dired-mode . all-the-icons-dired-mode)
+  :config
+  (setq all-the-icons-dired-monochrome nil))
+#+end_src
+
 *** DOOM
 /"Against all the evil that Hell can conjure, all the wickedness that
 mankind can produce, we will send unto them... only you. Rip and tear, until
@@ -159,20 +173,6 @@ Ligature support currently disabled due to unexpected side effects with [[https:
 )
 
 (add-hook 'prog-mode-hook #'ligature-mode)
-#+end_src
-
-*** Dired
-
-#+begin_src emacs-lisp
-(add-hook 'dired-mode-hook (lambda()
-                             (dired-hide-details-mode)))
-
-(use-package all-the-icons-dired
-  :requires all-the-icons
-  :ensure t
-  :hook (dired-mode . all-the-icons-dired-mode)
-  :config
-  (setq all-the-icons-dired-monochrome nil))
 #+end_src
 
 ** Utility Packages
