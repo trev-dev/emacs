@@ -646,7 +646,7 @@ Customizations for what is one of the best features that emacs comes with. If we
 
 (defun org-visual-fill-setup()
   "Center the column 100 characters wide"
-  (setq-local visual-fill-column-width 10 0
+  (setq-local visual-fill-column-width 100
               visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
