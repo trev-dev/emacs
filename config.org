@@ -853,17 +853,22 @@ Use tide-mode for all things TS/JS.
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
 #+begin_src emacs-lisp
+(defun customize-web-mode ()
+  "Customizations for web mode"
+	(setq web-mode-enable-auto-pairing nil
+				web-mode-enable-auto-quoting nil
+				web-mode-enable-auto-indentation nil
+				web-mode-style-padding tab-width
+				web-mode-script-padding tab-width)
+	(add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
+	(add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
+	(add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
+	(add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil)))
+
 (use-package web-mode
   :ensure t
   :hook
-  (web-mode . (lambda ()
-                (setq web-mode-enable-auto-pairing nil
-                      web-mode-enable-auto-quoting nil
-                      web-mode-enable-auto-indentation nil)
-                (add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
-                (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
-                (add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
-                (add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil))))
+	(web-mode . customize-web-mode)
   :mode
   ("\\.html\\'" . web-mode))
 #+end_src
