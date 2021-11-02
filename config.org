@@ -143,6 +143,7 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
 (defalias 'yes-or-no-p 'y-or-n-p)
+(setq browse-url-generic-program (executable-find "firefox"))
 #+end_src
 
 *** Font Setup
@@ -293,15 +294,11 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
 #+end_src
 
 *** Mu4e
+Setting up mu4e with contexts feels like a pretty massive process. I've decided to load that config from an external file to keep this file sane. Also, I've decided not to expose my email addresses/configs here. Apologies for those who may be looking for an example!
 
-#+begin_src
-(setq mu4e-maildir "~/.local/mail/proton"
-  mu4e-attachment-dir "~/Downloads"
-  mu4e-sent-folder "/Sent"
-  mu4e-drafts-folder "/Drafts"
-  mu4e-trash-folder "/Trash"
-  mu4e-refile-folder "/Archive")
-(setq user-mail-address "trev.dev@protonmail.com"
+If you're looking for help with mu/4e I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]]
+#+begin_src emacs-lisp
+(load-file "~/.config/emacs/mu4e-config.el")
 #+end_src
 
 *** Ivy
