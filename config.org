@@ -680,6 +680,18 @@ Customizations for what is one of the best features that emacs comes with. If we
                       "~/Org/Voltage/Trello/resthouse.trello.org")))
 #+end_src
 
+**** TODO Re-work Org Configs
+This technically belongs to [[*Mu4e][Mu4e]] but I need Org to be up and going properly before this is ever useful. Since my Mu4e config is a separate elisp file that does not utilize =use-package= things get awkward here.
+
+#+begin_src emacs-lisp
+(use-package org-mime
+  :ensure t
+  :config
+  (setq org-mime-export-options '(:section-numbers nil
+                                  :with-author nil
+                                  :with-toc nil)))
+#+end_src
+
 *** Prettier
 An opinionated way to clean up my web-dev code quickly.
 
