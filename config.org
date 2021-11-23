@@ -197,6 +197,20 @@ Show me the diffs in the fringe!
          (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
 #+end_src
 
+*** Elfeed
+
+#+begin_src emacs-lisp
+(use-package elfeed
+  :bind ("C-c r" . elfeed)
+  :ensure t)
+(use-package elfeed-org
+  :ensure t
+  :config
+  (elfeed-org)
+  (setq rmh-elfeed-org-files (list "~/Org/elfeed.org"))
+  :after elfeed)
+#+end_src
+
 *** Evil!
 I like Vim bindings. Many of the plugins included here are commonly enjoyed in Vim. Most of them can be looked up [[https://www.emacswiki.org/emacs/Evil#h5o-6][in the wiki]].
 
