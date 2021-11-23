@@ -453,7 +453,9 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
 
 (use-package flycheck
   :ensure t
-  :hook (lsp-mode . flycheck-mode)
+  :hook
+    (lsp-mode . flycheck-mode)
+    (ledger-mode . flycheck-mode)
   :bind ("C-c f" . flycheck-mode)
   :config
   (setq flycheck-checker-error-threshold 1000)
