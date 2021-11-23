@@ -143,7 +143,7 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
 (defalias 'yes-or-no-p 'y-or-n-p)
-(setq browse-url-generic-program (executable-find "firefox"))
+(setq browse-url-generic-program "/usr/bin/firefox")
 #+end_src
 
 *** Font Setup
