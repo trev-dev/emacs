@@ -409,8 +409,8 @@ Completions at point!
 *** CSS/SCSS
 
 #+begin_src emacs-lisp
-(setq-default css-indent-level tab-width)
-(setq-default css-indent-offset tab-width)
+(setq css-indent-level tab-width)
+(setq css-indent-offset tab-width)
 #+end_src
 
 *** Emmet
