@@ -564,6 +564,7 @@ Customizations for what is one of the best features that emacs comes with. If we
   (org-src-preserve-indentation t)
   (org-clock-persist 'history)
   (org-agenda-block-separator "──────────")
+  (org-duration-format 'h:mm)
   (org-agenda-files '(
                       "~/Org"
                       "~/Org/Voltage"))
