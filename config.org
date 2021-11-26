@@ -510,6 +510,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
          (js-mode . lsp)
          (json-mode . lsp)
          (python-mode . lsp-deferred)
+         (php-mode . lsp)
          (rjsx-mode . lsp)
          (rust-mode . lsp)
          (scss-mode . lsp)
@@ -704,6 +705,22 @@ This technically belongs to [[*Mu4e][Mu4e]] but I need Org to be up and going pr
   (setq org-mime-export-options '(:section-numbers nil
                                   :with-author nil
                                   :with-toc nil)))
+#+end_src
+
+*** PHP
+
+#+begin_src emacs-lisp
+(define-derived-mode php-mode web-mode "PHP"
+  "I just want web-mode highlighting with .svelte files")
+(defun get-intelephense-key ()
+  "Get the intelephense key from a file"
+  (with-temp-buffer
+    (insert-file-contents "~/Documents/intelephense.txt")
+    (buffer-string)))
+
+(provide 'php-mode)
+(add-to-list 'auto-mode-alist '("\\.php\\'" . php-mode))
+(add-to-list 'auto-mode-alist '("\\.twig\\'" . php-mode))
 #+end_src
 
 *** Prettier
