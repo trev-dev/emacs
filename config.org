@@ -571,6 +571,7 @@ Customizations for what is one of the best features that emacs comes with. If we
   :bind
   ("C-c a" . org-agenda)
   :custom
+  (org-fontify-quote-and-verse-blocks t)
   (org-directory "~/Org")
   (org-log-done 'time)
   (org-log-into-drawer t)
@@ -595,13 +596,15 @@ Customizations for what is one of the best features that emacs comes with. If we
                    ("blog" . ?b)
                    ("idea" . ?i)))
   (org-todo-keywords `((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-                       (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+                       (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)"
+                       "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
   (org-agenda-custom-commands '(("d" "Dashboard"
                                  ((agenda "" ((org-deadline-warning-days 7)))
                                   (todo "NEXT"
-                                        ((org-agenda-overriding-header "Next Tasks")))
-                                  (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+                                    ((org-agenda-overriding-header "Next Tasks")))
+                                  (tags-todo "agenda/ACTIVE"
+                                    ((org-agenda-overriding-header "Active Projects")))))
 
                                 ("n" "Next Tasks"
                                  ((todo "NEXT"
@@ -672,7 +675,7 @@ Customizations for what is one of the best features that emacs comes with. If we
 (defun org-visual-fill-setup()
   "Center the column 100 characters wide"
   (setq-local visual-fill-column-width 100
-              visual-fill-column-center-text t)
+              visual-fill-column-center-text nil)
   (visual-fill-column-mode 1))
 
 (use-package visual-fill-column
