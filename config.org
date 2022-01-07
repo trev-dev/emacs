@@ -637,7 +637,7 @@ Customizations for what is one of the best features that emacs comes with. If we
   (org-src-preserve-indentation t)
   (org-clock-persist 'history)
   (org-agenda-block-separator "──────────")
-  (org-duration-format 'h:mm)
+  (org-duration-format '(("h" . nil) (special . 2)))
   (org-agenda-files '(
                       "~/Org"
                       "~/Org/Voltage"))
@@ -738,6 +738,18 @@ Customizations for what is one of the best features that emacs comes with. If we
 (use-package visual-fill-column
   :ensure t
   :hook (org-mode . org-visual-fill-setup))
+
+(defun td/org-voltage ()
+  "Find voltage org files"
+  (directory-files "/home/trevdev/Org/Voltage" t "\.org$"))
+
+(defun td/clocktable-format-toggle ()
+	(interactive)
+	(if (equal org-duration-format '((special . h:mm)))
+			(setq-local org-duration-format '(("h" . nil) (special . 2)))
+		(setq-local org-duration-format '((special . h:mm))))
+
+	(org-ctrl-c-ctrl-c))
 
 (use-package org-alert
   :ensure t
