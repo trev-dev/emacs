@@ -352,11 +352,13 @@ Knowing what resources you have at your disposal and learning how to budget are 
 
 #+begin_src emacs-lisp
 (use-package ledger-mode
+  :hook (ledger-mode . company-mode)
   :ensure t)
 (use-package flycheck-ledger
   :ensure t
   :after flycheck)
 #+end_src
+
 *** Projectile
 Project management. Makes it very easy to quickly switch to a project root (folder with git initialized) and then quickly pull up files or search file contents.
 
