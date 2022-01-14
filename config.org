@@ -758,7 +758,14 @@ Customizations for what is one of the best features that emacs comes with. If we
   :config
   (org-alert-enable))
 #+end_src
-     
+
+**** Custom Clock Table
+I decided to write a [[file:td-custom-clocktable.el][custom clocktable formatter]]. I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting to certain subcontracts.
+
+#+begin_src emacs-lisp
+(load-file "~/.config/emacs/td-custom-clocktable.el")
+#+end_src
+
 **** TODO Re-work Org Configs
 This technically belongs to [[*Mu4e][Mu4e]] but I need Org to be up and going properly before this is ever useful. Since my Mu4e config is a separate elisp file that does not utilize =use-package= things get awkward here.
 
