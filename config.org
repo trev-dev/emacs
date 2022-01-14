@@ -635,6 +635,7 @@ Customizations for what is one of the best features that emacs comes with. If we
   (require 'ox-md nil t)
   :bind
   ("C-c a" . org-agenda)
+  (:map org-mode-map ("C-c t" . org-table-export))
   :custom
   (org-fontify-quote-and-verse-blocks t)
   (org-directory "~/Org")
@@ -646,9 +647,8 @@ Customizations for what is one of the best features that emacs comes with. If we
   (org-clock-persist 'history)
   (org-agenda-block-separator "──────────")
   (org-duration-format '(("h" . nil) (special . 2)))
-  (org-agenda-files '(
-                      "~/Org"
-                      "~/Org/Voltage"))
+  (org-clock-total-time-cell-format "%s")
+  (org-agenda-files '("~/Org"))
   (org-tag-alist '(
                    (:startgroup)
                    ; Put mutually exclusive tags here
@@ -745,19 +745,9 @@ Customizations for what is one of the best features that emacs comes with. If we
 
 (use-package visual-fill-column
   :ensure t
-  :hook (org-mode . org-visual-fill-setup))
+  :hook (org-mode . org-visual-fill-setup)
+  :bind ("C-c v" . org-visual-column-mode))
 
-(defun td/org-voltage ()
-  "Find voltage org files"
-  (directory-files "/home/trevdev/Org/Voltage" t "\.org$"))
-
-(defun td/clocktable-format-toggle ()
-	(interactive)
-	(if (equal org-duration-format '((special . h:mm)))
-			(setq-local org-duration-format '(("h" . nil) (special . 2)))
-		(setq-local org-duration-format '((special . h:mm))))
-
-	(org-ctrl-c-ctrl-c))
 
 (use-package org-alert
   :ensure t
@@ -765,6 +755,7 @@ Customizations for what is one of the best features that emacs comes with. If we
   (alert-default-style 'libnotify)
   :config
   (org-alert-enable))
+
 #+end_src
 
 **** Custom Clock Table
