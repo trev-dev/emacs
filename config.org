@@ -765,6 +765,24 @@ I decided to write a [[file:td-custom-clocktable.el][custom clocktable formatter
 (load-file "~/.config/emacs/td-custom-clocktable.el")
 #+end_src
 
+Here's an example:
+#+BEGIN: clocktable :scope ("clocktable-example.org") :maxlevel 3 :properties ("Comment" "Effort") :formatter td/custom-clocktable
+#+CAPTION: Clock summary at [2022-01-13 Thu 17:57]
+| Task              | Est   | Time   | Billable | Comment                |
+|-------------------+-------+--------+----------+------------------------|
+| Client            |       | 8.00h  | $520.00  |                        |
+| — Task B          |       | 2.00h  | $130.00  | This is taking a while |
+| — Task A          |       | 6.00h  | $390.00  |                        |
+|-------------------+-------+--------+----------+------------------------|
+| Client B          |       | 12.43h | $807.95  |                        |
+| — Special Project |       | 12.00h | $780.00  |                        |
+| —— Task C         | 9.00h | 8.00h  | $520.00  |                        |
+| —— Task D         |       | 4.00h  | $260.00  |                        |
+| — Unrelated Task  |       | 0.43h  | $27.95   |                        |
+|-------------------+-------+--------+----------+------------------------|
+| Totals            |       | 20.43h | $1327.95 |                        |
+#+END
+
 **** TODO Re-work Org Configs
 This technically belongs to [[*Mu4e][Mu4e]] but I need Org to be up and going properly before this is ever useful. Since my Mu4e config is a separate elisp file that does not utilize =use-package= things get awkward here.
 

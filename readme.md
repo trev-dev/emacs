@@ -1,62 +1,62 @@
-- [Emacs Configuration](#org91f545f)
-  - [Performance Tweaks](#org0f5949f)
-  - [Autosaves & Backups](#org3804799)
-  - [Package Management](#orgda25b7c)
-  - [Look & Feel](#org98eac46)
-    - [Dired](#orge168cb7)
-    - [DOOM](#org929bab5)
-    - [Emacs](#org6eead49)
-    - [Font Setup](#org6e6d0c3)
-  - [Utility Packages](#org2dac4f0)
-    - [AG](#orgf81585f)
-    - [Diff-hl](#org728d1d1)
-    - [Elfeed](#orge3ba2c8)
-    - [Evil!](#org1095dbf)
-    - [Flycheck Aspell](#orgda8e50a)
-    - [Magit](#org92d207c)
-    - [Mu4e](#orge9a10be)
-    - [Ivy](#orgad0f961)
-    - [Ledger](#org344e1ce)
-    - [Projectile](#org2c5d027)
-    - [Treemacs](#org90afdb3)
-    - [Undo-Tree](#orga0dbd52)
-    - [VTerm](#org7e45587)
-    - [Which-key](#org4285d6c)
-  - [Syntax Support](#orgf1078ae)
-    - [Company Completions](#org8ae82b7)
-    - [CSS/SCSS](#org2223631)
-    - [Emmet](#org94044f9)
-    - [Flycheck](#org72bb5ea)
-    - [GoLang](#orgac07f0e)
-    - [Java](#orgf196bae)
-    - [LSP](#org7ddff1f)
-    - [Markdown](#org9412e60)
-    - [Org](#org0e33d83)
-    - [PHP](#org91168bc)
-    - [Prettier](#orgc8e45cc)
-    - [Prog Mode](#org3164ed1)
-    - [Python](#org0d0e245)
-    - [Rainbow Delimiters](#orgdca3bd0)
-    - [Rainbow Mode](#org78a57af)
-    - [Rust](#org36261bf)
-    - [Shopify Mode](#org6af9ecf)
-    - [Svelte](#org4570bde)
-    - [Treesitter](#orgc38c307)
-    - [TypeScript & JavaScript](#org9dfedb8)
-    - [VueJS](#orgc4d6336)
-    - [Web Mode](#org7429a01)
-    - [YAML](#org78f0498)
-    - [Yasnippet](#org82c9bb3)
+- [Emacs Configuration](#org575aec4)
+  - [Performance Tweaks](#org01cd4c9)
+  - [Autosaves & Backups](#org8a9fbf2)
+  - [Package Management](#org8b31975)
+  - [Look & Feel](#orgd724617)
+    - [Dired](#orgb53fba6)
+    - [DOOM](#orgc3bc99c)
+    - [Emacs](#orgc89345b)
+    - [Font Setup](#orgdf61899)
+  - [Utility Packages](#org33eb163)
+    - [AG](#orgaf4e4eb)
+    - [Diff-hl](#org9ba3c66)
+    - [Elfeed](#org61b93d5)
+    - [Evil!](#org790762b)
+    - [Flycheck Aspell](#orgd220971)
+    - [Magit](#orgc998dba)
+    - [Mu4e](#orgbf1cb94)
+    - [Ivy](#org8c11b4c)
+    - [Ledger](#org768f8bc)
+    - [Projectile](#org54c7b59)
+    - [Treemacs](#org7eefd91)
+    - [Undo-Tree](#orgf375377)
+    - [VTerm](#org7cf0022)
+    - [Which-key](#org7700af1)
+  - [Syntax Support](#org2d5d37c)
+    - [Company Completions](#org13cc9ba)
+    - [CSS/SCSS](#org4b1b47f)
+    - [Emmet](#org426a32a)
+    - [Flycheck](#org0dd7521)
+    - [GoLang](#orge5800ce)
+    - [Java](#org94bc9d2)
+    - [LSP](#org650f342)
+    - [Markdown](#org7c1cd42)
+    - [Org](#org031fcd8)
+    - [PHP](#org51ccf48)
+    - [Prettier](#org4f1484e)
+    - [Prog Mode](#org133f9b8)
+    - [Python](#org381d5a3)
+    - [Rainbow Delimiters](#org6457d97)
+    - [Rainbow Mode](#org10b476b)
+    - [Rust](#org42f1e76)
+    - [Shopify Mode](#orgdd14c9e)
+    - [Svelte](#org78c1283)
+    - [Treesitter](#org42af5b9)
+    - [TypeScript & JavaScript](#org3825ff3)
+    - [VueJS](#org31be5ed)
+    - [Web Mode](#org58c5473)
+    - [YAML](#org86b45d6)
+    - [Yasnippet](#org56fcf4a)
 
 
-<a id="org91f545f"></a>
+<a id="org575aec4"></a>
 
 # Emacs Configuration
 
 Herein lies my Emacs configuration. Use it well
 
 
-<a id="org0f5949f"></a>
+<a id="org01cd4c9"></a>
 
 ## Performance Tweaks
 
@@ -78,7 +78,7 @@ Give the garbage collector free-reign at start-up, then take it back to 8M. Use 
 ```
 
 
-<a id="org3804799"></a>
+<a id="org8a9fbf2"></a>
 
 ## Autosaves & Backups
 
@@ -97,7 +97,7 @@ I hate seeing project folders get all cluttered up
 ```
 
 
-<a id="orgda25b7c"></a>
+<a id="org8b31975"></a>
 
 ## Package Management
 
@@ -121,12 +121,12 @@ We need packages, so we're going to setup some repos and pre-install use-package
 ```
 
 
-<a id="org98eac46"></a>
+<a id="orgd724617"></a>
 
 ## Look & Feel
 
 
-<a id="orge168cb7"></a>
+<a id="orgb53fba6"></a>
 
 ### Dired
 
@@ -143,7 +143,7 @@ We need packages, so we're going to setup some repos and pre-install use-package
 ```
 
 
-<a id="org929bab5"></a>
+<a id="orgc3bc99c"></a>
 
 ### DOOM
 
@@ -206,7 +206,7 @@ Doom's themes and modeline are hard to beat. They're easy to install, highly cus
 ```
 
 
-<a id="org6eead49"></a>
+<a id="orgc89345b"></a>
 
 ### Emacs
 
@@ -226,7 +226,7 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 ```
 
 
-<a id="org6e6d0c3"></a>
+<a id="orgdf61899"></a>
 
 ### Font Setup
 
@@ -261,14 +261,14 @@ Ligature support currently disabled due to unexpected side effects with [doom-mo
 ```
 
 
-<a id="org2dac4f0"></a>
+<a id="org33eb163"></a>
 
 ## Utility Packages
 
 Packages that extend and augment emacs in a general way
 
 
-<a id="orgf81585f"></a>
+<a id="orgaf4e4eb"></a>
 
 ### AG
 
@@ -279,7 +279,7 @@ C based file content grepping <3
 ```
 
 
-<a id="org728d1d1"></a>
+<a id="org9ba3c66"></a>
 
 ### Diff-hl
 
@@ -295,7 +295,7 @@ Show me the diffs in the fringe!
 ```
 
 
-<a id="orge3ba2c8"></a>
+<a id="org61b93d5"></a>
 
 ### Elfeed
 
@@ -312,7 +312,7 @@ Show me the diffs in the fringe!
 ```
 
 
-<a id="org1095dbf"></a>
+<a id="org790762b"></a>
 
 ### Evil!
 
@@ -380,11 +380,11 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
 ```
 
 
-<a id="orgda8e50a"></a>
+<a id="orgd220971"></a>
 
 ### Flycheck Aspell
 
-This requires [flycheck](#org72bb5ea) to be loaded and ready. This permits spell checking while writing documentation on the fly.
+This requires [flycheck](#org0dd7521) to be loaded and ready. This permits spell checking while writing documentation on the fly.
 
 ```emacs-lisp
 (defun flycheck-maybe-recheck (_)
@@ -406,7 +406,7 @@ This requires [flycheck](#org72bb5ea) to be loaded and ready. This permits spell
 ```
 
 
-<a id="org92d207c"></a>
+<a id="orgc998dba"></a>
 
 ### Magit
 
@@ -420,7 +420,7 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
 ```
 
 
-<a id="orge9a10be"></a>
+<a id="orgbf1cb94"></a>
 
 ### Mu4e
 
@@ -433,7 +433,7 @@ If you're looking for help with mu/4e I strongly suggest checking out [System Cr
 ```
 
 
-<a id="orgad0f961"></a>
+<a id="org8c11b4c"></a>
 
 ### Ivy
 
@@ -469,7 +469,7 @@ Nicer command completions for emacs. Not as bloated as Helm. Ivy requires 3 pack
 ```
 
 
-<a id="org344e1ce"></a>
+<a id="org768f8bc"></a>
 
 ### Ledger
 
@@ -485,7 +485,7 @@ Knowing what resources you have at your disposal and learning how to budget are 
 ```
 
 
-<a id="org2c5d027"></a>
+<a id="org54c7b59"></a>
 
 ### Projectile
 
@@ -505,7 +505,7 @@ Project management. Makes it very easy to quickly switch to a project root (fold
 ```
 
 
-<a id="org90afdb3"></a>
+<a id="org7eefd91"></a>
 
 ### Treemacs
 
@@ -543,7 +543,7 @@ Project management. Makes it very easy to quickly switch to a project root (fold
 ```
 
 
-<a id="orga0dbd52"></a>
+<a id="orgf375377"></a>
 
 ### Undo-Tree
 
@@ -556,7 +556,7 @@ Mostly want undo tree for better redo support for Evil
 ```
 
 
-<a id="org7e45587"></a>
+<a id="org7cf0022"></a>
 
 ### VTerm
 
@@ -569,7 +569,7 @@ A real-ish terminal for emacs that doesn't make me hurt inside. Requires `libvte
 ```
 
 
-<a id="org4285d6c"></a>
+<a id="org7700af1"></a>
 
 ### Which-key
 
@@ -583,14 +583,14 @@ What the heck was that keybind again? If you can remember how it starts, which-k
 ```
 
 
-<a id="orgf1078ae"></a>
+<a id="org2d5d37c"></a>
 
 ## Syntax Support
 
 We're getting into to the language specific stuff now. Much of this is specifically tailored for Shopify, TypeScript and JavaScript development. Many if not all of these features stay out of the way when you're not in the language mode. There's also a very tedious attempt to make all of these disjointed program modes listen to my gosh dang tab-width setting instead of doing their own thing as an insane default.
 
 
-<a id="org8ae82b7"></a>
+<a id="org13cc9ba"></a>
 
 ### Company Completions
 
@@ -611,7 +611,7 @@ Completions at point!
 ```
 
 
-<a id="org2223631"></a>
+<a id="org4b1b47f"></a>
 
 ### CSS/SCSS
 
@@ -621,7 +621,7 @@ Completions at point!
 ```
 
 
-<a id="org94044f9"></a>
+<a id="org426a32a"></a>
 
 ### Emmet
 
@@ -640,7 +640,7 @@ Completions at point!
 ```
 
 
-<a id="org72bb5ea"></a>
+<a id="org0dd7521"></a>
 
 ### Flycheck
 
@@ -698,7 +698,7 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
 ```
 
 
-<a id="orgac07f0e"></a>
+<a id="orge5800ce"></a>
 
 ### GoLang
 
@@ -709,7 +709,7 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
 ```
 
 
-<a id="orgf196bae"></a>
+<a id="org94bc9d2"></a>
 
 ### Java
 
@@ -732,7 +732,7 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
 ```
 
 
-<a id="org7ddff1f"></a>
+<a id="org650f342"></a>
 
 ### LSP
 
@@ -785,7 +785,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
 ```
 
 
-<a id="org9412e60"></a>
+<a id="org7c1cd42"></a>
 
 ### Markdown
 
@@ -802,7 +802,7 @@ The free software documentation language of the Internet.
 ```
 
 
-<a id="org0e33d83"></a>
+<a id="org031fcd8"></a>
 
 ### Org
 
@@ -949,10 +949,24 @@ Customizations for what is one of the best features that emacs comes with. If we
     ```emacs-lisp
     (load-file "~/.config/emacs/td-custom-clocktable.el")
     ```
+    
+    Here's an example:
+    
+    | Task              | Est   | Time   | Billable | Comment                |
+    |----------------- |----- |------ |-------- |---------------------- |
+    | Client            |       | 8.00h  | $520.00  |                        |
+    | — Task B          |       | 2.00h  | $130.00  | This is taking a while |
+    | — Task A          |       | 6.00h  | $390.00  |                        |
+    | Client B          |       | 12.43h | $807.95  |                        |
+    | — Special Project |       | 12.00h | $780.00  |                        |
+    | —— Task C         | 9.00h | 8.00h  | $520.00  |                        |
+    | —— Task D         |       | 4.00h  | $260.00  |                        |
+    | — Unrelated Task  |       | 0.43h  | $27.95   |                        |
+    | Totals            |       | 20.43h | $1327.95 |                        |
 
 2.  TODO Re-work Org Configs
 
-    This technically belongs to [Mu4e](#orge9a10be) but I need Org to be up and going properly before this is ever useful. Since my Mu4e config is a separate elisp file that does not utilize `use-package` things get awkward here.
+    This technically belongs to [Mu4e](#orgbf1cb94) but I need Org to be up and going properly before this is ever useful. Since my Mu4e config is a separate elisp file that does not utilize `use-package` things get awkward here.
     
     ```emacs-lisp
     (use-package org-mime
@@ -964,7 +978,7 @@ Customizations for what is one of the best features that emacs comes with. If we
     ```
 
 
-<a id="org91168bc"></a>
+<a id="org51ccf48"></a>
 
 ### PHP
 
@@ -983,7 +997,7 @@ Customizations for what is one of the best features that emacs comes with. If we
 ```
 
 
-<a id="orgc8e45cc"></a>
+<a id="org4f1484e"></a>
 
 ### Prettier
 
@@ -995,7 +1009,7 @@ An opinionated way to clean up my web-dev code quickly.
 ```
 
 
-<a id="org3164ed1"></a>
+<a id="org133f9b8"></a>
 
 ### Prog Mode
 
@@ -1045,7 +1059,7 @@ A few settings that are useful in programming buffers
 ```
 
 
-<a id="org0d0e245"></a>
+<a id="org381d5a3"></a>
 
 ### Python
 
@@ -1059,7 +1073,7 @@ A few settings that are useful in programming buffers
 ```
 
 
-<a id="orgdca3bd0"></a>
+<a id="org6457d97"></a>
 
 ### Rainbow Delimiters
 
@@ -1073,7 +1087,7 @@ This comes in handier than you think it would. Especially with these (lisp '((co
 ```
 
 
-<a id="org78a57af"></a>
+<a id="org10b476b"></a>
 
 ### Rainbow Mode
 
@@ -1084,7 +1098,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 ```
 
 
-<a id="org36261bf"></a>
+<a id="org42f1e76"></a>
 
 ### Rust
 
@@ -1119,7 +1133,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 ```
 
 
-<a id="org6af9ecf"></a>
+<a id="orgdd14c9e"></a>
 
 ### Shopify Mode
 
@@ -1153,7 +1167,7 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
 ```
 
 
-<a id="org4570bde"></a>
+<a id="org78c1283"></a>
 
 ### Svelte
 
@@ -1167,7 +1181,7 @@ Fake-out a "svelte-mode" for the purposes of activating lsp-mode with the svelte
 ```
 
 
-<a id="orgc38c307"></a>
+<a id="org42af5b9"></a>
 
 ### Treesitter
 
@@ -1183,7 +1197,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 ```
 
 
-<a id="org9dfedb8"></a>
+<a id="org3825ff3"></a>
 
 ### TypeScript & JavaScript
 
@@ -1217,7 +1231,7 @@ Use tide-mode for all things TS/JS.
 ```
 
 
-<a id="orgc4d6336"></a>
+<a id="org31be5ed"></a>
 
 ### VueJS
 
@@ -1229,7 +1243,7 @@ Use tide-mode for all things TS/JS.
 ```
 
 
-<a id="org7429a01"></a>
+<a id="org58c5473"></a>
 
 ### Web Mode
 
@@ -1257,7 +1271,7 @@ There isn't a much better catch-all for web template syntax support than web-mod
 ```
 
 
-<a id="org78f0498"></a>
+<a id="org86b45d6"></a>
 
 ### YAML
 
@@ -1269,7 +1283,7 @@ YAML's a really nice way to configure software, containers and projects. I use i
 ```
 
 
-<a id="org82c9bb3"></a>
+<a id="org56fcf4a"></a>
 
 ### Yasnippet
 
