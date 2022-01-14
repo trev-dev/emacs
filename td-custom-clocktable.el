@@ -35,7 +35,7 @@
 				 (block (plist-get params :block))
 				 (emph (plist-get params :emphasize))
 				 (header (plist-get params :header))
-				 (properties (plist-get params :properties))
+				 (properties (or (plist-get params :properties) '()))
 				 (comments-on (member "Comment" properties))
 				 (effort-on (member "Effort" properties)))
 		(goto-char ipos)
@@ -85,17 +85,20 @@
 													(td/custom-clocktable-get-prop "Comment" props)))
 									 (concat comment "\n")
 								 "\n")))))
-				(insert-before-markers
-				 (concat "|-\n| " (td/emph-str "Totals" emph)
-								 (if properties
-										 (make-string (length properties) ?|)
-									 "|"))
-				 (concat (td/emph-str
-									(format "%s" (org-duration-from-minutes total-time)) emph)
-								 "|")
-				 (concat (td/emph-str
-									(format "$%.2f" (td/minutes-to-billable total-time))
-									emph) "|")))))
+				(let ((cols-adjust
+								(if (member "Effort" properties)
+										2
+									1)))
+					(insert-before-markers
+					(concat "|-\n| "
+									(td/emph-str "Totals" emph)
+									(make-string cols-adjust ?|))
+					(concat (td/emph-str
+										(format "%s" (org-duration-from-minutes total-time)) emph)
+									"|")
+					(concat (td/emph-str
+										(format "$%.2f" (td/minutes-to-billable total-time))
+										emph) "|"))))))
 	(goto-char ipos)
 	(skip-chars-forward "^|")
 	(org-table-align))
