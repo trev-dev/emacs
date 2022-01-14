@@ -68,8 +68,8 @@
 							 (concat (td/emph-str headline (and emph (= level 1))) "|")
 							 (if-let* (effort-on
 												 (eft (td/custom-clocktable-get-prop "Effort" props))
-												 (formatted-eft
-													(org-duration-from-minutes (string-to-number eft))))
+												 (formatted-eft (org-duration-from-minutes
+																				 (org-duration-to-minutes eft))))
 									 (concat (td/emph-str formatted-eft (and emph (= level 1)))
 													 "|")
 								 (if effort-on "|"
