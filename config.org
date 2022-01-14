@@ -533,6 +533,12 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
     :info-list-face 'flycheck-info-list-info))
 #+end_src
 
+*** GoLang
+#+begin_src emacs-lisp
+(use-package go-mode
+  :ensure t
+  :mode "\\.go\\'")
+#+end_src
 *** Java
 
 #+begin_src emacs-lisp
@@ -562,7 +568,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          (css-mode . lsp)
-         (go-mode . lsp)
+         (go-mode . lsp-deferred)
          (html-mode . lsp)
          (js-mode . lsp)
          (json-mode . lsp)
