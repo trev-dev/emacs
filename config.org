@@ -759,7 +759,7 @@ Customizations for what is one of the best features that emacs comes with. If we
 #+end_src
 
 **** Custom Clock Table
-I decided to write a [[file:td-custom-clocktable.el][custom clocktable formatter]]. I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting to certain subcontracts.
+I decided to write a [[file:td-custom-clocktable.el?ts=2][custom clocktable formatter]]. I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting to certain subcontracts.
 
 #+begin_src emacs-lisp
 (load-file "~/.config/emacs/td-custom-clocktable.el")
