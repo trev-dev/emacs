@@ -21,7 +21,6 @@
 	(let* ((hours (/ (round (* (/ minutes 60.0) 100)) 100.0))
 				 (amount (* hours td/billable-rate))
 				 (billable (/ (round (* amount 100)) 100.0)))
-		(message "Mins: %s, Hours: %s, Amount: %s, Billable: %s" minutes hours amount billable)
 		billable))
 
 (defun td/emph-str (string &optional emph)
