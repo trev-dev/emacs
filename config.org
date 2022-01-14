@@ -586,6 +586,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
          (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . (lambda()
                        (display-line-numbers-mode)
+                       (lsp-ivy-workspace-symbol)
                        (hl-line-mode))))
   :custom
   ;; Please don't log garbage in my project folders
@@ -596,13 +597,14 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
 
 (use-package lsp-ui
-  :requires lsp-mode
-  :ensure t
-  :commands lsp-ui-mode)
+  :ensure
+  :bind ("M-j" . lsp-ui-imenu)
+  :custom
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-show-hover t))
 
 (use-package lsp-ivy
-  :requires ivy
-  :ensure t
+  :ensure
   :commands lsp-ivy-workspace-symbol)
 #+end_src
 
