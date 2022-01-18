@@ -37,6 +37,10 @@
 				 (header (plist-get params :header))
 				 (properties (or (plist-get params :properties) '()))
 				 (comments-on (member "Comment" properties))
+				 (formula (plist-get params :formula))
+				 (has-formula (cond ((and formula (stringp formula))
+														 t)
+														(formula (user-error "Invalid :formula param"))))
 				 (effort-on (member "Effort" properties)))
 		(goto-char ipos)
 
@@ -86,26 +90,29 @@
 									 (concat comment "\n")
 								 "\n")))))
 				(let ((cols-adjust
-								(if (member "Effort" properties)
-										2
-									1)))
+							 (if (member "Effort" properties)
+									 2
+								 1)))
 					(insert-before-markers
-					(concat "|-\n| "
-									(td/emph-str "Totals" emph)
-									(make-string cols-adjust ?|))
-					(concat (td/emph-str
+					 (concat "|-\n| "
+									 (td/emph-str "Totals" emph)
+									 (make-string cols-adjust ?|))
+					 (concat (td/emph-str
 										(format "%s" (org-duration-from-minutes total-time)) emph)
-									"|")
-					(concat (td/emph-str
+									 "|")
+					 (concat (td/emph-str
 										(format "$%.2f" (td/minutes-to-billable total-time))
-										emph) "|"))))))
-	(goto-char ipos)
-	(skip-chars-forward "^|")
-	(org-table-align))
+										emph) "|" ))
+					(when has-formula
+						(insert "\n#+TBLFM: " formula)))))
+		(goto-char ipos)
+		(skip-chars-forward "^|")
+		(org-table-align)
+		(when has-formula (org-table-recalculate 'all))))
 
 (defun td/clocktable-format-toggle ()
-  (interactive)
-  (if (equal org-duration-format '((special . h:mm)))
-      (setq-local org-duration-format '(("h" . nil) (special . 2)))
-    (setq-local org-duration-format '((special . h:mm))))
-  (org-ctrl-c-ctrl-c))
+	(interactive)
+	(if (equal org-duration-format '((special . h:mm)))
+			(setq-local org-duration-format '(("h" . nil) (special . 2)))
+		(setq-local org-duration-format '((special . h:mm))))
+	(org-ctrl-c-ctrl-c))
