@@ -147,33 +147,49 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 #+end_src
 
 *** Font Setup
-Need UTF-8 for programming, would also like to enjoy Fira Code with ligatures.
+I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and I'm really enjoying it.
 
 #+begin_src emacs-lisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "Source Code Pro Semibold 10" ))
-#+end_src
+(add-to-list 'default-frame-alist '(font . "Jetbrains Mono 10" ))
 
-Ligature support currently disabled due to unexpected side effects with [[https://github.com/seagle0128/doom-modeline/issues/465][doom-modeline]]. If I feel like this is important enough to fix I'll do it.
-#+begin_src
-(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 10" ))
-(require 'ligature)
-;; Enable ligatures in programming modes
-(ligature-set-ligatures 'prog-mode '(
-  "www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\" "{-" "::"
-  ":::" ":=" "!!" "!=" "!==" "-}" "----" "-->" "->" "->>"
-  "-<" "-<<" "-~" "#{" "#[" "##" "###" "####" "#(" "#?" "#_"
-  "#_(" ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*" "/**"
-  "/=" "/==" "/>" "//" "///" "&&" "||" "||=" "|=" "|>" "^=" "$>"
-  "++" "+++" "+>" "=:=" "==" "===" "==>" "=>" "=>>" "<="
-  "=<<" "=/=" ">-" ">=" ">=>" ">>" ">>-" ">>=" ">>>" "<*"
-  "<*>" "<|" "<|>" "<$" "<$>" "<!--" "<-" "<--" "<->" "<+"
-  "<+>" "<=" "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<"
-  "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%")
-)
+(let ((ligatures `((?-  . ,(regexp-opt '("-|" "-~" "---" "-<<" "-<" "--" "->" "->>" "-->")))
+                   (?/  . ,(regexp-opt '("/**" "/*" "///" "/=" "/==" "/>" "//")))
+                   (?*  . ,(regexp-opt '("*>" "***" "*/")))
+                   (?<  . ,(regexp-opt '("<-" "<<-" "<=>" "<=" "<|" "<||" "<|||::=" "<|>"
+                                         "<:" "<>" "<-<" "<<<" "<==" "<<=" "<=<" "<==>"
+                                         "<-|" "<<" "<~>" "<=|" "<~~" "<~" "<$>" "<$" "<+>"
+                                         "<+" "</>" "</" "<*" "<*>" "<->" "<!--")))
+                   (?:  . ,(regexp-opt '(":>" ":<" ":::" "::" ":?" ":?>" ":=")))
+                   (?=  . ,(regexp-opt '("=>>" "==>" "=/=" "=!=" "=>" "===" "=:=" "==")))
+                   (?!  . ,(regexp-opt '("!==" "!!" "!=")))
+                   (?>  . ,(regexp-opt '(">]" ">:" ">>-" ">>=" ">=>" ">>>" ">-" ">=")))
+                   (?&  . ,(regexp-opt '("&&&" "&&")))
+                   (?|  . ,(regexp-opt '("|||>" "||>" "|>" "|]" "|}" "|=>" "|->" "|=" "||-"
+                                         "|-" "||=" "||")))
+                   (?.  . ,(regexp-opt '(".." ".?" ".=" ".-" "..<" "...")))
+                   (?+  . ,(regexp-opt '("+++" "+>" "++")))
+                   (?\[ . ,(regexp-opt '("[||]" "[<" "[|")))
+                   (?\{ . ,(regexp-opt '("{|")))
+                   (?\? . ,(regexp-opt '("??" "?." "?=" "?:")))
+                   (?#  . ,(regexp-opt '("####" "###" "#[" "#{" "#=" "#!" "#:" "#_(" "#_"
+                                         "#?" "#(" "##")))
+                   (?\; . ,(regexp-opt '(";;")))
+                   (?_  . ,(regexp-opt '("_|_" "__")))
+                   (?\\ . ,(regexp-opt '("\\" "\\/")))
+                   (?~  . ,(regexp-opt '("~~" "~~>" "~>" "~=" "~-" "~@")))
+                   (?$  . ,(regexp-opt '("$>")))
+                   (?^  . ,(regexp-opt '("^=")))
+                   (?\] . ,(regexp-opt '("]#"))))))
+  (dolist (char-regexp ligatures)
+    (set-char-table-range
+      composition-function-table (car char-regexp)
+      `([,(cdr char-regexp) 0 font-shape-gstring]))))
 
-(add-hook 'prog-mode-hook #'ligature-mode)
+(use-package composite
+  :hook (prog-mode . auto-composition-mode)
+  :init (global-auto-composition-mode -1))
 #+end_src
 
 ** Utility Packages
