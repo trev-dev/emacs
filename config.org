@@ -1014,6 +1014,7 @@ Use tide-mode for all things TS/JS.
   (setq tide-format-options '(:indentSize 2 :tabSize: 2))
   (eldoc-mode +1)
   (tide-hl-identifier-mode +1)
+  (setq-local tab-size 2)
   (company-mode +1))
 
 ;; Syntax highlighting starts with rjsx-mode before it's made better by tree sitter
@@ -1028,8 +1029,8 @@ Use tide-mode for all things TS/JS.
   (js-mode . setup-tide-mode)
   (rjsx-mode . setup-tide-mode))
 
-(setq js-indent-level tab-width)
-(setq typescript-indent-level tab-width)
+(setq js-indent-level 2)
+(setq typescript-indent-level 2)
 #+end_src
 
 *** VueJS
