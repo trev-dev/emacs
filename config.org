@@ -496,8 +496,8 @@ Completions at point!
 *** CSS/SCSS
 
 #+begin_src emacs-lisp
-(setq css-indent-level tab-width)
-(setq css-indent-offset tab-width)
+(add-hook 'css-mode-hook #'(lambda () (setq-local css-indent-offset 2
+                                                  tab-width 2)))
 #+end_src
 
 *** Emmet
