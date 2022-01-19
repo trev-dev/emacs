@@ -642,16 +642,19 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
 (with-eval-after-load 'lsp-mode
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
 
+(use-package lsp-treemacs
+  :bind ("M-j" . lsp-treemacs-symbols) ("M-e" . lsp-treemacs-errors-list)
+  :commands lsp-treemacs-errors-list lsp-treemacs-symbols
+  :custom (lsp-treemacs-sync-mode 1))
+
 (use-package lsp-ui
   :ensure
-  :bind ("M-j" . lsp-ui-imenu)
   :custom
   (lsp-ui-peek-always-show t)
-  (lsp-ui-sideline-show-hover t))
-
-(use-package lsp-ivy
-  :ensure
-  :commands lsp-ivy-workspace-symbol)
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-show-with-cursor t)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-imenu-window-width 350))
 #+end_src
 
 *** Markdown
