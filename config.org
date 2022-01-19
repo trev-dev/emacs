@@ -869,12 +869,12 @@ An opinionated way to clean up my web-dev code quickly.
 A few settings that are useful in programming buffers
 
 #+begin_src emacs-lisp
-(defun toggle-indent-tabs-mode ()
+(defun td/toggle-indent-tabs-mode ()
   "Toggle `indent-tabs-mode'."
   (interactive)
   (setq-local indent-tabs-mode (not indent-tabs-mode)))
 
-(defun infer-indentation-style ()
+(defun td/infer-indentation-style ()
   ;; if our source file uses tabs, we use tabs, if spaces spaces, and if
   ;; neither, we use the current indent-tabs-mode
   (let ((space-count (how-many "^  "))
@@ -884,31 +884,31 @@ A few settings that are useful in programming buffers
     (if (> tab-count space-count)
         (setq indent-tabs-mode t))))
 
-;; I want a way to tab over relative similar tab-to-tab-stop
-(global-set-key (kbd "C-i") 'indent-relative)
+(defun td/prog-mode-settings ()
+  (setq whitespace-style '(face tabs tab-mark trailing))
+  (setq-local fill-column 80)
+  (setq-local show-trailing-whitespace t)
+  (display-line-numbers-mode)
+  (hl-line-mode)
+  (highlight-indent-guides-mode)
+  (display-fill-column-indicator-mode)
+  (electric-pair-local-mode)
+  (local-set-key (kbd "<RET>") 'newline-and-indent)
+  (local-set-key (kbd "C-c i") 'td/toggle-indent-tabs-mode)
+  (yas-minor-mode)
+  (td/infer-indentation-style)
+  (whitespace-mode))
 
+;; I want a way to tab over relative similar tab-to-tab-stop
+(setq indent-tabs-mode nil)
 (setq standard-indent 2)
 (setq backward-delete-char-untabify-method 'hungry)
-(setq-default indent-tabs-mode t)
+(setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 (setq-default evil-shift-width 2)
 (setq-default electric-indent-inhibit t)
 
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (setq whitespace-style '(face tabs tab-mark trailing))
-            (setq-local fill-column 80)
-            (setq-local show-trailing-whitespace t)
-            (display-line-numbers-mode)
-            (hl-line-mode)
-            (display-fill-column-indicator-mode)
-            (electric-pair-local-mode)
-            (local-set-key (kbd "<RET>") 'newline-and-indent)
-            (yas-minor-mode)
-            (infer-indentation-style)
-            (setq-local whitespace-display-mappings
-                        '((tab-mark 9 [124 9] [92 9]))) ; 124 is the ascii ID for '\|'
-            (whitespace-mode)))
+(add-hook 'prog-mode-hook 'td/prog-mode-settings)
 #+end_src
 
 *** Python
@@ -1045,20 +1045,20 @@ There isn't a much better catch-all for web template syntax support than web-mod
 #+begin_src emacs-lisp
 (defun customize-web-mode ()
   "Customizations for web mode"
-	(setq web-mode-enable-auto-pairing nil
-				web-mode-enable-auto-quoting nil
-				web-mode-enable-auto-indentation nil
-				web-mode-style-padding tab-width
-				web-mode-script-padding tab-width)
-	(add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
-	(add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
-	(add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
-	(add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil)))
+  (setq web-mode-enable-auto-pairing nil
+        web-mode-enable-auto-quoting nil
+        web-mode-enable-auto-indentation nil
+        web-mode-style-padding tab-width
+        web-mode-script-padding tab-width)
+  (add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
+  (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
+  (add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
+  (add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil)))
 
 (use-package web-mode
   :ensure t
   :hook
-	(web-mode . customize-web-mode)
+  (web-mode . customize-web-mode)
   :mode
   ("\\.html\\'" . web-mode))
 #+end_src
@@ -1078,8 +1078,7 @@ Snippets! They're helpful.
 (use-package yasnippet
   :ensure t
   :config
-  (setq yas-snippet-dirs `(
-                           "~/.config/emacs/yasnippets"))
+  (setq yas-snippet-dirs `("~/.config/emacs/yasnippets"))
   (yas-reload-all))
 
 (use-package yasnippet-snippets :ensure t)
