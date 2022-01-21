@@ -16,10 +16,12 @@
   "Get a specific value using a KEY from a list of PROPS"
   (cdr (assoc key props)))
 
-(defun td/minutes-to-billable (minutes)
+(defun td/minutes-to-billable (minutes &optional rate)
   "Get the amount in dollers that a number of MINUTES is worth"
   (let* ((hours (/ (round (* (/ minutes 60.0) 100)) 100.0))
-         (amount (* hours td/billable-rate))
+         (amount (* hours (cond ((numberp rate) rate)
+                                ((numberp td/billable-rate) td/billable-rate)
+                                (0))))
          (billable (/ (round (* amount 100)) 100.0)))
     billable))
 
@@ -38,6 +40,7 @@
          (properties (or (plist-get params :properties) '()))
          (comments-on (member "Comment" properties))
          (formula (plist-get params :formula))
+         (rate (plist-get params :rate))
          (has-formula (cond ((and formula (stringp formula))
                              t)
                             (formula (user-error "Invalid :formula param"))))
@@ -82,7 +85,7 @@
                         (org-duration-from-minutes time)
                         (and emph (= level 1))) "|")
                (concat (td/emph-str
-                        (format "$%.2f" (td/minutes-to-billable time))
+                        (format "$%.2f" (td/minutes-to-billable time rate))
                         (and emph (= level 1))) "|")
                (if-let* (comments-on
                          (comment
@@ -101,7 +104,7 @@
                     (format "%s" (org-duration-from-minutes total-time)) emph)
                    "|")
            (concat (td/emph-str
-                    (format "$%.2f" (td/minutes-to-billable total-time))
+                    (format "$%.2f" (td/minutes-to-billable total-time rate))
                     emph) "|" ))
           (when has-formula
             (insert "\n#+TBLFM: " formula)))))
