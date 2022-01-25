@@ -379,7 +379,7 @@ Project management. Makes it very easy to quickly switch to a project root (fold
 #+end_src
 *** Treemacs
 
-#+begin_src emacs-lisp
+#+begin_src
 (use-package treemacs
   :ensure t
   :defer t
