@@ -1041,8 +1041,10 @@ Snippets! They're helpful.
 (use-package yasnippet
   :ensure t
   :config
-  (setq yas-snippet-dirs `("~/.config/emacs/yasnippets"))
-  (yas-reload-all))
+  (yas-reload-all)
+  :custom
+  (yas-snippet-dirs '("~/.config/emacs/yasnippets")))
 
-(use-package yasnippet-snippets :ensure t)
+(use-package yasnippet-snippets
+  :ensure t)
 #+end_src
