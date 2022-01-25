@@ -720,6 +720,10 @@ Customizations for what is one of the best features that emacs comes with. If we
                                         ((org-agenda-overriding-header "Cancelled Projects")
                                          (org-agenda-files org-agenda-files))))))))
 
+(straight-use-package '(org-view-mode :type git :host github :repo "amno1/org-view-mode"
+                                      :fork (:host github :repo "trev-dev/org-view-mode")))
+
+
 (use-package org-bullets
   :ensure t
   :custom
