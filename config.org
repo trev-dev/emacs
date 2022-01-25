@@ -316,8 +316,11 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
   (setq evil-snipe-scope 'whole-visible)
   (setq evil-snipe-spillover-scope 'whole-buffer))
 #+End_src
+*** Expand Region
 #+begin_src emacs-lisp
+(use-package expand-region
   :ensure t
+  :bind ("C-=" . er/expand-region))
 #+end_src
 
 *** Magit
