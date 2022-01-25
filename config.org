@@ -144,6 +144,9 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (setq initial-scratch-message "")
 (defalias 'yes-or-no-p 'y-or-n-p)
 (setq browse-url-generic-program "/usr/bin/firefox")
+(setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd")
+(setq ispell-program-name "aspell")
+(setq ispell-dictionary "english")
 #+end_src
 
 *** Font Setup
@@ -310,27 +313,8 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
   (setq evil-snipe-scope 'whole-visible)
   (setq evil-snipe-spillover-scope 'whole-buffer))
 #+End_src
-
-*** Flycheck Aspell
-This requires [[*Flycheck][flycheck]] to be loaded and ready. This permits spell checking while writing documentation on the fly.
-
 #+begin_src emacs-lisp
-(defun flycheck-maybe-recheck (_)
-  (when (bound-and-true-p flycheck-mode)
-    (flycheck-buffer)))
-
-(use-package flycheck-aspell
-  :after flycheck
   :ensure t
-  :custom
-  (ispell-personal-dictionary "~/.config/emacs/aspell.en.pwd")
-  :config
-  (flycheck-aspell-define-checker "org"
-                                  "Org" ("--add-filter" "url")
-                                  (org-mode))
-  (add-to-list 'flycheck-checkers 'markdown-aspell-dynamic)
-  (add-to-list 'flycheck-checkers 'org-aspell-dynamic)
-  (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck))
 #+end_src
 
 *** Magit
