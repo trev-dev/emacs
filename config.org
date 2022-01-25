@@ -171,6 +171,13 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
   :init (global-auto-composition-mode -1))
 #+end_src
 
+*** Telephone Line
+#+begin_src emacs-lisp
+(use-package telephone-line
+  :ensure t
+  :config
+  (telephone-line-mode 1))
+#+end_src
 ** Utility Packages
 Packages that extend and augment emacs in a general way
 *** AG
