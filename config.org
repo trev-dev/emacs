@@ -175,7 +175,7 @@ Packages that extend and augment emacs in a general way
 *** AG
 C based file content grepping <3
 
-#+begin_src emacs-lisp
+#+begin_src
 (use-package ag :ensure t)
 #+end_src
 
@@ -371,6 +371,12 @@ Project management. Makes it very easy to quickly switch to a project root (fold
   (setq projectile-project-search-path '(("~/Projects/" . 2) "/srv/www")))
 #+end_src
 
+*** RG
+#+begin_src emacs-lisp
+(progn
+  (straight-use-package 'rg)
+  (rg-enable-default-bindings))
+#+end_src
 *** Treemacs
 
 #+begin_src emacs-lisp
