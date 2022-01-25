@@ -582,7 +582,7 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
 (use-package highlight-indent-guides
   :ensure t
   :custom
-  (highlight-indent-guides-method 'bitmap)
+  (highlight-indent-guides-method 'character)
   (highlight-indent-guides-bitmap-function 'highlight-indent-guides--bitmap-line)
   (highlight-indent-guides-responsive 'top))
 #+end_src
