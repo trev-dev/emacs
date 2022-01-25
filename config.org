@@ -685,6 +685,7 @@ Customizations for what is one of the best features that emacs comes with. If we
                       (org-indent-mode)
                       (yas-minor-mode)
                       (org-clock-persistence-insinuate)))
+  (org-mode . volatile-highlights-mode)
   :config
   (require 'ox-md nil t)
   :bind
