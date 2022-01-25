@@ -241,7 +241,7 @@ This one's pretty cheesy. It lets me edit text fields with Emacs in the web brow
 
 #+begin_src emacs-lisp
 (use-package elfeed
-  :bind ("C-c r" . elfeed)
+  :bind ("C-c e" . elfeed)
   :ensure t)
 (use-package elfeed-org
   :ensure t
