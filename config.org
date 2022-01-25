@@ -227,14 +227,15 @@ This one's pretty cheesy. It lets me edit text fields with Emacs in the web brow
             (add-hook 'after-init-hook
                       #'(lambda() (edit-server-start))))
   :config (setq edit-server-new-frame-alist
-                '((name . "Edit with Emacs FRAME")
+                '((name . "Edit with Emacs")
                   (top . 200)
                   (left . 200)
                   (width . 80)
                   (height . 25)
                   (minibuffer . t)
                   (menu-bar-lines . t)
-                  (window-system . x))))
+                  (window-system . x))
+                edit-server-port 36227))
 #+end_src
 *** Elfeed
 
