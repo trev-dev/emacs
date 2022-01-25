@@ -966,29 +966,13 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 Use tide-mode for all things TS/JS.
 
 #+begin_src emacs-lisp
-(defun setup-tide-mode()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (setq tide-format-options '(:indentSize 2 :tabSize: 2))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  (setq-local tab-size 2)
-  (company-mode +1))
-
 ;; Syntax highlighting starts with rjsx-mode before it's made better by tree sitter
 (use-package rjsx-mode :ensure t)
 
-(use-package tide
-  :ensure t
-  :after
-  (rjsx-mode company flycheck)
-  (typescript-mode company flycheck)
-  :hook (typescript-mode . setup-tide-mode)
-  (js-mode . setup-tide-mode)
-  (rjsx-mode . setup-tide-mode))
-
+(use-package jsdoc
+  :straight (jsdoc :type git :host github :repo "isamert/jsdoc.el"))
+(use-package typescript-mode
+  :ensure t)
 (setq js-indent-level 2)
 (setq typescript-indent-level 2)
 #+end_src
