@@ -81,7 +81,7 @@ Disabled this config while I explore something [[Kaolin][new/different]] :)
 
 Doom's themes and modeline are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
-#+begin_src
+#+begin_src emacs-lisp :tangle no
 ;; I will write/store my custom doom (and non-doom?) themes here
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (use-package doom-themes
@@ -197,7 +197,7 @@ Packages that extend and augment emacs in a general way
 *** AG
 C based file content grepping <3
 
-#+begin_src
+#+begin_src :tangle no
 (use-package ag :ensure t)
 #+end_src
 
@@ -276,7 +276,7 @@ This one's pretty cheesy. It lets me edit text fields with Emacs in the web brow
 *** Evil!
 I like Vim bindings. Many of the plugins included here are commonly enjoyed in Vim. Most of them can be looked up [[https://www.emacswiki.org/emacs/Evil#h5o-6][in the wiki]].
 
-#+begin_src
+#+begin_src :tangle no
 (use-package evil
   :ensure t
   :init
@@ -366,7 +366,7 @@ If you're looking for help with mu/4e I strongly suggest checking out [[https://
 *** Ivy
 Nicer command completions for emacs. Not as bloated as Helm. Ivy requires 3 packages
 
-#+begin_src
+#+begin_src :tangle no
 ;; Completions with counsel
 (use-package counsel
   :ensure t
@@ -434,7 +434,7 @@ Project management. Makes it very easy to quickly switch to a project root (fold
 #+end_src
 *** Treemacs
 
-#+begin_src
+#+begin_src :tangle no
 (use-package treemacs
   :ensure t
   :defer t
