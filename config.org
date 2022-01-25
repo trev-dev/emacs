@@ -636,10 +636,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
          (vue-mode . lsp)
          (yaml-mode . lsp)
          ;; if you want which-key integration
-         (lsp-mode . lsp-enable-which-key-integration)
-         (lsp-mode . (lambda()
-                       (display-line-numbers-mode)
-                       (hl-line-mode))))
+         (lsp-mode . lsp-enable-which-key-integration))
   :custom
   ;; Please don't log garbage in my project folders
   (lsp-rust-analyzer-server-display-inlay-hints)
