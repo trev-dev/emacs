@@ -60,49 +60,14 @@ We need packages, so we're going to setup some repos and pre-install use-package
 #+begin_src emacs-lisp
 (add-hook 'dired-mode-hook (lambda()
                              (dired-hide-details-mode)))
-
-(use-package all-the-icons-dired
-  :requires all-the-icons
-  :ensure t
-  :hook (dired-mode . all-the-icons-dired-mode)
-  :config
-  (setq all-the-icons-dired-monochrome nil))
 #+end_src
 
 *** DOOM
-/"Against all the evil that Hell can conjure, all the wickedness that
-mankind can produce, we will send unto them... only you. Rip and tear, until
-it is done."/
-
-#+begin_src
-                   ..
-         ..        ::            ..
-         ..        :-:
-                   .::
-                     ..    ......
-                 ..::::--:---:----:
-             ..::::::-:::.     ..::
-                     :-:-.
-                      -::    .
-                      :::    :.
-                :     .-:    ::
-                :.    :-:   :-:
-                .:    .-:..-:
-                  :   :-:-:.
-                      :-::
-         ...    ...:--::-         .
-          ..     :-:. :-:       ...
-                      .-:
-                       :.
-                       :.
-                       .
-#+end_src
+Disabled this config while I explore something [[Kaolin][new/different]] :)
 
 Doom's themes and modeline are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
-#+begin_src emacs-lisp
-(use-package all-the-icons :ensure t)
-
+#+begin_src
 ;; I will write/store my custom doom (and non-doom?) themes here
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (use-package doom-themes
@@ -128,6 +93,14 @@ Doom's themes and modeline are hard to beat. They're easy to install, highly cus
   :ensure t
   :init (doom-modeline-mode 1))
 
+#+end_src
+
+*** Kaolin
+#+begin_src emacs-lisp
+(use-package kaolin-themes
+  :ensure t
+  :config
+  (load-theme 'kaolin-galaxy t))
 #+end_src
 
 *** Emacs
