@@ -454,6 +454,15 @@ Mostly want undo tree for better redo support for Evil
   :config (global-undo-tree-mode))
 #+end_src
 
+*** Volatile Highlights
+#+begin_src emacs-lisp
+(use-package volatile-highlights
+  :ensure t
+  :config
+  (vhl/define-extension 'undo-tree 'undo-tree-yank 'undo-tree-move)
+  (vhl/install-extension 'undo-tree))
+#+end_src
+
 *** VTerm
 A real-ish terminal for emacs that doesn't make me hurt inside. Requires =libvterm=. [[https://github.com/jixiuf/emacs-libvterm][Documentation is here]]. This needs to be installed & compiled /after/ magit, because for [[https://github.com/magit/with-editor/issues/86][whatever reason]], attempting to install vterm first breaks magit.
 
