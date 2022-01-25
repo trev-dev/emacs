@@ -254,14 +254,16 @@ This one's pretty cheesy. It lets me edit text fields with Emacs in the web brow
 *** Evil!
 I like Vim bindings. Many of the plugins included here are commonly enjoyed in Vim. Most of them can be looked up [[https://www.emacswiki.org/emacs/Evil#h5o-6][in the wiki]].
 
-#+begin_src emacs-lisp
+#+begin_src
 (use-package evil
   :ensure t
   :init
   (setq evil-undo-system 'undo-tree)
   (setq evil-want-keybinding nil)
   (setq evil-shift-width tab-width)
-  (evil-mode 1))
+  (evil-mode 1)
+  :custom
+  evil-visual-state-cursor 'hbar)
 
 ;; Easily wrap selections/motions in pairs
 (use-package evil-surround
