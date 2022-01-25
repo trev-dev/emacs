@@ -107,6 +107,8 @@ Doom's themes and modeline are hard to beat. They're easy to install, highly cus
 Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well
 
 #+begin_src emacs-lisp
+(require 'icomplete)
+(fido-mode 1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -311,7 +313,7 @@ If you're looking for help with mu/4e I strongly suggest checking out [[https://
 *** Ivy
 Nicer command completions for emacs. Not as bloated as Helm. Ivy requires 3 packages
 
-#+begin_src emacs-lisp
+#+begin_src
 ;; Completions with counsel
 (use-package counsel
   :ensure t
@@ -360,11 +362,12 @@ Project management. Makes it very easy to quickly switch to a project root (fold
   :ensure t
   :config
   (projectile-mode +1)
-  (setq projectile-completion-systen 'ivy)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (define-key projectile-mode-map (kbd "C-c p s s") 'counsel-ag)
-  (define-key projectile-mode-map (kbd "C-c p s r") 'counsel-rg)
-  (define-key projectile-mode-map (kbd "C-c p s g") 'counsel-grep-or-swiper)
+  ;; (setq projectile-completion-systen 'ivy)
+  ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  ;; (define-key projectile-mode-map (kbd "C-c p s s") 'counsel-ag)
+  ;; (define-key projectile-mode-map (kbd "C-c p s r") 'counsel-rg)
+  ;; (define-key projectile-mode-map (kbd "C-c p s g") 'counsel-grep-or-swiper)
   (setq projectile-project-search-path '(("~/Projects/" . 2) "/srv/www")))
 #+end_src
 
