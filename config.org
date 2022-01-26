@@ -1,6 +1,73 @@
+;; -*- mode: org; before-save-hook: org-make-toc; -*-
 * Emacs Configuration
-#+STARTUP: content
+:PROPERTIES:
+#+STARTUP: overview
+:END:
 Herein lies my Emacs configuration. Use it well
+** Contents
+:PROPERTIES:
+:TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
+:END:
+:CONTENTS:
+- [[#performance-tweaks][Performance Tweaks]]
+- [[#autosaves--backups][Autosaves & Backups]]
+- [[#package-management][Package Management]]
+- [[#look--feel][Look & Feel]]
+  - [[#all-the-icons][All The Icons]]
+  - [[#dired][Dired]]
+  - [[#doom][DOOM]]
+  - [[#kaolin][Kaolin]]
+  - [[#emacs][Emacs]]
+  - [[#font-setup][Font Setup]]
+  - [[#telephone-line][Telephone Line]]
+- [[#utility-packages][Utility Packages]]
+  - [[#ag][AG]]
+  - [[#avy][Avy]]
+  - [[#dashboard][Dashboard]]
+  - [[#diff-hl][Diff-hl]]
+  - [[#elfeed][Elfeed]]
+  - [[#evil][Evil!]]
+  - [[#expand-region][Expand Region]]
+  - [[#magit][Magit]]
+  - [[#mu4e][Mu4e]]
+  - [[#ivy][Ivy]]
+  - [[#ledger][Ledger]]
+  - [[#projectile][Projectile]]
+  - [[#rg][RG]]
+  - [[#treemacs][Treemacs]]
+  - [[#undo-tree][Undo-Tree]]
+  - [[#volatile-highlights][Volatile Highlights]]
+  - [[#vterm][VTerm]]
+  - [[#which-key][Which-key]]
+- [[#syntax-support][Syntax Support]]
+  - [[#company-completions][Company Completions]]
+  - [[#cssscss][CSS/SCSS]]
+  - [[#emmet][Emmet]]
+  - [[#flycheck][Flycheck]]
+  - [[#highlight-indent-guides][Highlight Indent Guides]]
+  - [[#golang][GoLang]]
+  - [[#java][Java]]
+  - [[#lsp][LSP]]
+  - [[#markdown][Markdown]]
+  - [[#org][Org]]
+    - [[#custom-clock-table][Custom Clock Table]]
+  - [[#php][PHP]]
+  - [[#prettier][Prettier]]
+  - [[#prog-mode][Prog Mode]]
+  - [[#python][Python]]
+  - [[#rainbow-delimiters][Rainbow Delimiters]]
+  - [[#rainbow-mode][Rainbow Mode]]
+  - [[#rust][Rust]]
+  - [[#shopify-mode][Shopify Mode]]
+  - [[#svelte][Svelte]]
+  - [[#treesitter][Treesitter]]
+  - [[#typescript--javascript][TypeScript & JavaScript]]
+  - [[#vuejs][VueJS]]
+  - [[#web-mode][Web Mode]]
+  - [[#yaml][YAML]]
+  - [[#yasnippet][Yasnippet]]
+:END:
+
 ** Performance Tweaks
 Give the garbage collector free-reign at start-up, then take it back to 8M. Use so-long-mode for editor-breaking minified css/js.
 
@@ -221,6 +288,7 @@ C based file content grepping <3
   :config
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
         dashboard-startup-banner 'logo
+        project-projects-backend 'project-el
         dashboard-items '((projects . 5)
                           (recents . 5)
                           (agenda . 5)
@@ -685,13 +753,81 @@ The free software documentation language of the Internet.
 Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is. The fancy font-size setup is stolen from [[https://github.com/daviwil/emacs-from-scratch][Emacs from Scratch]] by [[https://www.youtube.com/c/SystemCrafters][System Crafters]]. Check them out :)
 
 #+begin_src emacs-lisp
+(defun td/org-hook ()
+  "Hooks for Org Mode in general"
+  (org-indent-mode)
+  (yas-minor-mode)
+  (org-clock-persistence-insinuate)
+  (volatile-highlights-mode))
+
+(defvar td/tag-list
+  '((:startgroup)
+    ;; Put mutually exclusive tags here
+    (:endgroup)
+    ("@home" . ?H)
+    ("@work" . ?W)
+    ("urgent" . ?U)
+    ("learning" . ?l)
+    ("foss" . ?f)
+    ("blog" . ?b)
+    ("idea" . ?i))
+  "The tags for org headlines")
+
+(defvar td/todo-keywords
+`((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+  (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)"
+            "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)"))
+  "A sequence of keywords for Org headlines")
+
+(defvar td/org-agenda-commands
+  '(("d" "Dashboard"
+     ((agenda "" ((org-deadline-warning-days 7)))
+     (todo "NEXT"
+           ((org-agenda-overriding-header "Next Tasks")))
+     (tags-todo "agenda/ACTIVE"
+                ((org-agenda-overriding-header "Active Projects")))))
+   ("n" "Next Tasks"
+    ((todo "NEXT"
+           ((org-agenda-overriding-header "Next Tasks")))))
+   ("U" "Urgent Tasks" tags-todo "+urgent")
+   ;; Low-effort next actions
+   ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+    ((org-agenda-overriding-header "Low Effort Tasks")
+     (org-agenda-max-todos 20)
+     (org-agenda-files org-agenda-files)))
+   ("w" "Workflow Status"
+    ((todo "WAIT"
+           ((org-agenda-overriding-header "Waiting on External")
+            (org-agenda-files org-agenda-files)))
+     (todo "REVIEW"
+           ((org-agenda-overriding-header "In Review")
+            (org-agenda-files org-agenda-files)))
+     (todo "PLAN"
+           ((org-agenda-overriding-header "In Planning")
+            (org-agenda-todo-list-sublevels nil)
+            (org-agenda-files org-agenda-files)))
+     (todo "BACKLOG"
+           ((org-agenda-overriding-header "Project Backlog")
+            (org-agenda-todo-list-sublevels nil)
+            (org-agenda-files org-agenda-files)))
+     (todo "READY"
+           ((org-agenda-overriding-header "Ready for Work")
+            (org-agenda-files org-agenda-files)))
+     (todo "ACTIVE"
+           ((org-agenda-overriding-header "Active Projects")
+            (org-agenda-files org-agenda-files)))
+     (todo "COMPLETED"
+           ((org-agenda-overriding-header "Completed Projects")
+            (org-agenda-files org-agenda-files)))
+     (todo "CANC"
+           ((org-agenda-overriding-header "Cancelled Projects")
+            (org-agenda-files
+             org-agenda-files))))))
+  "Custom commands for Org Agenda")
+
 (use-package org
   :ensure t
-  :hook (org-mode . (lambda()
-                      (org-indent-mode)
-                      (yas-minor-mode)
-                      (org-clock-persistence-insinuate)))
-  (org-mode . volatile-highlights-mode)
+  :hook (org-mode . td/org-hook)
   :config
   (require 'ox-md nil t)
   :bind
@@ -710,71 +846,12 @@ Customizations for what is one of the best features that emacs comes with. If we
   (org-duration-format '(("h" . nil) (special . 2)))
   (org-clock-total-time-cell-format "%s")
   (org-agenda-files '("~/Org"))
-  (org-tag-alist '(
-                   (:startgroup)
-                   ; Put mutually exclusive tags here
-                   (:endgroup)
-                   ("@home" . ?H)
-                   ("@work" . ?W)
-                   ("urgent" . ?U)
-                   ("learning" . ?l)
-                   ("foss" . ?f)
-                   ("blog" . ?b)
-                   ("idea" . ?i)))
-  (org-todo-keywords `((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-                       (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)"
-                       "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
-
-  (org-agenda-custom-commands '(("d" "Dashboard"
-                                 ((agenda "" ((org-deadline-warning-days 7)))
-                                  (todo "NEXT"
-                                    ((org-agenda-overriding-header "Next Tasks")))
-                                  (tags-todo "agenda/ACTIVE"
-                                    ((org-agenda-overriding-header "Active Projects")))))
-
-                                ("n" "Next Tasks"
-                                 ((todo "NEXT"
-                                        ((org-agenda-overriding-header "Next Tasks")))))
-
-                                ("U" "Urgent Tasks" tags-todo "+urgent")
-
-                                ;; Low-effort next actions
-                                ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-                                 ((org-agenda-overriding-header "Low Effort Tasks")
-                                  (org-agenda-max-todos 20)
-                                  (org-agenda-files org-agenda-files)))
-
-                                ("w" "Workflow Status"
-                                 ((todo "WAIT"
-                                        ((org-agenda-overriding-header "Waiting on External")
-                                         (org-agenda-files org-agenda-files)))
-                                  (todo "REVIEW"
-                                        ((org-agenda-overriding-header "In Review")
-                                         (org-agenda-files org-agenda-files)))
-                                  (todo "PLAN"
-                                        ((org-agenda-overriding-header "In Planning")
-                                         (org-agenda-todo-list-sublevels nil)
-                                         (org-agenda-files org-agenda-files)))
-                                  (todo "BACKLOG"
-                                        ((org-agenda-overriding-header "Project Backlog")
-                                         (org-agenda-todo-list-sublevels nil)
-                                         (org-agenda-files org-agenda-files)))
-                                  (todo "READY"
-                                        ((org-agenda-overriding-header "Ready for Work")
-                                         (org-agenda-files org-agenda-files)))
-                                  (todo "ACTIVE"
-                                        ((org-agenda-overriding-header "Active Projects")
-                                         (org-agenda-files org-agenda-files)))
-                                  (todo "COMPLETED"
-                                        ((org-agenda-overriding-header "Completed Projects")
-                                         (org-agenda-files org-agenda-files)))
-                                  (todo "CANC"
-                                        ((org-agenda-overriding-header "Cancelled Projects")
-                                         (org-agenda-files org-agenda-files))))))))
+  (org-tag-alist td/tag-list)
+  (org-todo-keywords td/todo-keywords)
+  (org-agenda-custom-commands td/org-agenda-commands))
 
 (straight-use-package '(org-view-mode :type git :host github :repo "amno1/org-view-mode"
                                       :fork (:host github :repo "trev-dev/org-view-mode")))
-
 
 (use-package org-bullets
   :ensure t
@@ -812,7 +889,6 @@ Customizations for what is one of the best features that emacs comes with. If we
   :hook (org-mode . org-visual-fill-setup)
   :bind ("C-c v" . visual-fill-column-mode))
 
-
 (use-package org-alert
   :ensure t
   :custom
@@ -820,6 +896,9 @@ Customizations for what is one of the best features that emacs comes with. If we
   :config
   (org-alert-enable))
 
+(use-package org-make-toc
+  :requires (dash s)
+  :ensure t)
 #+end_src
 
 **** Custom Clock Table
