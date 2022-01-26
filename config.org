@@ -35,7 +35,7 @@ I hate seeing project folders get all cluttered up
 #+end_src
 
 ** Package Management
-We need packages, so we're going to setup some repos and pre-install use-package for packages later on in this config
+We need packages, so we're going to setup some repos and pre-install use-package for packages later on in this config. We're also using ~straight.el~ for github repositories.
 
 #+begin_src emacs-lisp
 (require 'package)
