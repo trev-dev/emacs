@@ -19,6 +19,7 @@ Herein lies my Emacs configuration. Use it well
   - [[#emacs][Emacs]]
   - [[#font-setup][Font Setup]]
   - [[#telephone-line][Telephone Line]]
+    - [[#customize-this-thing-a-bit][Customize this thing a bit]]
 - [[#utility-packages][Utility Packages]]
   - [[#ag][AG]]
   - [[#avy][Avy]]
@@ -137,10 +138,12 @@ We need packages, so we're going to setup some repos and pre-install use-package
 
 ** Look & Feel
 *** All The Icons
+These are used all over the place
 #+begin_src emacs-lisp
 (use-package all-the-icons
   :ensure t)
 #+end_src
+
 *** Dired
 
 #+begin_src emacs-lisp
@@ -258,12 +261,15 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
 #+end_src
 
 *** Telephone Line
+A simple, but nicer looking modeline
+**** TODO Customize this thing a bit
 #+begin_src emacs-lisp
 (use-package telephone-line
   :ensure t
   :config
   (telephone-line-mode 1))
 #+end_src
+
 ** Utility Packages
 Packages that extend and augment emacs in a general way
 *** AG
@@ -281,6 +287,7 @@ C based file content grepping <3
   :config
   (avy-setup-default))
   #+end_src
+
 *** Dashboard
 #+begin_src emacs-lisp
 (use-package dashboard
@@ -299,6 +306,7 @@ C based file content grepping <3
         dashboard-set-init-info t)
   (dashboard-setup-startup-hook))
 #+end_src
+
 *** Diff-hl
 Show me the diffs in the fringe!
 
@@ -328,7 +336,7 @@ Show me the diffs in the fringe!
 *** Evil!
 I like Vim bindings. Many of the plugins included here are commonly enjoyed in Vim. Most of them can be looked up [[https://www.emacswiki.org/emacs/Evil#h5o-6][in the wiki]].
 
-#+begin_src :tangle no
+#+begin_src emacs-lisp :tangle no
 (use-package evil
   :ensure t
   :init
@@ -389,7 +397,8 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
   (evil-snipe-override-mode 1)
   (setq evil-snipe-scope 'whole-visible)
   (setq evil-snipe-spillover-scope 'whole-buffer))
-#+End_src
+#+end_src
+
 *** Expand Region
 #+begin_src emacs-lisp
 (use-package expand-region
@@ -484,6 +493,7 @@ Project management. Makes it very easy to quickly switch to a project root (fold
   (straight-use-package 'rg)
   (rg-enable-default-bindings))
 #+end_src
+
 *** Treemacs
 
 #+begin_src :tangle no
@@ -660,12 +670,14 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
   (highlight-indent-guides-bitmap-function 'highlight-indent-guides--bitmap-line)
   (highlight-indent-guides-responsive 'top))
 #+end_src
+
 *** GoLang
 #+begin_src emacs-lisp
 (use-package go-mode
   :ensure t
   :mode "\\.go\\'")
 #+end_src
+
 *** Java
 
 #+begin_src emacs-lisp
@@ -1033,6 +1045,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
   (interactive "sOptional Args:")
   (rust--compile (concat "%s run " s) rust-cargo-bin))
 #+end_src
+
 *** Shopify Mode
 This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
 
