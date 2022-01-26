@@ -1158,7 +1158,7 @@ Snippets! They're helpful.
 
 ** File Local Variables
 I'd prefer to not have the ~-*-~ markers at the top of this document
- # Local Variables:
- # mode: org
- # before-save-hook: org-make-toc
- # End:
+# Local Variables:
+# mode: org
+# before-save-hook: org-make-toc
+# End:
