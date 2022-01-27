@@ -14,14 +14,12 @@ Herein lies my Emacs configuration. Use it well
 - [[#look--feel][Look & Feel]]
   - [[#all-the-icons][All The Icons]]
   - [[#dired][Dired]]
-  - [[#doom][DOOM]]
-  - [[#kaolin][Kaolin]]
+  - [[#doom-themes][DOOM Themes]]
   - [[#emacs][Emacs]]
   - [[#font-setup][Font Setup]]
   - [[#telephone-line][Telephone Line]]
     - [[#customize-this-thing-a-bit][Customize this thing a bit]]
 - [[#utility-packages][Utility Packages]]
-  - [[#ag][AG]]
   - [[#avy][Avy]]
   - [[#dashboard][Dashboard]]
   - [[#diff-hl][Diff-hl]]
@@ -46,7 +44,6 @@ Herein lies my Emacs configuration. Use it well
   - [[#flycheck][Flycheck]]
   - [[#highlight-indent-guides][Highlight Indent Guides]]
   - [[#golang][GoLang]]
-  - [[#java][Java]]
   - [[#lsp][LSP]]
   - [[#markdown][Markdown]]
   - [[#org][Org]]
@@ -66,7 +63,6 @@ Herein lies my Emacs configuration. Use it well
   - [[#web-mode][Web Mode]]
   - [[#yaml][YAML]]
   - [[#yasnippet][Yasnippet]]
-- [[#file-local-variables][File Local Variables]]
 :END:
 
 ** Performance Tweaks
@@ -151,12 +147,10 @@ These are used all over the place
                              (dired-hide-details-mode)))
 #+end_src
 
-*** DOOM
-Disabled this config while I explore something [[Kaolin][new/different]] :)
+*** DOOM Themes
+Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
-Doom's themes and modeline are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
-
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 ;; I will write/store my custom doom (and non-doom?) themes here
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (use-package doom-themes
@@ -178,26 +172,16 @@ Doom's themes and modeline are hard to beat. They're easy to install, highly cus
   ;; corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
-
-#+end_src
-
-*** Kaolin
-#+begin_src emacs-lisp
-(use-package kaolin-themes
-  :ensure t
-  :config
-  (load-theme 'kaolin-galaxy t))
+;; (use-package doom-modeline
+;;   :ensure t
+;;   :init (doom-modeline-mode 1))
 #+end_src
 
 *** Emacs
 Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well
 
 #+begin_src emacs-lisp
-(require 'icomplete)
-(fido-mode 1)
+;; Interface
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -208,10 +192,26 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (setq inhibit-startup-screen t)
 (setq initial-scratch-message "")
 (defalias 'yes-or-no-p 'y-or-n-p)
-(setq browse-url-generic-program "/usr/bin/firefox")
+
+;; Spelling
 (setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd")
 (setq ispell-program-name "aspell")
 (setq ispell-dictionary "english")
+
+;; Browser
+(setq browse-url-generic-program "/usr/bin/firefox")
+
+;; Windmove
+(global-set-key (kbd "M-o b")  'windmove-left)
+(global-set-key (kbd "M-o f") 'windmove-right)
+(global-set-key (kbd "M-o p")    'windmove-up)
+(global-set-key (kbd "M-o n")  'windmove-down)
+
+;; Minibuffer/completion
+(require 'ido)
+(require 'icomplete)
+(setq ido-enable-flex-matching t) ; Use flex matching to help find things more easily
+(fido-mode 1) ; Use "fake ido" for completions other than M-x
 #+end_src
 
 *** Font Setup
@@ -272,13 +272,6 @@ A simple, but nicer looking modeline
 
 ** Utility Packages
 Packages that extend and augment emacs in a general way
-*** AG
-C based file content grepping <3
-
-#+begin_src :tangle no
-(use-package ag :ensure t)
-#+end_src
-
 *** Avy
 #+begin_src emacs-lisp
 (use-package avy
@@ -496,7 +489,7 @@ Project management. Makes it very easy to quickly switch to a project root (fold
 
 *** Treemacs
 
-#+begin_src :tangle no
+#+begin_src emacs-lisp :tangle no
 (use-package treemacs
   :ensure t
   :defer t
@@ -581,7 +574,6 @@ Completions at point!
   :config
   (setq company-backends '((company-files company-keywords company-capf company-yasnippet)
                            (company-abbrev company-dabbrev)))
-  :custom
   (company-idle-delay 0.0))
 #+end_src
 
@@ -678,26 +670,6 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
   :mode "\\.go\\'")
 #+end_src
 
-*** Java
-
-#+begin_src emacs-lisp
-(use-package lsp-java
-  :ensure t
-  :after lsp-mode)
-
-(use-package gradle-mode
-  :ensure t)
-
-(defun set-java-prefs ()
-  "Preferences for java-mode"
-  (setq-local tab-width 4
-              c-indent-offset 4
-              indent-tabs-mode t)
-  (lsp)
-  (gradle-mode))
-(add-hook 'java-mode-hook 'set-java-prefs)
-#+end_src
-
 *** LSP
 The meat and potatoes of the modern text editor turned IDE, all thanks to Microsoft doing an open source thing with VSCode.
 
@@ -723,12 +695,11 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
          (yaml-mode . lsp)
          ;; if you want which-key integration
          (lsp-mode . lsp-enable-which-key-integration))
-  :custom
-  ;; Please don't log garbage in my project folders
-  (lsp-rust-analyzer-server-display-inlay-hints)
-  (lsp-rust-analyzer-inlay-hints-mode t)
-  (lsp-clients-typescript-server-args '("--stdio" "--tsserver-log-file" "/dev/stderr"))
-  :commands lsp)
+  :commands lsp
+  :config
+  (setq lsp-log-io nil)
+  (setq lsp-clients-typescript-server-args ; Please don't output logs in project root
+        '("--stdio" "--tsserver-log-file" "/dev/stderr")))
 
 (with-eval-after-load 'lsp-mode
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
@@ -871,7 +842,10 @@ Customizations for what is one of the best features that emacs comes with. If we
   (org-bullets-bullet-list '(
                              "◉" "○" "•" "·"
                              ;;"" "❯" "»" "›"
-                             ))
+                            ))
+  :hook
+  (org-mode . (lambda () (org-bullets-mode 1))))
+
   ;; :config
   ;; ;; Set faces for heading levels
   ;; (dolist (face '((org-level-1 . 1.2)
@@ -883,8 +857,6 @@ Customizations for what is one of the best features that emacs comes with. If we
   ;;                 (org-level-7 . 1.1)
   ;;                 (org-level-8 . 1.1)))
   ;;   (set-face-attribute (car face) nil :weight 'semi-bold :height (cdr face)))
-  :hook
-  (org-mode . (lambda () (org-bullets-mode 1))))
 
 (use-package ox-gfm
   :requires org
@@ -908,8 +880,21 @@ Customizations for what is one of the best features that emacs comes with. If we
   :config
   (org-alert-enable))
 
+(defvar td/org-auto-toc-files
+  '("~/.config/emacs/config.org")
+  "Files that should auto-toc on save")
+(defun td/set-auto-toc ()
+  "Set auto-toc if buffer in auto-toc-files"
+  (if (member
+       (buffer-file-name)
+       (mapcar 'expand-file-name td/org-auto-toc-files))
+      (progn
+        (org-make-toc-mode)
+        (message "Org make TOC mode is on!"))))
+
 (use-package org-make-toc
   :requires (dash s)
+  :hook (org-mode . td/set-auto-toc)
   :ensure t)
 #+end_src
 
@@ -985,6 +970,7 @@ A few settings that are useful in programming buffers
   (setq whitespace-style '(face tabs tab-mark trailing))
   (setq-local fill-column 80)
   (setq-local show-trailing-whitespace t)
+  (show-paren-mode t)
   (display-line-numbers-mode)
   (highlight-indent-guides-mode)
   (display-fill-column-indicator-mode)
@@ -1039,8 +1025,12 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 #+begin_src emacs-lisp
 (use-package rust-mode
   :ensure t
-  :custom (rust-format-on-save t)
-  :bind (:map rust-mode-map ("C-c c r" . rust-run) ("C-c c a r" . td/rust-run-args)))
+  :bind (:map rust-mode-map ("C-c c r" . rust-run) ("C-c c a r" . td/rust-run-args))
+  :config
+  (setq rust-format-on-save t)
+  (setq lsp-rust-analyzer-server-display-inlay-hints t)
+  (setq lsp-rust-analyzer-inlay-hints-mode t))
+
 (defun td/rust-run-args (s)
   (interactive "sOptional Args:")
   (rust--compile (concat "%s run " s) rust-cargo-bin))
@@ -1169,9 +1159,3 @@ Snippets! They're helpful.
   :ensure t)
 #+end_src
 
-** File Local Variables
-I'd prefer to not have the ~-*-~ markers at the top of this document
-# Local Variables:
-# mode: org
-# before-save-hook: org-make-toc
-# End:
