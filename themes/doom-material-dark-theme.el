@@ -1,7 +1,6 @@
 ;;; doom-material-dark-theme.el --- inspired by Material Theme by xrei -*- lexical-binding: t; no-byte-compile: t; -*-
 (require 'doom-themes)
 
-;;
 (defgroup doom-material-dark-theme nil
   "Options for the `material dark' theme."
   :group 'doom-themes)
@@ -13,7 +12,6 @@ Can be an integer to determine the exact padding."
   :group 'doom-material-dark-theme
   :type '(choice integer boolean))
 
-;;
 (def-doom-theme doom-material-dark
   "A darker version of the Material Theme inspired by xrei"
 
@@ -98,6 +96,8 @@ Can be an integer to determine the exact padding."
      :inherit '(hl-line default)
      :foreground cyan :distant-foreground nil
      :weight 'normal :italic nil :underline nil :strike-through nil)
+   (completions-first-difference :foreground yellow)
+   (icomplete-first-match :foreground green :underline t :weight 'ultrabold)
 
    ;;;; doom-modeline
    (doom-modeline-buffer-path       :foreground green :weight 'bold)
