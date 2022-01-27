@@ -62,6 +62,9 @@ Herein lies my Emacs configuration. Use it well
   - [[#web-mode][Web Mode]]
   - [[#yaml][YAML]]
   - [[#yasnippet][Yasnippet]]
+- [[#about-this-config][About This Config]]
+  - [[#installation][Installation]]
+  - [[#current-mindset][Current Mindset]]
 :END:
 
 ** Performance Tweaks
@@ -1162,3 +1165,24 @@ Snippets! They're helpful.
   :ensure t)
 #+end_src
 
+
+** About This Config
+This literate configuration is a labour of love from a man who changes his mind and mixes things up /often/.
+
+I'm not sure it will ever be finished or perfect. At times, things may clunk. I will do my best to clunk them in another branch.
+
+If you like this config the way you found it, make sure that you fork it or make note of which commit you preferred.
+
+*** Installation
+If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
+
+1. Clone this repository to =~/.config/emacs=
+2. Copy [[file:init.default.el][init.default.el]] to =~./init.el=
+3. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
+4. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+5. Run emacs for the first time.
+
+*** Current Mindset
+At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going poorly, but it's getting better over time.
+
+Be sure to check back later.
