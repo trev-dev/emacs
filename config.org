@@ -17,7 +17,6 @@ Herein lies my Emacs configuration. Use it well
   - [[#doom-themes][DOOM Themes]]
   - [[#emacs][Emacs]]
   - [[#font-setup][Font Setup]]
-  - [[#sublimity][Sublimity]]
   - [[#telephone-line][Telephone Line]]
 - [[#utility-packages][Utility Packages]]
   - [[#avy][Avy]]
@@ -258,16 +257,6 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
 (use-package composite
   :hook (prog-mode . auto-composition-mode)
   :init (global-auto-composition-mode -1))
-#+end_src
-
-*** Sublimity
-It's silly...but I like smooth scrolling.
-#+begin_src emacs-lisp
-(use-package sublimity
-  :ensure t
-  :config
-  (require 'sublimity-scroll)
-  (sublimity-mode 1))
 #+end_src
 
 *** Telephone Line
