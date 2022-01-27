@@ -1165,7 +1165,6 @@ Snippets! They're helpful.
   :ensure t)
 #+end_src
 
-
 ** About This Config
 This literate configuration is a labour of love from a man who changes his mind and mixes things up /often/.
 
