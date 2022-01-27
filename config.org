@@ -19,7 +19,6 @@ Herein lies my Emacs configuration. Use it well
   - [[#font-setup][Font Setup]]
   - [[#sublimity][Sublimity]]
   - [[#telephone-line][Telephone Line]]
-    - [[#customize-this-thing-a-bit][Customize this thing a bit]]
 - [[#utility-packages][Utility Packages]]
   - [[#avy][Avy]]
   - [[#dashboard][Dashboard]]
@@ -274,6 +273,10 @@ It's silly...but I like smooth scrolling.
 *** Telephone Line
 A simple, but nicer looking modeline
 **** TODO Customize this thing a bit
+:PROPERTIES:
+:TOC:   :ignore this
+:END:
+
 #+begin_src emacs-lisp
 (use-package telephone-line
   :ensure t
