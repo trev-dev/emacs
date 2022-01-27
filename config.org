@@ -25,6 +25,7 @@ Herein lies my Emacs configuration. Use it well
   - [[#elfeed][Elfeed]]
   - [[#evil][Evil!]]
   - [[#expand-region][Expand Region]]
+  - [[#god-mode][God Mode]]
   - [[#magit][Magit]]
   - [[#mu4e][Mu4e]]
   - [[#ivy][Ivy]]
@@ -403,6 +404,21 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
 (use-package expand-region
   :ensure t
   :bind ("C-=" . er/expand-region))
+#+end_src
+
+*** God Mode
+Some of the native keybinds are hard for me to wrap my head around. Take ~C-M-@~, for instance.
+
+All of these keys required to do this command are on the left-hand-side of the keyboard. For myself, the compulsion is to try and do hit them all with my left hand.
+
+I'm getting used to using my right hand for Meta for many things, but it's taking time. My previous experiences with Vim were more comfortable/simple to adapt to than learning ambidexterity.
+
+I don't want to re-map all of the things in Emacs. For now, what I will do, is reduce the number of simultaneous button presses with God Mode.
+
+#+begin_src emacs-lisp
+(use-package god-mode
+  :ensure t
+  :bind ("<escape>" . god-local-mode))
 #+end_src
 
 *** Magit
