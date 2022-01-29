@@ -25,7 +25,6 @@ Herein lies my Emacs configuration. Use it well
   - [[#elfeed][Elfeed]]
   - [[#evil][Evil!]]
   - [[#expand-region][Expand Region]]
-  - [[#god-mode][God Mode]]
   - [[#magit][Magit]]
   - [[#mu4e][Mu4e]]
   - [[#orderless][Orderless]]
@@ -43,7 +42,6 @@ Herein lies my Emacs configuration. Use it well
   - [[#cssscss][CSS/SCSS]]
   - [[#emmet][Emmet]]
   - [[#flycheck][Flycheck]]
-  - [[#highlight-indent-guides][Highlight Indent Guides]]
   - [[#golang][GoLang]]
   - [[#lsp][LSP]]
   - [[#markdown][Markdown]]
@@ -173,7 +171,7 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
   ;; (doom-themes-neotree-config)
   ;; or for treemacs users
   (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
-  ;; (doom-themes-treemacs-config)
+  (doom-themes-treemacs-config)
   ;; corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
@@ -411,31 +409,6 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
   :bind ("C-=" . er/expand-region))
 #+end_src
 
-*** God Mode
-Some of the native keybinds are hard for me to wrap my head around. Take ~C-M-@~, for instance.
-
-All of these keys required to do this command are on the left-hand-side of the keyboard. For myself, the compulsion is to try and do hit them all with my left hand.
-
-I'm getting used to using my right hand for Meta for many things, but it's taking time. My previous experiences with Vim were more comfortable/simple to adapt to than learning ambidexterity.
-
-I don't want to re-map all of the things in Emacs. For now, what I will do, is reduce the number of simultaneous button presses with God Mode.
-
-#+begin_src emacs-lisp
-(defun td/god-mode-hook ()
-  "Make a modeline agnostic way for me to know I'm in God Mode"
-  (if god-local-mode
-      (progn
-        (setq prev-cursor (cdr (assoc 'cursor-type (frame-parameters))))
-        (setq cursor-type 'hollow))
-    (setq cursor-type prev-cursor)))
-
-(use-package god-mode
-  :ensure t
-  :defer t
-  :hook (post-command . td/god-mode-hook)
-  :bind ("<escape>" . god-local-mode))
-#+end_src
-
 *** Magit
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
@@ -538,7 +511,6 @@ Project management. Makes it very easy to quickly switch to a project root (fold
 #+begin_src emacs-lisp :tangle no
 (use-package treemacs
   :ensure t
-  :defer t
   :init
   (with-eval-after-load 'winum
     (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
@@ -550,10 +522,6 @@ Project management. Makes it very easy to quickly switch to a project root (fold
         ("C-x t B"   . treemacs-bookmark)
         ("C-x t C-t" . treemacs-find-file)
         ("C-x t M-t" . treemacs-find-tag)))
-
-(use-package treemacs-evil
-  :after (treemacs evil)
-  :ensure t)
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
@@ -620,7 +588,7 @@ Completions at point!
   :config
   (setq company-backends '((company-files company-keywords company-capf company-yasnippet)
                            (company-abbrev company-dabbrev)))
-  (company-idle-delay 0.0))
+  (setq company-idle-delay 0.0))
 #+end_src
 
 *** CSS/SCSS
@@ -699,16 +667,6 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
     :info-list-face 'flycheck-info-list-info))
 #+end_src
 
-*** Highlight Indent Guides
-#+begin_src emacs-lisp
-(use-package highlight-indent-guides
-  :ensure t
-  :custom
-  (highlight-indent-guides-method 'character)
-  (highlight-indent-guides-bitmap-function 'highlight-indent-guides--bitmap-line)
-  (highlight-indent-guides-responsive 'top))
-#+end_src
-
 *** GoLang
 #+begin_src emacs-lisp
 (use-package go-mode
@@ -721,6 +679,7 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
 
 #+begin_src emacs-lisp
 (use-package lsp-mode
+  :ensure t
   :init
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
@@ -751,12 +710,13 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
 
 (use-package lsp-treemacs
+  :ensure t
   :bind ("M-j" . lsp-treemacs-symbols) ("M-e" . lsp-treemacs-errors-list)
   :commands lsp-treemacs-errors-list lsp-treemacs-symbols
   :custom (lsp-treemacs-sync-mode 1))
 
 (use-package lsp-ui
-  :ensure
+  :ensure t
   :custom
   (lsp-ui-peek-always-show t)
   (lsp-ui-doc-enable t)
