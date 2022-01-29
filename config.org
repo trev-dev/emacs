@@ -426,6 +426,7 @@ I don't want to re-map all of the things in Emacs. For now, what I will do, is r
 
 (use-package god-mode
   :ensure t
+  :defer t
   :hook (post-command . td/god-mode-hook)
   :bind ("<escape>" . god-local-mode))
 #+end_src
