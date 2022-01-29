@@ -171,6 +171,9 @@ Can be an integer to determine the exact padding."
    ;;;; css
    (css-property :foreground orange)
    (css-proprietary-property :foreground magenta)
-   (css-selector :foreground yellow)))
+   (css-selector :foreground yellow)
+   ;;;; Ledger Mode
+   (ledger-occur-xact-face :background nil :weight 'ultrabold)))
+
 
 ;;; Doom-material-theme.el ends here
