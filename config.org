@@ -140,10 +140,13 @@ These are used all over the place
 #+end_src
 
 *** Dired
-
 #+begin_src emacs-lisp
-(add-hook 'dired-mode-hook (lambda()
-                             (dired-hide-details-mode)))
+(straight-use-package '(all-the-icons-dired
+                        :type git :host github :repo "wyuenho/all-the-icons-dired"))
+(set 'all-the-icons-dired-monochrome nil)
+(add-hook 'dired-mode-hook '(lambda()
+                             (dired-hide-details-mode)
+                             (all-the-icons-dired-mode)))
 #+end_src
 
 *** DOOM Themes
