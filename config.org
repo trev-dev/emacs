@@ -31,10 +31,7 @@ Herein lies my Emacs configuration. Use it well
   - [[#ledger][Ledger]]
   - [[#projectile][Projectile]]
   - [[#rg][RG]]
-  - [[#treemacs][Treemacs]]
   - [[#undo-tree][Undo-Tree]]
-  - [[#volatile-highlights][Volatile Highlights]]
-  - [[#vterm][VTerm]]
   - [[#which-key][Which-key]]
 - [[#syntax-support][Syntax Support]]
   - [[#company-completions][Company Completions]]
@@ -166,12 +163,6 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
-  ;; enable custom neotree theme (all-the-icons must be installed!)
-  ;; (doom-themes-neotree-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
-  (doom-themes-treemacs-config)
-  ;; corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
 ;; (use-package doom-modeline
@@ -544,36 +535,6 @@ Project management. Makes it very easy to quickly switch to a project root (fold
   (rg-enable-default-bindings))
 #+end_src
 
-*** Treemacs
-
-#+begin_src emacs-lisp :tangle no
-(use-package treemacs
-  :ensure t
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-  :bind
-  (:map global-map
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
-
-(use-package treemacs-projectile
-  :after (treemacs projectile)
-  :ensure t)
-
-(use-package treemacs-icons-dired
-  :hook (dired-mode . treemacs-icons-dired-enable-once)
-  :ensure t)
-
-(use-package treemacs-magit
-  :after (treemacs magit)
-  :ensure t)
-#+end_src
-
 *** Undo-Tree
 Mostly want undo tree for better redo support for Evil
 
@@ -746,12 +707,6 @@ The meat and potatoes of the modern text editor turned IDE, all thanks to Micros
 
 (with-eval-after-load 'lsp-mode
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
-
-(use-package lsp-treemacs
-  :ensure t
-  :bind ("M-j" . lsp-treemacs-symbols) ("M-e" . lsp-treemacs-errors-list)
-  :commands lsp-treemacs-errors-list lsp-treemacs-symbols
-  :custom (lsp-treemacs-sync-mode 1))
 
 (use-package lsp-ui
   :ensure t
