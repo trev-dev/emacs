@@ -286,7 +286,7 @@ Packages that extend and augment emacs in a general way
 #+begin_src emacs-lisp
 (use-package avy
   :ensure t
-  :bind ("C-:" . avy-goto-char) ("M-g f" . avy-goto-line) ("M-g w" . avy-goto-word-1)
+  :bind ("C-;" . avy-goto-char) ("M-g f" . avy-goto-line) ("M-g w" . avy-goto-word-1)
   :config
   (avy-setup-default))
   #+end_src
