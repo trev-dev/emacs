@@ -26,9 +26,8 @@ Herein lies my Emacs configuration. Use it well
   - [[#evil][Evil!]]
   - [[#expand-region][Expand Region]]
   - [[#magit][Magit]]
+  - [[#minibuffer-completions][Minibuffer Completions]]
   - [[#mu4e][Mu4e]]
-  - [[#orderless][Orderless]]
-  - [[#ivy][Ivy]]
   - [[#ledger][Ledger]]
   - [[#projectile][Projectile]]
   - [[#rg][RG]]
@@ -209,15 +208,6 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (global-set-key (kbd "M-o f") 'windmove-right)
 (global-set-key (kbd "M-o p")    'windmove-up)
 (global-set-key (kbd "M-o n")  'windmove-down)
-
-;; Minibuffer/completion
-(require 'icomplete)
-(icomplete-mode 1)
-(define-key icomplete-minibuffer-map (kbd "C-n") 'icomplete-forward-completions)
-(define-key icomplete-minibuffer-map (kbd "C-p") 'icomplete-backward-completions)
-(define-key icomplete-minibuffer-map (kbd "TAB") 'icomplete-force-complete)
-(define-key icomplete-minibuffer-map (kbd "<RET>") 'icomplete-force-complete-and-exit)
-
 #+end_src
 
 *** Font Setup
@@ -399,53 +389,121 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
   (global-set-key (kbd "C-c g") 'magit-status))
 #+end_src
 
+*** Minibuffer Completions
+A combination of packages to customize the minibuffer, as you rarely want to use just one.
+#+begin_src emacs-lisp
+;; Selectrum completions with prescient
+(straight-use-package 'selectrum)
+(straight-use-package 'selectrum-prescient)
+(selectrum-mode +1)
+(selectrum-prescient-mode +1)
+(prescient-persist-mode +1)
+
+;; Enable richer annotations using the Marginalia package
+(use-package marginalia
+  :ensure t
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  :init
+  (marginalia-mode))
+
+;; Example configuration for Consult
+(use-package consult
+  :ensure t
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (;; C-c bindings (mode-specific-map)
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-mode-command)
+         ("C-c k" . consult-kmacro)
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
+         ("C-x r b" . consult-bookmark)            ; orig. bookmark-jump
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ; orig. yank-pop
+         ("<help> a" . consult-apropos)            ; orig. apropos-command
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ; orig. goto-line
+         ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s d" . consult-find)
+         ("M-s D" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s m" . consult-multi-occur)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi))           ; needed by consult-line to detect isearch
+
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI. You may want to also
+  ;; enable `consult-preview-at-point-mode` in Embark Collect buffers.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  (setq register-preview-delay 0
+        register-preview-function #'consult-register-format)
+
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  ;; Optionally replace `completing-read-multiple' with an enhanced version.
+  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+  :config
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key (kbd "M-."))
+  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme
+   :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+   :preview-key (kbd "M-."))
+
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; (kbd "C-+")
+
+  (setq consult-project-root-function #'projectile-project-root))
+#+end_src
+
 *** Mu4e
 Setting up mu4e with contexts feels like a pretty massive process. I've decided to load that config from an external file to keep this file sane. Also, I've decided not to expose my email addresses/configs here. Apologies for those who may be looking for an example!
 
 If you're looking for help with mu/4e I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]]
 #+begin_src emacs-lisp
 (load-file "~/.config/emacs/mu4e-config.el")
-#+end_src
-
-*** Orderless
-The most flexible completion style.
-#+begin_src emacs-lisp
-(use-package orderless
-  :ensure t
-  :config
-  (setq completion-styles '(orderless)))
-#+end_src
-
-*** Ivy
-Nicer command completions for emacs. Not as bloated as Helm. Ivy requires 3 packages
-
-#+begin_src :tangle no
-;; Completions with counsel
-(use-package counsel
-  :ensure t
-  :config
-  (counsel-mode 1))
-
-;; Search better with swiper
-(use-package swiper
-  :ensure t
-  :config
-  (counsel-mode 1))
-
-;; The interface for swiper/counsel
-(use-package ivy
-  :ensure t
-  :requires (counsel swiper)
-  :config
-  (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t)
-  (setq enable-recursive-minibuffers t)
-  ;; enable this if you want `swiper' to use it
-  ;; (setq search-default-mode #'char-fold-to-regexp)
-  (global-set-key "\C-s" 'swiper)
-  (global-set-key (kbd "C-c C-r") 'ivy-resume)
-  (global-set-key (kbd "<f6>") 'ivy-resume)
-  (global-set-key (kbd "M-x") 'counsel-M-x))
 #+end_src
 
 *** Ledger
