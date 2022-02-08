@@ -339,25 +339,19 @@ Show me the diffs in the fringe!
 *** Evil!
 I like Vim bindings. Many of the plugins included here are commonly enjoyed in Vim. Most of them can be looked up [[https://www.emacswiki.org/emacs/Evil#h5o-6][in the wiki]].
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package evil
   :ensure t
   :init
-  (setq evil-undo-system 'undo-tree)
-  (setq evil-want-keybinding nil)
-  (setq evil-shift-width tab-width)
-  (evil-mode 1)
-  :custom
-  evil-visual-state-cursor 'hbar)
-
-;; Easily wrap selections/motions in pairs
-(use-package evil-surround
-  :requires evil
-  :ensure t
+  (setq evil-undo-system 'undo-tree
+        evil-search-module 'evil-search
+        evil-visual-state-cursor 'hbar
+        evil-want-keybinding nil
+        evil-disable-insert-state-bindings t)
   :config
-  (global-evil-surround-mode 1))
+  (evil-mode 1))
 
-;; A collection of vim-rebinds that evil doesn't cover
+;; Attempt to unify keybinds in other areas
 (use-package evil-collection
   :requires evil
   :after evil
@@ -365,7 +359,14 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
   :config
   (evil-collection-init))
 
-;; Org mode keybind improvements
+;; Easily wrap/change surrounding delims/quotes
+(use-package evil-surround
+  :requires evil
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+
+;; Org bindings
 (use-package evil-org
   :requires evil
   :ensure t
@@ -374,32 +375,11 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 
-;; Highlight text when yanked, popped, deleted or changed with motions. Helps me visually grok what a motion has done.
-(use-package evil-goggles
-  :requires evil
-  :ensure t
-  :custom-face
-  (evil-goggles-delete-face ((t (:foreground "#620707" :background "#F57373"))))
-  (evil-goggles-paste-face ((t (:foreground "#426214" :background "#C3E88D"))))
-  (evil-goggles-default-face ((t (:foreground "#002A82" :background "#82AAFF"))))
-  :config
-  (evil-goggles-mode))
-
 ;; Easy commenting
 (use-package evil-commentary
   :requires evil
   :ensure t
   :config (evil-commentary-mode))
-
-;; Think Ace Jump, but it's Vim. I've intentionally set the scope to much larger than the default of "after where you are on this line".
-(use-package evil-snipe
-  :requires evil
-  :ensure t
-  :config
-  (evil-snipe-mode 1)
-  (evil-snipe-override-mode 1)
-  (setq evil-snipe-scope 'whole-visible)
-  (setq evil-snipe-spillover-scope 'whole-buffer))
 #+end_src
 
 *** Expand Region
