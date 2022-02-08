@@ -153,7 +153,10 @@ Can be an integer to determine the exact padding."
    ;;;; Magit
    (magit-header-line :background (doom-lighten modeline-bg 0.2) :foreground green :weight 'bold
                       :box `(:line-width 3 :color ,(doom-lighten modeline-bg 0.2)))
-   ;;;; Treemacs
+   ;;;; Selectrum
+   (selectrum-current-candidate :foreground green :underline green :weight 'ultrabold)
+   (selectrum-prescient-primary-highlight :foreground cyan)
+   (selectrum-prescient-secondary-highlight :foreground yellow)
    (treemacs-git-modified-face :foreground vc-modified)
    ;;;; Web Mode
    (web-mode-html-tag-face :foreground red)
@@ -174,6 +177,7 @@ Can be an integer to determine the exact padding."
    (css-selector :foreground yellow)
    ;;;; Ledger Mode
    (ledger-occur-xact-face :background nil :weight 'ultrabold)))
+
 
 
 ;;; Doom-material-theme.el ends here
