@@ -103,8 +103,10 @@ We need packages, so we're going to setup some repos and pre-install use-package
 #+begin_src emacs-lisp
 (require 'package)
 
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'package-archives '("elpa" . "https://elpa.gnu.org/packages/"))
+(dolist (repo '(("elpa" . "https://elpa.gnu.org/packages/")
+                ("melpa" . "https://melpa.org/packages/")
+                ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+  (add-to-list 'package-archives repo))
 
 (setq package-enable-at-startup nil)
 (package-initialize)
@@ -158,7 +160,7 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 (use-package doom-themes
   :ensure t
   :requires all-the-icons
-  :config
+  :init
   ;; global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
@@ -547,24 +549,6 @@ Mostly want undo tree for better redo support for Evil
   :config (global-undo-tree-mode))
 #+end_src
 
-*** Volatile Highlights
-#+begin_src emacs-lisp
-(use-package volatile-highlights
-  :ensure t
-  :config
-  (vhl/define-extension 'undo-tree 'undo-tree-yank 'undo-tree-move)
-  (vhl/install-extension 'undo-tree))
-#+end_src
-
-*** VTerm
-A real-ish terminal for emacs that doesn't make me hurt inside. Requires =libvterm=. [[https://github.com/jixiuf/emacs-libvterm][Documentation is here]]. This needs to be installed & compiled /after/ magit, because for [[https://github.com/magit/with-editor/issues/86][whatever reason]], attempting to install vterm first breaks magit.
-
-#+begin_src emacs-lisp
-(use-package vterm
-  :ensure t
-  :bind ("C-c t" . vterm))
-#+end_src
-
 *** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
@@ -742,8 +726,7 @@ Customizations for what is one of the best features that emacs comes with. If we
   "Hooks for Org Mode in general"
   (org-indent-mode)
   (yas-minor-mode)
-  (org-clock-persistence-insinuate)
-  (volatile-highlights-mode))
+  (org-clock-persistence-insinuate))
 
 (defvar td/tag-list
   '((:startgroup)
@@ -818,24 +801,36 @@ Customizations for what is one of the best features that emacs comes with. If we
   :bind
   ("C-c a" . org-agenda)
   (:map org-mode-map ("C-c t" . org-table-export))
-  :custom
-  (org-fontify-quote-and-verse-blocks t)
-  (org-directory "~/Org")
-  (org-log-done 'time)
-  (org-log-into-drawer t)
-  (org-enforce-todo-dependencies t)
-  (org-enforce-todo-checkbox-dependencies t)
-  (org-src-preserve-indentation t)
-  (org-clock-persist 'history)
-  (org-agenda-block-separator "──────────")
-  (org-duration-format '(("h" . nil) (special . 2)))
-  (org-clock-total-time-cell-format "%s")
-  (org-agenda-files '("~/Org"))
-  (org-tag-alist td/tag-list)
-  (org-todo-keywords td/todo-keywords)
-  (setq org-clock-sound "~/.config/emacs/inspectorj_bell.wav")
-  (setq org-timer-default-timer "25")
-  (org-agenda-custom-commands td/org-agenda-commands))
+  :config
+  (setq org-fontify-quote-and-verse-blocks t
+        org-directory "~/Org"
+        org-log-done 'time
+        org-log-into-drawer t
+        org-enforce-todo-dependencies t
+        org-enforce-todo-checkbox-dependencies t
+        org-src-preserve-indentation t
+        org-clock-persist 'history
+        org-agenda-block-separator "──────────"
+        org-duration-format '(("h" . nil) (special . 2))
+        org-clock-total-time-cell-format "%s"
+        org-agenda-files '("~/Org")
+        org-tag-alist td/tag-list
+        org-todo-keywords td/todo-keywords
+        org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
+        org-timer-default-timer "25"
+        org-agenda-custom-commands td/org-agenda-commands))
+
+(setq org-capture-templates
+      '(("c" "Cookbook" entry (file "~/org/cookbook.org")
+         "%(org-chef-get-recipe-from-url)"
+         :empty-lines 1)
+        ("m" "Manual Cookbook" entry (file "~/org/cookbook.org")
+         "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")))
+
+(use-package org-chef
+  :ensure t)
+
+(use-package org-contrib :ensure t :after org)
 
 (straight-use-package '(org-view-mode :type git :host github :repo "amno1/org-view-mode"
                                       :fork (:host github :repo "trev-dev/org-view-mode")))
@@ -978,13 +973,11 @@ A few settings that are useful in programming buffers
   (setq-local show-trailing-whitespace t)
   (show-paren-mode t)
   (display-line-numbers-mode)
-  (highlight-indent-guides-mode)
   (display-fill-column-indicator-mode)
   (electric-pair-local-mode)
   (local-set-key (kbd "<RET>") 'newline-and-indent)
   (local-set-key (kbd "C-c i") 'td/toggle-indent-tabs-mode)
   (yas-minor-mode)
-  (volatile-highlights-mode)
   (td/infer-indentation-style)
   (whitespace-mode))
 
