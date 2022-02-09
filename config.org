@@ -809,6 +809,7 @@ Customizations for what is one of the best features that emacs comes with. If we
   :config
   (setq org-fontify-quote-and-verse-blocks t
         org-directory "~/Org"
+        org-archive-location "archives/%s_archive::"
         org-log-done 'time
         org-log-into-drawer t
         org-enforce-todo-dependencies t
