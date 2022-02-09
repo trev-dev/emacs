@@ -728,7 +728,7 @@ Customizations for what is one of the best features that emacs comes with. If we
 
 #+begin_src emacs-lisp
 (defun td/org-hook ()
-  "Hooks for Org Mode in general"
+  "My hooks for `org-mode`."
   (org-indent-mode)
   (yas-minor-mode)
   (org-clock-persistence-insinuate))
@@ -744,13 +744,13 @@ Customizations for what is one of the best features that emacs comes with. If we
     ("foss" . ?f)
     ("blog" . ?b)
     ("idea" . ?i))
-  "The tags for org headlines")
+  "The tags for org headlines.")
 
 (defvar td/todo-keywords
 `((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
   (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)"
             "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)"))
-  "A sequence of keywords for Org headlines")
+  "A sequence of keywords for Org headlines.")
 
 (defvar td/org-agenda-commands
   '(("d" "Dashboard"
@@ -796,7 +796,7 @@ Customizations for what is one of the best features that emacs comes with. If we
            ((org-agenda-overriding-header "Cancelled Projects")
             (org-agenda-files
              org-agenda-files))))))
-  "Custom commands for Org Agenda")
+  "Custom commands for Org Agenda.")
 
 (use-package org
   :ensure t
