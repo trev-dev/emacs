@@ -371,6 +371,17 @@ I like Vim bindings. Many of the plugins included here are commonly enjoyed in V
   :requires evil
   :ensure t
   :config (evil-commentary-mode))
+
+(use-package evil-goggles
+  :straight t
+  :custom-face
+  (evil-goggles-default-face ((t (:foreground "#29424c" :background "#89DDFF"))))
+  (evil-goggles-delete-face ((t (:foreground "#5b2b2b" :background "#f57373"))))
+  (evil-goggles-paste-face ((t (:foreground "#58683f" :background "#c3e88d"))))
+  :config
+  (setq evil-goggles-duration 0.200)
+  (setq evil-goggles-pulse nil)  ; Pulse doesn't seem to work consistently :/
+  (evil-goggles-mode))
 #+end_src
 
 *** Expand Region
