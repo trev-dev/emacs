@@ -29,15 +29,15 @@ Herein lies my Emacs configuration. Use it well
   - [[#minibuffer-completions][Minibuffer Completions]]
   - [[#mu4e][Mu4e]]
   - [[#ledger][Ledger]]
-  - [[#projectile][Projectile]]
   - [[#rg][RG]]
   - [[#undo-tree][Undo-Tree]]
   - [[#which-key][Which-key]]
 - [[#syntax-support][Syntax Support]]
   - [[#company-completions][Company Completions]]
   - [[#cssscss][CSS/SCSS]]
+  - [[#eglot][Eglot]]
   - [[#emmet][Emmet]]
-  - [[#flycheck][Flycheck]]
+  - [[#flymake][Flymake]]
   - [[#golang][GoLang]]
   - [[#lsp][LSP]]
   - [[#markdown][Markdown]]
@@ -289,7 +289,7 @@ Packages that extend and augment emacs in a general way
   :config
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
         dashboard-startup-banner 'logo
-        project-projects-backend 'project-el
+        dashboard-projects-backend 'project-el
         dashboard-items '((projects . 5)
                           (recents . 5)
                           (agenda . 5)
@@ -506,8 +506,10 @@ A combination of packages to customize the minibuffer, as you rarely want to use
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
-
-  (setq consult-project-root-function #'projectile-project-root))
+  (setq consult-project-root-function
+        (lambda ()
+          (when-let (project (project-current))
+            (car (project-roots project))))))
 #+end_src
 
 *** Mu4e
@@ -527,26 +529,6 @@ Knowing what resources you have at your disposal and learning how to budget are 
   :custom
   (ledger-report-use-native-highlighting t)
   :ensure t)
-(use-package flycheck-ledger
-  :ensure t
-  :after flycheck)
-#+end_src
-
-*** Projectile
-Project management. Makes it very easy to quickly switch to a project root (folder with git initialized) and then quickly pull up files or search file contents.
-
-#+begin_src emacs-lisp
-(use-package projectile
-  :ensure t
-  :config
-  (projectile-mode +1)
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  ;; (setq projectile-completion-systen 'ivy)
-  ;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  ;; (define-key projectile-mode-map (kbd "C-c p s s") 'counsel-ag)
-  ;; (define-key projectile-mode-map (kbd "C-c p s r") 'counsel-rg)
-  ;; (define-key projectile-mode-map (kbd "C-c p s g") 'counsel-grep-or-swiper)
-  (setq projectile-project-search-path '(("~/Projects/" . 2) "/srv/www")))
 #+end_src
 
 *** RG
@@ -583,10 +565,8 @@ Completions at point!
 #+begin_src emacs-lisp
 (use-package company
   :ensure t
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
   :bind (:map company-active-map ("<tab>" . company-complete-selection))
-  (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
+  (:map prog-mode-map ("<tab>" . company-indent-or-complete-common))
   :config
   (setq company-backends '((company-files company-keywords company-capf company-yasnippet)
                            (company-abbrev company-dabbrev)))
@@ -598,6 +578,16 @@ Completions at point!
 #+begin_src emacs-lisp
 (add-hook 'css-mode-hook #'(lambda () (setq-local css-indent-offset 2
                                                   tab-width 2)))
+#+end_src
+
+*** Eglot
+Simpler, lighter LSP for emacs
+#+begin_src emacs-lisp
+(straight-use-package 'eglot)
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
+  (dolist (mode '(php-mode-hook))
+    (add-hook mode #'elgot-ensure)))
 #+end_src
 
 *** Emmet
@@ -615,58 +605,9 @@ Completions at point!
   (svelte-mode . emmet-mode))
 #+end_src
 
-*** Flycheck
-Linting, mostly for lsp-mode :D. I did not like the default fringe markers as the expect a minimum fringe of 8-16px, so I followed a [[https://emacs.stackexchange.com/questions/36363/how-to-change-flycheck-symbol-like-spacemacs#answer-36373][tip on how to change up the marker]] for a 4px fringe.
-
+*** Flymake
 #+begin_src emacs-lisp
-(define-fringe-bitmap 'flycheck-fringe-bitmap-caret
-  (vector #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b10000000
-          #b11000000
-          #b11100000
-          #b11110000
-          #b11100000
-          #b11000000
-          #b10000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000))
-
-(use-package flycheck
-  :ensure t
-  :hook
-    (lsp-mode . flycheck-mode)
-    (ledger-mode . flycheck-mode)
-  :bind ("C-c f" . flycheck-mode)
-  :config
-  (setq flycheck-checker-error-threshold 1000)
-  (flycheck-define-error-level 'error
-    :severity 100
-    :compilation-level 2
-    :overlay-category 'flycheck-error-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-error
-    :error-list-face 'flycheck-error-list-error)
-  (flycheck-define-error-level 'warning
-    :severity 100
-    :compilation-level 1
-    :overlay-category 'flycheck-warning-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-warning
-    :warning-list-face 'flycheck-warning-list-warning)
-  (flycheck-define-error-level 'info
-    :severity 100
-    :compilation-level 1
-    :overlay-category 'flycheck-info-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-info
-    :info-list-face 'flycheck-info-list-info))
+(use-package flymake :ensure t)
 #+end_src
 
 *** GoLang
@@ -679,7 +620,7 @@ Linting, mostly for lsp-mode :D. I did not like the default fringe markers as th
 *** LSP
 The meat and potatoes of the modern text editor turned IDE, all thanks to Microsoft doing an open source thing with VSCode.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (use-package lsp-mode
   :ensure t
   :init
@@ -1041,11 +982,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 #+begin_src emacs-lisp
 (use-package rust-mode
   :ensure t
-  :bind (:map rust-mode-map ("C-c c r" . rust-run) ("C-c c a r" . td/rust-run-args))
-  :config
-  (setq rust-format-on-save t)
-  (setq lsp-rust-analyzer-server-display-inlay-hints t)
-  (setq lsp-rust-analyzer-inlay-hints-mode t))
+  :bind (:map rust-mode-map ("C-c c r" . rust-run) ("C-c c a r" . td/rust-run-args)))
 
 (defun td/rust-run-args (s)
   (interactive "sOptional Args:")
@@ -1055,7 +992,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 *** Shopify Mode
 This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
                                         ; Derive liquid-mode from web-mode
 (define-derived-mode shopify-mode web-mode "Shopify"
   "Use web mode to highlight shopify liquid files")
