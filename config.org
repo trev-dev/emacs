@@ -580,10 +580,35 @@ Completions at point!
 Simpler, lighter LSP for emacs
 #+begin_src emacs-lisp
 (straight-use-package 'eglot)
+
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
-  (dolist (mode '(php-mode-hook))
-    (add-hook mode #'elgot-ensure)))
+  (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
+  (add-to-list 'elgot-server-programs '(shopify-mode
+                                        . ("theme-check-language-server" "--stdio")))
+  (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
+  (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
+  (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
+  (define-key eglot-mode-map (kbd "C-c r") 'xref-find-definitions))
+
+;;; Floating eldoc for eglot
+(setq x-gtk-resize-child-frames 'resize-mode)
+(straight-use-package 'eldoc-box)
+(setq eldoc-box-offset '(16 36 16))
+
+(defun td/eglot-hook ()
+  "Functions to call on-eglot."
+  (eglot-ensure)
+  (company-mode)
+  (eldoc-box-hover-at-point-mode))
+
+;;; Set-up programming modes to use Eglot
+(dolist (mode '(php-mode-hook
+                js-mode-hook
+                rjsx-mode-hook
+                typescript-mode-hook
+                svelte-mode-hook))
+  (add-hook mode #'td/eglot-hook))
 #+end_src
 
 *** Emmet
@@ -906,11 +931,27 @@ Here's an example:
 #+begin_src emacs-lisp
 (define-derived-mode php-mode web-mode "PHP"
   "I just want web-mode highlighting with .svelte files")
-(defun get-intelephense-key ()
-  "Get the intelephense key from a file"
+
+(defun td/get-intelephense-key ()
+  "Get my intelephense license key."
   (with-temp-buffer
     (insert-file-contents "~/Documents/intelephense.txt")
     (buffer-string)))
+
+(defun td/get-wordpress-stubs ()
+  "The stubs required for a WordPress Project"
+  (json-insert ["apache" "bcmath" "bz2" "calendar" "com_dotnet" "Core"
+   "ctype" "curl" "date" "dba" "dom" "enchant" "exif"
+   "fileinfo" "filter" "fpm" "ftp" "gd" "hash" "iconv" "imap"
+   "interbase" "intl" "json" "ldap" "libxml" "mbstring"
+   "mcrypt" "meta" "mssql" "mysqli" "oci8" "odbc" "openssl"
+   "pcntl" "pcre" "PDO" "pdo_ibm" "pdo_mysql" "pdo_pgsql"
+   "pdo_sqlite" "pgsql" "Phar" "posix" "pspell" "readline"
+   "recode" "Reflection" "regex" "session" "shmop" "SimpleXML"
+   "snmp" "soap" "sockets" "sodium" "SPL" "sqlite3" "standard"
+   "superglobals" "sybase" "sysvmsg" "sysvsem" "sysvshm" "tidy"
+   "tokenizer" "wddx" "xml" "xmlreader" "xmlrpc" "xmlwriter"
+   "Zend OPcache" "zip" "zlib" "wordpress"]))
 
 (provide 'php-mode)
 (add-to-list 'auto-mode-alist '("\\.php\\'" . php-mode))
@@ -1026,16 +1067,6 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
   (setq-local electric-pair-text-pairs electric-pair-pairs))
 
 (add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
-
-;; Shopify template lsp with theme-check
-(with-eval-after-load 'lsp-mode
-  (add-to-list 'lsp-language-id-configuration
-               '(shopify-mode . "shopify"))
-
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "theme-check-language-server")
-                    :activation-fn (lsp-activate-on "shopify")
-                    :server-id 'theme-check)))
 #+end_src
 
 *** Svelte
