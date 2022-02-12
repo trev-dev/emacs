@@ -981,6 +981,9 @@ A few settings that are useful in programming buffers
 
 (defun td/prog-mode-settings ()
   (setq whitespace-style '(face tabs tab-mark trailing))
+  (setq whitespace-display-mappings '((tab-mark 9 [9474 9] [92 9])))
+  (custom-set-faces
+   '(whitespace-tab ((t (:foreground "#636363")))))
   (setq-local fill-column 80)
   (setq-local show-trailing-whitespace t)
   (show-paren-mode t)
