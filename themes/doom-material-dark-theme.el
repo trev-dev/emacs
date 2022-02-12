@@ -176,7 +176,15 @@ Can be an integer to determine the exact padding."
    (css-proprietary-property :foreground magenta)
    (css-selector :foreground yellow)
    ;;;; Ledger Mode
-   (ledger-occur-xact-face :background nil :weight 'ultrabold)))
+   (ledger-occur-xact-face :background nil :weight 'ultrabold)
+   ;;;; Evil Googles
+   (evil-goggles-default-face :foreground (doom-darken cyan 0.5) :background cyan)
+   (evil-goggles-delete-face :foreground (doom-darken red 0.5) :background red)
+   (evil-goggles-paste-face :foreground (doom-darken green 0.5) :background green)
+   ;;;; Eglot
+   (eldoc-highlight-function-argument :weight 'bold :underline t)
+   (eglot-highlight-symbol-face :weight 'bold :background base3)
+   ))
 
 
 
