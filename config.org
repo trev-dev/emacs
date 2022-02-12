@@ -198,12 +198,6 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 
 ;; Browser
 (setq browse-url-generic-program "/usr/bin/firefox")
-
-;; Windmove
-(global-set-key (kbd "M-o b")  'windmove-left)
-(global-set-key (kbd "M-o f") 'windmove-right)
-(global-set-key (kbd "M-o p")    'windmove-up)
-(global-set-key (kbd "M-o n")  'windmove-down)
 #+end_src
 
 *** Font Setup
