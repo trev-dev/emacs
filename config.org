@@ -604,6 +604,29 @@ Simpler, lighter LSP for emacs
 *** Flymake
 #+begin_src emacs-lisp
 (use-package flymake :ensure t)
+
+(define-fringe-bitmap 'small-right-triangle
+  (vector #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b10000000
+          #b11000000
+          #b11100000
+          #b11110000
+          #b11100000
+          #b11000000
+          #b10000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000))
+
+(setq flymake-note-bitmap '(small-right-triangle compilation-info))
+(setq flymake-error-bitmap '(small-right-triangle compilation-error))
+(setq flymake-warning-bitmap '(small-right-triangle compilation-warning))
 #+end_src
 
 *** GoLang
