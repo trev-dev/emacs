@@ -20,11 +20,13 @@ Herein lies my Emacs configuration. Use it well
   - [[#telephone-line][Telephone Line]]
 - [[#utility-packages][Utility Packages]]
   - [[#avy][Avy]]
+  - [[#ctrlf][CTRLF]]
   - [[#dashboard][Dashboard]]
   - [[#diff-hl][Diff-hl]]
   - [[#elfeed][Elfeed]]
-  - [[#evil][Evil!]]
   - [[#expand-region][Expand Region]]
+  - [[#goggles][Goggles]]
+  - [[#hydra][Hydra]]
   - [[#magit][Magit]]
   - [[#minibuffer-completions][Minibuffer Completions]]
   - [[#mu4e][Mu4e]]
@@ -554,7 +556,7 @@ Simpler, lighter LSP for emacs
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
   (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
-  (add-to-list 'elgot-server-programs '(shopify-mode
+  (add-to-list 'eglot-server-programs '(shopify-mode
                                         . ("theme-check-language-server" "--stdio")))
   (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
   (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
