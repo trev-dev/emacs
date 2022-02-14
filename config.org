@@ -275,6 +275,12 @@ Packages that extend and augment emacs in a general way
   :config
   (avy-setup-default))
   #+end_src
+*** CTRLF
+Improved buffer searching
+#+begin_src emacs-lisp
+(straight-use-package 'ctrlf)
+(ctrlf-mode +1)
+#+end_src
 
 *** Dashboard
 #+begin_src emacs-lisp
@@ -326,6 +332,26 @@ Show me the diffs in the fringe!
 (use-package expand-region
   :ensure t
   :bind ("C-=" . er/expand-region))
+#+end_src
+
+*** Goggles
+Goggles is light volatile highlights, but cooler. If you're familiar with evil-goggles, this is the "holy" equivalent.
+#+begin_src emacs-lisp
+(straight-use-package 'goggles)
+(add-hook 'prog-mode-hook 'goggles-mode)
+(add-hook 'text-mode-hook 'goggles-mode)
+#+end_src
+
+*** Hydra
+A tool for making repetative chords less cumbersome
+#+begin_src emacs-lisp
+(straight-use-package 'hydra)
+(defhydra hydra-window (global-map "M-o")
+  "Switch Windows"
+  ("e" windmove-right)
+  ("a" windmove-left)
+  ("p" windmove-up)
+  ("n" windmove-down))
 #+end_src
 
 *** Magit
