@@ -682,6 +682,7 @@ Customizations for what is one of the best features that emacs comes with. If we
     ("urgent" . ?U)
     ("learning" . ?l)
     ("foss" . ?f)
+    ("gurps" . ?g)
     ("blog" . ?b)
     ("idea" . ?i))
   "The tags for org headlines.")
@@ -702,6 +703,7 @@ Customizations for what is one of the best features that emacs comes with. If we
    ("n" "Next Tasks"
     ((todo "NEXT"
            ((org-agenda-overriding-header "Next Tasks")))))
+   ("g" "GURPS" tags-todo "+gurps")
    ("U" "Urgent Tasks" tags-todo "+urgent")
    ;; Low-effort next actions
    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
