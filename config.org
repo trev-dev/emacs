@@ -321,59 +321,6 @@ Show me the diffs in the fringe!
   :after elfeed)
 #+end_src
 
-*** Evil!
-I like Vim bindings. Many of the plugins included here are commonly enjoyed in Vim. Most of them can be looked up [[https://www.emacswiki.org/emacs/Evil#h5o-6][in the wiki]].
-
-#+begin_src emacs-lisp
-(use-package evil
-  :ensure t
-  :init
-  (setq evil-undo-system 'undo-tree
-        evil-search-module 'evil-search
-        evil-visual-state-cursor 'hbar
-        evil-want-keybinding nil
-        evil-disable-insert-state-bindings t)
-  :config
-  (evil-mode 1))
-
-;; Attempt to unify keybinds in other areas
-(use-package evil-collection
-  :requires evil
-  :after evil
-  :ensure t
-  :config
-  (evil-collection-init))
-
-;; Easily wrap/change surrounding delims/quotes
-(use-package evil-surround
-  :requires evil
-  :ensure t
-  :config
-  (global-evil-surround-mode 1))
-
-;; Org bindings
-(use-package evil-org
-  :requires evil
-  :ensure t
-  :hook (org-mode . (lambda () evil-org-mode))
-  :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
-
-;; Easy commenting
-(use-package evil-commentary
-  :requires evil
-  :ensure t
-  :config (evil-commentary-mode))
-
-(use-package evil-goggles
-  :straight t
-  :config
-  (setq evil-goggles-duration 0.200)
-  (setq evil-goggles-pulse nil)  ; Pulse doesn't seem to work consistently :/
-  (evil-goggles-mode))
-#+end_src
-
 *** Expand Region
 #+begin_src emacs-lisp
 (use-package expand-region
