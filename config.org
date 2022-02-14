@@ -572,7 +572,7 @@ Simpler, lighter LSP for emacs
   "Functions to call on-eglot."
   (eglot-ensure)
   (company-mode)
-  (eldoc-box-hover-at-point-mode))
+  (eldoc-box-hover-mode))
 
 ;;; Set-up programming modes to use Eglot
 (dolist (mode '(php-mode-hook
