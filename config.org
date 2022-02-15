@@ -41,7 +41,6 @@ Herein lies my Emacs configuration. Use it well
   - [[#emmet][Emmet]]
   - [[#flymake][Flymake]]
   - [[#golang][GoLang]]
-  - [[#lsp][LSP]]
   - [[#markdown][Markdown]]
   - [[#org][Org]]
     - [[#custom-clock-table][Custom Clock Table]]
@@ -277,6 +276,7 @@ Packages that extend and augment emacs in a general way
   :config
   (avy-setup-default))
   #+end_src
+
 *** CTRLF
 Improved buffer searching
 #+begin_src emacs-lisp
@@ -286,12 +286,11 @@ Improved buffer searching
 
 *** Dashboard
 #+begin_src emacs-lisp
-(use-package dashboard
-  :ensure t
-  :config
+(with-eval-after-load 'project
+  (straight-use-package 'dashboard)
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
         dashboard-startup-banner 'logo
-        dashboard-projects-backend 'project-el
+        dashboard-projects-backend 'projectile
         dashboard-items '((projects . 5)
                           (recents . 5)
                           (agenda . 5)
@@ -385,6 +384,7 @@ A combination of packages to customize the minibuffer, as you rarely want to use
   (marginalia-mode))
 
 ;; Example configuration for Consult
+(straight-use-package 'consult-flycheck)
 (use-package consult
   :ensure t
   ;; Replace bindings. Lazily loaded due by `use-package'.
@@ -407,7 +407,7 @@ A combination of packages to customize the minibuffer, as you rarely want to use
          ("<help> a" . consult-apropos)            ; orig. apropos-command
          ;; M-g bindings (goto-map)
          ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ; Alternative: consult-flycheck
+         ("M-g f" . consult-flycheck)               ; Alternative: consult-flycheck
          ("M-g g" . consult-goto-line)             ; orig. goto-line
          ("M-g M-g" . consult-goto-line)           ; orig. goto-line
          ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
@@ -499,6 +499,14 @@ Knowing what resources you have at your disposal and learning how to budget are 
   :ensure t)
 #+end_src
 
+*** Projectile
+#+begin_src emacs-lisp
+(straight-use-package 'projectile)
+(setq projectile-project-search-path '(("~/Projects/" . 3) "/srv/www"))
+(projectile-mode +1)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+#+end_src
+
 *** RG
 #+begin_src emacs-lisp
 (progn
@@ -548,41 +556,6 @@ Completions at point!
                                                   tab-width 2)))
 #+end_src
 
-*** Eglot
-Simpler, lighter LSP for emacs
-#+begin_src emacs-lisp
-(straight-use-package 'eglot)
-
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
-  (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
-  (add-to-list 'eglot-server-programs '(shopify-mode
-                                        . ("theme-check-language-server" "--stdio")))
-  (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
-  (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
-  (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
-  (define-key eglot-mode-map (kbd "C-c r") 'xref-find-definitions))
-
-;;; Floating eldoc for eglot
-(setq x-gtk-resize-child-frames 'resize-mode)
-(straight-use-package 'eldoc-box)
-(setq eldoc-box-offset '(16 36 16))
-
-(defun td/eglot-hook ()
-  "Functions to call on-eglot."
-  (eglot-ensure)
-  (company-mode)
-  (eldoc-box-hover-mode))
-
-;;; Set-up programming modes to use Eglot
-(dolist (mode '(php-mode-hook
-                js-mode-hook
-                rjsx-mode-hook
-                typescript-mode-hook
-                svelte-mode-hook))
-  (add-hook mode #'td/eglot-hook))
-#+end_src
-
 *** Emmet
 =.Emmet[data-love="true"]=
 
@@ -598,11 +571,16 @@ Simpler, lighter LSP for emacs
   (svelte-mode . emmet-mode))
 #+end_src
 
-*** Flymake
+*** Flycheck
 #+begin_src emacs-lisp
-(use-package flymake :ensure t)
+(straight-use-package 'flycheck)
 
-(define-fringe-bitmap 'small-right-triangle
+(dolist (mode '(lsp-mode-hook
+                ledger-mode-hook))
+  (add-hook mode #'flycheck-mode))
+(global-set-key (kbd "C-c f") #'flycheck-mode)
+
+(define-fringe-bitmap 'flycheck-fringe-bitmap-caret
   (vector #b00000000
           #b00000000
           #b00000000
@@ -621,9 +599,33 @@ Simpler, lighter LSP for emacs
           #b00000000
           #b00000000))
 
-(setq flymake-note-bitmap '(small-right-triangle compilation-info))
-(setq flymake-error-bitmap '(small-right-triangle compilation-error))
-(setq flymake-warning-bitmap '(small-right-triangle compilation-warning))
+(with-eval-after-load 'flycheck
+  (setq flycheck-checker-error-threshold 1000)
+  (flycheck-define-error-level
+   'error
+   :severity 100
+   :compilation-level 2
+   :overlay-category 'flycheck-error-overlay
+   :fringe-bitmap 'flycheck-fringe-bitmap-caret
+   :fringe-face 'flycheck-fringe-error
+   :error-list-face 'flycheck-error-list-error)
+  (flycheck-define-error-level
+   'warning
+   :severity 100
+   :compilation-level 1
+   :overlay-category 'flycheck-warning-overlay
+   :fringe-bitmap 'flycheck-fringe-bitmap-caret
+   :fringe-face 'flycheck-fringe-warning
+   :warning-list-face 'flycheck-warning-list-warning)
+  (flycheck-define-error-level
+   'info
+   :severity 100
+   :compilation-level 1
+   :overlay-category 'flycheck-info-overlay
+   :fringe-bitmap 'flycheck-fringe-bitmap-caret
+   :fringe-face 'flycheck-fringe-info
+   :info-list-face 'flycheck-info-list-info)
+  (straight-use-package 'flycheck-ledger))
 #+end_src
 
 *** GoLang
@@ -631,51 +633,6 @@ Simpler, lighter LSP for emacs
 (use-package go-mode
   :ensure t
   :mode "\\.go\\'")
-#+end_src
-
-*** LSP
-The meat and potatoes of the modern text editor turned IDE, all thanks to Microsoft doing an open source thing with VSCode.
-
-#+begin_src emacs-lisp :tangle no
-(use-package lsp-mode
-  :ensure t
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         (css-mode . lsp)
-         (go-mode . lsp-deferred)
-         (html-mode . lsp)
-         (js-mode . lsp)
-         (json-mode . lsp)
-         (python-mode . lsp-deferred)
-         (php-mode . lsp)
-         (rjsx-mode . lsp)
-         (rust-mode . lsp)
-         (scss-mode . lsp)
-         (shopify-mode . lsp)
-         (svelte-mode . lsp)
-         (typescript-mode . lsp)
-         (vue-mode . lsp)
-         (yaml-mode . lsp)
-         ;; if you want which-key integration
-         (lsp-mode . lsp-enable-which-key-integration))
-  :commands lsp
-  :config
-  (setq lsp-log-io nil)
-  (setq lsp-clients-typescript-server-args ; Please don't output logs in project root
-        '("--stdio" "--tsserver-log-file" "/dev/stderr")))
-
-(with-eval-after-load 'lsp-mode
-  (add-to-list 'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
-
-(use-package lsp-ui
-  :ensure t
-  :custom
-  (lsp-ui-peek-always-show t)
-  (lsp-ui-doc-enable t)
-  (lsp-ui-doc-show-with-cursor t)
-  (lsp-ui-sideline-show-hover nil)
-  (lsp-ui-imenu-window-width 350))
 #+end_src
 
 *** Markdown
@@ -689,6 +646,45 @@ The free software documentation language of the Internet.
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
+#+end_src
+
+*** LSP Mode
+#+begin_src emacs-lisp
+(straight-use-package 'lsp-mode)
+(straight-use-package 'lsp-ui)
+
+(dolist (mode '(css-mode-hook
+                 scss-mode-hook
+                 html-mode-hook
+                 js-mode-hook
+                 json-mode-hook
+                 python-mode-hook
+                 php-mode-hook
+                 rust-mode-hook
+                 scss-mode-hook
+                 shopify-mode-hook
+                 svelte-mode-hook
+                 typescript-mode-hook
+                 vue-mode-hook
+                 yaml-mode-hook))
+  (add-hook mode #'lsp-deferred))
+
+(with-eval-after-load 'lsp-mode
+  (setq lsp-log-io nil)
+  (add-to-list
+   'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
+
+(setq lsp-ui-peek-always-show t
+      lsp-ui-doc-enable t
+      lsp-ui-doc-show-with-cursor t
+      lsp-ui-sideline-show-hover nil
+      lsp-ui-imenu-window-width 350)
+
+(defun td/on-lsp-mode()
+  "Things to do when LSP Mode starts."
+  (company-mode))
+
+(add-hook 'lsp-mode-hook #'td/on-lsp-mode)
 #+end_src
 
 *** Org
@@ -1098,15 +1094,11 @@ There isn't a much better catch-all for web template syntax support than web-mod
 #+begin_src emacs-lisp
 (defun customize-web-mode ()
   "Customizations for web mode"
-  (setq web-mode-enable-auto-pairing nil
-        web-mode-enable-auto-quoting nil
-        web-mode-enable-auto-indentation nil
+  (setq web-mode-markup-indent-offset tab-width
+        web-mode-code-markup-indent-offset tab-width
         web-mode-style-padding tab-width
-        web-mode-script-padding tab-width)
-  (add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
-  (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
-  (add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
-  (add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil)))
+        web-mode-script-padding tab-width
+        web-mode-block-padding tab-width))
 
 (use-package web-mode
   :ensure t
