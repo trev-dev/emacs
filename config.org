@@ -674,7 +674,8 @@ The free software documentation language of the Internet.
   (add-to-list
    'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
 
-(setq lsp-ui-peek-always-show t
+(setq lsp-keymap-prefix "C-c l"
+      lsp-ui-peek-always-show t
       lsp-ui-doc-enable t
       lsp-ui-doc-show-with-cursor t
       lsp-ui-sideline-show-hover nil
