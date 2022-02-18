@@ -31,17 +31,18 @@ Herein lies my Emacs configuration. Use it well
   - [[#minibuffer-completions][Minibuffer Completions]]
   - [[#mu4e][Mu4e]]
   - [[#ledger][Ledger]]
+  - [[#projectile][Projectile]]
   - [[#rg][RG]]
   - [[#undo-tree][Undo-Tree]]
   - [[#which-key][Which-key]]
 - [[#syntax-support][Syntax Support]]
   - [[#company-completions][Company Completions]]
   - [[#cssscss][CSS/SCSS]]
-  - [[#eglot][Eglot]]
   - [[#emmet][Emmet]]
-  - [[#flymake][Flymake]]
+  - [[#flycheck][Flycheck]]
   - [[#golang][GoLang]]
   - [[#markdown][Markdown]]
+  - [[#lsp-mode][LSP Mode]]
   - [[#org][Org]]
     - [[#custom-clock-table][Custom Clock Table]]
   - [[#php][PHP]]
@@ -706,6 +707,16 @@ The free software documentation language of the Internet.
   (company-mode))
 
 (add-hook 'lsp-mode-hook #'td/on-lsp-mode)
+
+;; Shopify theme-check support
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-language-id-configuration
+               '(shopify-mode . "shopify"))
+
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "theme-check-language-server")
+                    :activation-fn (lsp-activate-on "shopify")
+                    :server-id 'theme-check)))
 #+end_src
 
 *** Org
@@ -1046,7 +1057,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 *** Shopify Mode
 This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
                                         ; Derive liquid-mode from web-mode
 (define-derived-mode shopify-mode web-mode "Shopify"
   "Use web mode to highlight shopify liquid files")
