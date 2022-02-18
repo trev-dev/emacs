@@ -249,21 +249,40 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
 
 *** Telephone Line
 A simple, but nicer looking modeline
-**** TODO Customize this thing a bit
-:PROPERTIES:
-:TOC:   :ignore this
-:END:
-
 #+begin_src emacs-lisp
-(use-package telephone-line
-  :ensure t
-  :init
-  (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-        telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
-        telephone-line-primary-right-separator 'telephone-line-cubed-right
-        telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
-  :config
-  (telephone-line-mode 1))
+(straight-use-package 'telephone-line)
+
+(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-cubed-right
+      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
+
+(defface my-emacs
+  '((t (:background "#7455ac" :foreground "white" :weight bold)))
+  "A face for EMACS that isn't evil.")
+
+(setq telephone-line-faces
+      '((emacs . (my-emacs . telephone-line-accent-inactive))
+        (accent . (telephone-line-accent-active . telephone-line-accent-inactive))
+        (nil . (mode-line . mode-line-inactive))))
+
+(telephone-line-defsegment just-emacs () "EMACS")
+
+(setq telephone-line-lhs
+      '((emacs   . (just-emacs))
+        (accent  . (telephone-line-vc-segment
+                    telephone-line-erc-modified-channels-segment
+                    telephone-line-process-segment))
+        (nil     . (telephone-line-projectile-segment
+                    telephone-line-buffer-segment))))
+
+(setq telephone-line-rhs
+      '((nil     . (telephone-line-flycheck-segment
+                   telephone-line-misc-info-segment))
+       (accent  . (telephone-line-major-mode-segment))
+       (emacs   . (telephone-line-airline-position-segment))))
+
+(telephone-line-mode 1)
 #+end_src
 
 ** Utility Packages
