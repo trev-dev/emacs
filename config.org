@@ -1130,14 +1130,13 @@ There isn't a much better catch-all for web template syntax support than web-mod
         web-mode-code-markup-indent-offset tab-width
         web-mode-style-padding tab-width
         web-mode-script-padding tab-width
-        web-mode-block-padding tab-width))
+        web-mode-block-padding tab-width
+        web-mode-enable-auto-pairing nil))
 
-(use-package web-mode
-  :ensure t
-  :hook
-  (web-mode . customize-web-mode)
-  :mode
-  ("\\.html\\'" . web-mode))
+(straight-use-package 'web-mode)
+(add-hook 'web-mode-hook #'customize-web-mode)
+
+(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
 #+end_src
 
 *** YAML
