@@ -19,4 +19,6 @@
 (org-babel-load-file "~/.config/emacs/config.org")
 
 (provide 'emacs)
+(setq custom-file (locate-user-emacs-file "custom-vars.el"))
+(load custom-file 'noerror 'nomessage)
 ;;; init.el ends here

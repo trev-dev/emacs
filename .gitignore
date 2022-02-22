@@ -2,3 +2,4 @@ config.el
 mu4e-config.el
 init.el
 /mu4e-config.el.bak
+/custom-vars.el
