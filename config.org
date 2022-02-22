@@ -158,23 +158,13 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 
 #+begin_src emacs-lisp
 ;; I will write/store my custom doom (and non-doom?) themes here
+(straight-use-package 'doom-themes)
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
-(use-package doom-themes
-  :ensure t
-  :requires all-the-icons
-  :init
-  ;; global settings (defaults)
+(with-eval-after-load 'all-the-icons
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-material-dark t)
-
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
+  (load-theme 'doom-material-dark-devel t)
   (doom-themes-org-config))
-
-;; (use-package doom-modeline
-;;   :ensure t
-;;   :init (doom-modeline-mode 1))
 #+end_src
 
 *** Emacs

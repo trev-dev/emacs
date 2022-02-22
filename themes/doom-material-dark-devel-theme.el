@@ -1,7 +1,7 @@
-;;; doom-material-dark-theme.el --- inspired by Material Theme by xrei -*- lexical-binding: t; no-byte-compile: t; -*-
+;;; doom-material-dark-devel-theme.el --- inspired by Material Theme by xrei -*- lexical-binding: t; no-byte-compile: t; -*-
 (require 'doom-themes)
 
-(defgroup doom-material-dark-theme nil
+(defgroup doom-material-dark-devel-theme nil
   "Options for the `material dark' theme."
   :group 'doom-themes)
 
@@ -9,10 +9,10 @@
 (defcustom doom-material-padded-modeline doom-themes-padded-modeline
   "If non-nil, adds a 4px padding to the mode-line.
 Can be an integer to determine the exact padding."
-  :group 'doom-material-dark-theme
+  :group 'doom-material-dark-devel-theme
   :type '(choice integer boolean))
 
-(def-doom-theme doom-material-dark
+(def-doom-theme doom-material-dark-devel
   "A darker version of the Material Theme inspired by xrei"
 
   ;; name        default   256       16
@@ -134,6 +134,10 @@ Can be an integer to determine the exact padding."
    (js2-function-param         :foreground violet)
    (js2-jsdoc-type             :foreground base8)
    (js2-jsdoc-value            :foreground cyan)
+   ;;;; typescript.el
+   (typescript-jsdoc-tag       :foreground magenta)
+   (typescript-jsdoc-type      :foreground base8)
+   (typescript-jsdoc-value     :foreground cyan)
    ;;;; lsp
    (lsp-headerline-breadcrumb-symbols-face :foreground base7)
    ;;;; rainbow-delimiters
