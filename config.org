@@ -25,6 +25,7 @@ Herein lies my Emacs configuration. Use it well
   - [[#diff-hl][Diff-hl]]
   - [[#elfeed][Elfeed]]
   - [[#expand-region][Expand Region]]
+  - [[#exec-path][Exec Path]]
   - [[#goggles][Goggles]]
   - [[#hydra][Hydra]]
   - [[#magit][Magit]]
@@ -161,8 +162,9 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 (straight-use-package 'doom-themes)
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (with-eval-after-load 'all-the-icons
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t
+        doom-themes-padded-modeline 1)
   (load-theme 'doom-material-dark-devel t)
   (doom-themes-org-config))
 #+end_src
@@ -300,7 +302,7 @@ Improved buffer searching
 
 *** Dashboard
 #+begin_src emacs-lisp
-(with-eval-after-load 'project
+(with-eval-after-load 'projectile
   (straight-use-package 'dashboard)
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
         dashboard-startup-banner 'logo
@@ -347,6 +349,14 @@ Show me the diffs in the fringe!
 (use-package expand-region
   :ensure t
   :bind ("C-=" . er/expand-region))
+#+end_src
+
+*** Exec Path
+It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
+#+begin_src emacs-lisp
+(straight-use-package 'exec-path-from-shell)
+(when (daemonp)
+  (exec-path-from-shell-initialize))
 #+end_src
 
 *** Goggles
@@ -505,8 +515,7 @@ Knowing what resources you have at your disposal and learning how to budget are 
 #+begin_src emacs-lisp
 (use-package ledger-mode
   :hook (ledger-mode . (lambda()
-                         (flymake-mode)
-                         (ledger-flymake-enable)
+                         (flycheck-mode)
                          (company-mode)))
   :custom
   (ledger-report-use-native-highlighting t)
@@ -572,7 +581,7 @@ Completions at point!
 #+end_src
 
 *** Emmet
-=.Emmet[data-love="true"]=
+~.Emmet[data-love="true"]~
 
 #+begin_src emacs-lisp
 (use-package emmet-mode
@@ -589,7 +598,7 @@ Completions at point!
 *** Flycheck
 #+begin_src emacs-lisp
 (straight-use-package 'flycheck)
-
+(straight-use-package 'flycheck-ledger)
 (dolist (mode '(lsp-mode-hook
                 ledger-mode-hook))
   (add-hook mode #'flycheck-mode))
@@ -640,7 +649,7 @@ Completions at point!
    :fringe-bitmap 'flycheck-fringe-bitmap-caret
    :fringe-face 'flycheck-fringe-info
    :info-list-face 'flycheck-info-list-info)
-  (straight-use-package 'flycheck-ledger))
+  (require 'flycheck-ledger))
 #+end_src
 
 *** GoLang
@@ -671,13 +680,12 @@ The free software documentation language of the Internet.
 (dolist (mode '(css-mode-hook
                  scss-mode-hook
                  html-mode-hook
-                 js-mode-hook
+                 js2-mode-hook
                  json-mode-hook
                  python-mode-hook
                  php-mode-hook
                  rust-mode-hook
                  scss-mode-hook
-                 shopify-mode-hook
                  svelte-mode-hook
                  typescript-mode-hook
                  vue-mode-hook
@@ -693,7 +701,7 @@ The free software documentation language of the Internet.
       lsp-ui-peek-always-show t
       lsp-ui-doc-enable t
       lsp-ui-doc-show-with-cursor t
-      lsp-ui-sideline-show-hover nil
+      lsp-ui-sideline-show-hover t
       lsp-ui-imenu-window-width 350)
 
 (defun td/on-lsp-mode()
@@ -791,7 +799,6 @@ Customizations for what is one of the best features that emacs comes with. If we
   "Custom commands for Org Agenda.")
 
 (use-package org
-  :ensure t
   :hook (org-mode . td/org-hook)
   :config
   (require 'ox-md nil t)
@@ -882,6 +889,7 @@ Customizations for what is one of the best features that emacs comes with. If we
 (defvar td/org-auto-toc-files
   '("~/.config/emacs/config.org")
   "Files that should auto-toc on save")
+
 (defun td/set-auto-toc ()
   "Set auto-toc if buffer in auto-toc-files"
   (if (member
@@ -1007,6 +1015,11 @@ A few settings that are useful in programming buffers
 (setq-default evil-shift-width 2)
 (setq-default electric-indent-inhibit t)
 
+(dolist (combo '(("<RET>" . newline-and-indent)
+                 ("C-c i" . td/toggle-indent-tabs-mode)
+                 ("C-i" . indent-relative)))
+  (define-key prog-mode-map (kbd (car combo)) (cdr combo)))
+
 (add-hook 'prog-mode-hook 'td/prog-mode-settings)
 #+end_src
 
@@ -1086,22 +1099,19 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 (straight-use-package 'tree-sitter-langs)
 (require 'tree-sitter)
 (require 'tree-sitter-langs)
-
-(global-tree-sitter-mode)
+(add-hook 'typescript-mode-hook #'tree-sitter-mode)
 (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 #+end_src
 
 *** TypeScript & JavaScript
-Use tide-mode for all things TS/JS.
-
 #+begin_src emacs-lisp
-;; Syntax highlighting starts with rjsx-mode before it's made better by tree sitter
-(use-package rjsx-mode :ensure t)
-
-(use-package jsdoc
-  :straight (jsdoc :type git :host github :repo "isamert/jsdoc.el"))
-(use-package typescript-mode
-  :ensure t)
+(straight-use-package 'js-doc)
+(straight-use-package 'typescript-mode)
+(straight-use-package 'js2-mode)
+(straight-use-package 'rjsx-mode)
+(straight-use-package 'prettier-js)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . rjsx-mode))
 (setq js-indent-level 2)
 (setq typescript-indent-level 2)
 #+end_src
@@ -1126,6 +1136,7 @@ There isn't a much better catch-all for web template syntax support than web-mod
         web-mode-style-padding tab-width
         web-mode-script-padding tab-width
         web-mode-block-padding tab-width
+        web-mode-enable-auto-indentation nil
         web-mode-enable-auto-pairing nil))
 
 (straight-use-package 'web-mode)
