@@ -86,10 +86,10 @@ Can be an integer to determine the exact padding."
    (hl-line :background base2 :foreground nil)
    (mode-line
     :background modeline-bg :foreground modeline-fg
-    :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg)))
+    :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-alt)))
    (mode-line-inactive
     :background modeline-bg-alt :foreground modeline-fg-alt
-    :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg-alt)))
+    :box (if -modeline-pad `(:line-width ,-modeline-pad :color ,modeline-bg)))
    (tooltip :background (doom-darken bg-alt 0.2) :foreground fg)
    (cursor :background yellow)
    (line-number-current-line
