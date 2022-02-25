@@ -1,6 +1,7 @@
 * Emacs Configuration
 :PROPERTIES:
 #+STARTUP: overview
+#+TAGS: disabled(d) fav(f)
 :END:
 Herein lies my Emacs configuration. Use it well
 ** Contents
@@ -19,10 +20,15 @@ Herein lies my Emacs configuration. Use it well
   - [[#font-setup][Font Setup]]
   - [[#telephone-line][Telephone Line]]
 - [[#utility-packages][Utility Packages]]
+  - [[#avy][Avy]]
+  - [[#ctrlf][CTRLF]]
   - [[#dashboard][Dashboard]]
   - [[#diff-hl][Diff-hl]]
   - [[#elfeed][Elfeed]]
+  - [[#expand-region][Expand Region]]
   - [[#exec-path][Exec Path]]
+  - [[#goggles][Goggles]]
+  - [[#hydra][Hydra]]
   - [[#evil][Evil!]]
   - [[#magit][Magit]]
   - [[#minibuffer-completions][Minibuffer Completions]]
@@ -36,7 +42,9 @@ Herein lies my Emacs configuration. Use it well
   - [[#company-completions][Company Completions]]
   - [[#cssscss][CSS/SCSS]]
   - [[#emmet][Emmet]]
+  - [[#eglot][Eglot]]
   - [[#flycheck][Flycheck]]
+  - [[#flymake][Flymake]]
   - [[#golang][GoLang]]
   - [[#markdown][Markdown]]
   - [[#lsp-mode][LSP Mode]]
@@ -66,7 +74,7 @@ Herein lies my Emacs configuration. Use it well
 ** Performance Tweaks
 Give the garbage collector free-reign at start-up, then take it back to 8M. Use so-long-mode for editor-breaking minified css/js.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 ;; Minimize garbage collection during startup
 (setq gc-cons-threshold most-positive-fixnum)
 
@@ -79,12 +87,15 @@ Give the garbage collector free-reign at start-up, then take it back to 8M. Use 
 
 ;; Don't die when handling large, minified files
 (global-so-long-mode 1)
+
+;; For native compilation with Emacs 28+
+(setq comp-deferred-compilation t)
 #+end_src
 
 ** Autosaves & Backups
 I hate seeing project folders get all cluttered up
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 ;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))
       backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
@@ -98,7 +109,7 @@ I hate seeing project folders get all cluttered up
 ** Package Management
 We need packages, so we're going to setup some repos and pre-install use-package for packages later on in this config. We're also using ~straight.el~ for github repositories.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (require 'package)
 
 (dolist (repo '(("elpa" . "https://elpa.gnu.org/packages/")
@@ -132,15 +143,15 @@ We need packages, so we're going to setup some repos and pre-install use-package
 #+end_src
 
 ** Look & Feel
-*** All The Icons
+*** All The Icons                                                     :fav:
 These are used all over the place
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package all-the-icons
   :ensure t)
 #+end_src
 
 *** Dired
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package '(all-the-icons-dired
                         :type git :host github :repo "wyuenho/all-the-icons-dired"))
 (set 'all-the-icons-dired-monochrome nil)
@@ -149,10 +160,10 @@ These are used all over the place
                              (all-the-icons-dired-mode)))
 #+end_src
 
-*** DOOM Themes
+*** DOOM Themes                                                       :fav:
 Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 ;; I will write/store my custom doom (and non-doom?) themes here
 (straight-use-package 'doom-themes)
 (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
@@ -167,7 +178,7 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 *** Emacs
 Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 ;; Interface
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -196,7 +207,7 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 *** Font Setup
 I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and I'm really enjoying it.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 (add-to-list 'default-frame-alist '(font . "Jetbrains Mono 10" ))
@@ -241,7 +252,7 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
 
 *** Telephone Line
 A simple, but nicer looking modeline
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'telephone-line)
 
 (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
@@ -280,7 +291,7 @@ A simple, but nicer looking modeline
 ** Utility Packages
 Packages that extend and augment emacs in a general way
 *** Avy
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'avy)
 
 (global-set-key (kbd "C-;") 'avy-goto-char)
@@ -290,33 +301,32 @@ Packages that extend and augment emacs in a general way
 
 *** CTRLF
 Improved buffer searching
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'ctrlf)
 (ctrlf-mode +1)
 #+end_src
 
 *** Dashboard
-#+begin_src emacs-lisp
-(with-eval-after-load 'projectile
-  (straight-use-package 'dashboard)
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
-        dashboard-startup-banner 'logo
-        dashboard-projects-backend 'projectile
-        dashboard-items '((projects . 5)
-                          (recents . 5)
-                          (agenda . 5)
-                          (bookmarks . 5))
-        dashboard-set-heading-icons t
-        dashboard-set-file-icons t
-        dashboard-center-content t
-        dashboard-set-init-info t)
-  (dashboard-setup-startup-hook))
+#+begin_src elisp
+(straight-use-package 'dashboard)
+(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))
+      dashboard-startup-banner 'logo
+      dashboard-projects-backend 'project-el
+      dashboard-items '((projects . 5)
+                        (recents . 5)
+                        (agenda . 5)
+                        (bookmarks . 5))
+      dashboard-set-heading-icons t
+      dashboard-set-file-icons t
+      dashboard-center-content t
+      dashboard-set-init-info t)
+(dashboard-setup-startup-hook)
 #+end_src
 
-*** Diff-hl
+*** Diff-hl                                                           :fav:
 Show me the diffs in the fringe!
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package diff-hl
   :ensure t
   :after magit
@@ -327,7 +337,7 @@ Show me the diffs in the fringe!
 
 *** Elfeed
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package elfeed
   :bind ("C-c e" . elfeed)
   :ensure t)
@@ -340,14 +350,14 @@ Show me the diffs in the fringe!
 #+end_src
 
 *** Expand Region
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+end_src
 
 *** Exec Path
 It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'exec-path-from-shell)
 (when (daemonp)
   (exec-path-from-shell-initialize))
@@ -355,7 +365,7 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 
 *** Goggles
 Goggles is light volatile highlights, but cooler. If you're familiar with evil-goggles, this is the "holy" equivalent.
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'goggles)
 (add-hook 'prog-mode-hook 'goggles-mode)
 (add-hook 'text-mode-hook 'goggles-mode)
@@ -363,7 +373,7 @@ Goggles is light volatile highlights, but cooler. If you're familiar with evil-g
 
 *** Hydra
 A tool for making repetative chords less cumbersome
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'hydra)
 (defhydra hydra-window (global-map "M-o")
   "Switch Windows"
@@ -373,9 +383,9 @@ A tool for making repetative chords less cumbersome
   ("n" windmove-down))
 #+end_src
 
-*** Evil!
+*** Evil!                                                        :disabled:
 Currently not tangled as I enjoy learning Emacs the righteous way.
-#+begin_src emacs-lisp :tangle no
+#+begin_src elisp :tangle no
 (straight-use-package 'evil)
 
 (setq evil-undo-system 'undo-tree
@@ -414,17 +424,17 @@ Currently not tangled as I enjoy learning Emacs the righteous way.
   (global-evil-matchit-mode 1))
 #+end_src
 
-*** Magit
+*** Magit                                                             :fav:
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'magit)
 (global-set-key (kbd "C-c g") 'magit-status)
 #+end_src
 
 *** Minibuffer Completions
 A combination of packages to customize the minibuffer, as you rarely want to use just one.
-#+begin_src emacs-lisp
+#+begin_src elisp
 ;; Selectrum completions with prescient
 (straight-use-package 'selectrum)
 (straight-use-package 'selectrum-prescient)
@@ -538,14 +548,14 @@ A combination of packages to customize the minibuffer, as you rarely want to use
 Setting up mu4e with contexts feels like a pretty massive process. I've decided to load that config from an external file to keep this file sane. Also, I've decided not to expose my email addresses/configs here. Apologies for those who may be looking for an example!
 
 If you're looking for help with mu/4e I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]]
-#+begin_src emacs-lisp
+#+begin_src elisp
 (load-file "~/.config/emacs/mu4e-config.el")
 #+end_src
 
 *** Ledger
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package ledger-mode
   :hook (ledger-mode . (lambda()
                          (flycheck-mode)
@@ -555,8 +565,8 @@ Knowing what resources you have at your disposal and learning how to budget are 
   :ensure t)
 #+end_src
 
-*** Projectile
-#+begin_src emacs-lisp
+*** Projectile                                                   :disabled:
+#+begin_src elisp :tangle no
 (straight-use-package 'projectile)
 (setq projectile-project-search-path '(("~/Projects/" . 3) "/srv/www"))
 (setq projectile-enable-caching t)
@@ -565,7 +575,7 @@ Knowing what resources you have at your disposal and learning how to budget are 
 #+end_src
 
 *** RG
-#+begin_src emacs-lisp
+#+begin_src elisp
 (progn
   (straight-use-package 'rg)
   (rg-enable-default-bindings))
@@ -574,7 +584,7 @@ Knowing what resources you have at your disposal and learning how to budget are 
 *** Undo-Tree
 Mostly want undo tree for better redo support for Evil
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package undo-tree
   :ensure t
   :config (global-undo-tree-mode))
@@ -583,7 +593,7 @@ Mostly want undo tree for better redo support for Evil
 *** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package which-key
   :ensure t
   :config
@@ -592,10 +602,10 @@ What the heck was that keybind again? If you can remember how it starts, which-k
 
 ** Syntax Support
 We're getting into to the language specific stuff now. Much of this is specifically tailored for Shopify, TypeScript and JavaScript development. Many if not all of these features stay out of the way when you're not in the language mode. There's also a very tedious attempt to make all of these disjointed program modes listen to my gosh dang tab-width setting instead of doing their own thing as an insane default.
-*** Company Completions
+*** Company Completions                                               :fav:
 Completions at point!
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package company
   :ensure t
   :bind (:map company-active-map ("<tab>" . company-complete-selection))
@@ -608,7 +618,7 @@ Completions at point!
 
 *** CSS/SCSS
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (add-hook 'css-mode-hook #'(lambda () (setq-local css-indent-offset 2
                                                   tab-width 2)))
 #+end_src
@@ -616,7 +626,7 @@ Completions at point!
 *** Emmet
 ~.Emmet[data-love="true"]~
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package emmet-mode
   :ensure t
   :config
@@ -628,8 +638,49 @@ Completions at point!
   (svelte-mode . emmet-mode))
 #+end_src
 
+*** Eglot                                                        :disabled:
+Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be leaner, faster and less intense.
+#+begin_src elisp :tangle no
+;;; Eglot likes these packages to be up to date.
+(straight-use-package 'project)
+(straight-use-package 'xref)
+(straight-use-package 'eldoc)
+
+;;; Then, thee is Eglot.
+(straight-use-package 'eglot)
+
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
+  (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '(shopify-mode
+                                        . ("theme-check-language-server" "--stdio")))
+  (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
+  (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
+  (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
+  (define-key eglot-mode-map (kbd "C-c r") 'xref-find-definitions))
+
+;;; Floating eldoc for eglot
+(setq x-gtk-resize-child-frames 'resize-mode)
+(straight-use-package 'eldoc-box)
+(setq eldoc-box-offset '(16 36 16))
+
+(defun td/eglot-hook ()
+  "Functions to call on-eglot."
+  (eglot-ensure)
+  (company-mode)
+  (eldoc-box-hover-mode))
+
+;;; Set-up programming modes to use Eglot
+(dolist (mode '(php-mode-hook
+                js-mode-hook
+                rjsx-mode-hook
+                typescript-mode-hook
+                svelte-mode-hook))
+  (add-hook mode #'td/eglot-hook))
+#+end_src
+
 *** Flycheck
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'flycheck)
 (straight-use-package 'flycheck-ledger)
 (dolist (mode '(ledger-mode-hook))
@@ -684,8 +735,39 @@ Completions at point!
   (require 'flycheck-ledger))
 #+end_src
 
+*** Flymake                                                      :disabled:
+#+begin_src elisp :toggle no
+(straight-use-package 'flymake)
+(straight-use-package '(eslint-flymake
+                        :provider git
+                        :host github
+                        :repo "emacs-pe/eslint-flymake"))
+(define-fringe-bitmap 'small-right-triangle
+  (vector #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b10000000
+          #b11000000
+          #b11100000
+          #b11110000
+          #b11100000
+          #b11000000
+          #b10000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000))
+
+(setq flymake-note-bitmap '(small-right-triangle compilation-info))
+(setq flymake-error-bitmap '(small-right-triangle compilation-error))
+(setq flymake-warning-bitmap '(small-right-triangle compilation-warning))
+#+end_src
+
 *** GoLang
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package go-mode
   :ensure t
   :mode "\\.go\\'")
@@ -694,7 +776,7 @@ Completions at point!
 *** Markdown
 The free software documentation language of the Internet.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package markdown-mode
   :ensure t
   :commands (markdown-mode gfm-mode)
@@ -705,7 +787,7 @@ The free software documentation language of the Internet.
 #+end_src
 
 *** LSP Mode
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'lsp-mode)
 (straight-use-package 'lsp-ui)
 
@@ -738,10 +820,8 @@ The free software documentation language of the Internet.
       lsp-ui-sideline-update-mode 'line
       lsp-ui-sideline-show-symbol nil
       lsp-ui-sideline-show-hover nil
-      lsp-ui-sideline-delay 0.01
       lsp-ui-doc-enable t
       lsp-ui-doc-show-with-cursor t
-      lsp-ui-doc-delay 0.01
       lsp-ui-peek-enable t
       lsp-ui-imenu-window-width 350)
 
@@ -762,10 +842,10 @@ The free software documentation language of the Internet.
                     :server-id 'theme-check)))
 #+end_src
 
-*** Org
+*** Org                                                               :fav:
 Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is. The fancy font-size setup is stolen from [[https://github.com/daviwil/emacs-from-scratch][Emacs from Scratch]] by [[https://www.youtube.com/c/SystemCrafters][System Crafters]]. Check them out :)
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (defun td/org-hook ()
   "My hooks for `org-mode`."
   (org-indent-mode)
@@ -949,7 +1029,7 @@ Customizations for what is one of the best features that emacs comes with. If we
 **** Custom Clock Table
 I decided to write a [[file:td-custom-clocktable.el?ts=2][custom clocktable formatter]]. I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting to certain subcontracts.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (load-file "~/.config/emacs/td-custom-clocktable.el")
 #+end_src
 
@@ -973,7 +1053,7 @@ Here's an example:
 
 *** PHP
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (define-derived-mode php-mode web-mode "PHP"
   "I just want web-mode highlighting with .svelte files")
 
@@ -1006,7 +1086,7 @@ Here's an example:
 *** Prettier
 An opinionated way to clean up my web-dev code quickly.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package prettier-js
   :ensure t)
 #+end_src
@@ -1014,7 +1094,7 @@ An opinionated way to clean up my web-dev code quickly.
 *** Prog Mode
 A few settings that are useful in programming buffers
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (defun td/toggle-indent-tabs-mode ()
   "Toggle `indent-tabs-mode'."
   (interactive)
@@ -1055,10 +1135,8 @@ A few settings that are useful in programming buffers
 (setq-default evil-shift-width 2)
 (setq-default electric-indent-inhibit t)
 
-(dolist (combo '(("<RET>" . newline-and-indent)
-                 ("C-c i" . td/toggle-indent-tabs-mode)
-                 ("C-i" . indent-relative)
-                 ("<C-return>" . default-indent-new-line)))
+(dolist (combo '(("C-c i" . td/toggle-indent-tabs-mode)
+                 ("C-i" . indent-relative)))
   (define-key prog-mode-map (kbd (car combo)) (cdr combo)))
 
 (add-hook 'prog-mode-hook 'td/prog-mode-settings)
@@ -1067,7 +1145,7 @@ A few settings that are useful in programming buffers
 *** Python
 <3 Python
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package pyvenv :ensure t)
 (use-package pipenv
   :ensure t
@@ -1077,7 +1155,7 @@ A few settings that are useful in programming buffers
 *** Rainbow Delimiters
 This comes in handier than you think it would. Especially with these (lisp '((config . files)))
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package rainbow-delimiters
   :ensure t
   :config
@@ -1087,12 +1165,12 @@ This comes in handier than you think it would. Especially with these (lisp '((co
 *** Rainbow Mode
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package rainbow-mode :ensure t)
 #+end_src
 
 *** Rust
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package rust-mode
   :ensure t
   :bind (:map rust-mode-map ("C-c c r" . rust-run) ("C-c c a r" . td/rust-run-args)))
@@ -1105,7 +1183,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 *** Shopify Mode
 This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
 
-#+begin_src emacs-lisp
+#+begin_src elisp
                                         ; Derive liquid-mode from web-mode
 (define-derived-mode shopify-mode web-mode "Shopify"
   "Use web mode to highlight shopify liquid files")
@@ -1123,19 +1201,19 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
 #+end_src
 
 *** Svelte
-Fake-out a "svelte-mode" for the purposes of activating lsp-mode with the svelte-language-server. I'm extending web-mode because it highlights =.svelte= files well.
+Fake-out a "svelte-mode" for the purposes of activating with the svelte-language-server. I'm extending web-mode because it highlights =.svelte= files well.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (define-derived-mode svelte-mode web-mode "Svelte"
   "I just want web-mode highlighting with .svelte files")
 (provide 'svelte-mode)
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
 #+end_src
 
-*** Treesitter
+*** Treesitter                                                        :fav:
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'tree-sitter)
 (straight-use-package 'tree-sitter-langs)
 (require 'tree-sitter)
@@ -1145,7 +1223,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 #+end_src
 
 *** TypeScript & JavaScript
-#+begin_src emacs-lisp
+#+begin_src elisp
 (straight-use-package 'typescript-mode)
 (straight-use-package 'js2-mode)
 (straight-use-package 'prettier-js)
@@ -1159,18 +1237,17 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 #+end_src
 
 *** VueJS
-
-#+begin_src emacs-lisp
+#+begin_src elisp
 (define-derived-mode vue-mode web-mode "VueJS"
   "I just want web-mode highlighting with .svelte files")
 (provide 'vue-mode)
 (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
 #+end_src
 
-*** Web Mode
+*** Web Mode                                                          :fav:
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (defun customize-web-mode ()
   "Customizations for web mode"
   (setq web-mode-markup-indent-offset tab-width
@@ -1189,16 +1266,14 @@ There isn't a much better catch-all for web template syntax support than web-mod
 
 *** YAML
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
-
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package yaml-mode
   :ensure t)
 #+end_src
 
 *** Yasnippet
 Snippets! They're helpful.
-
-#+begin_src emacs-lisp
+#+begin_src elisp
 (use-package yasnippet
   :ensure t
   :config
@@ -1220,16 +1295,19 @@ If you like this config the way you found it, make sure that you fork it or make
 *** Installation
 If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
 
+*Note*: Config us currently set up for Emacs 29. Be sure to disable the weird bits, like [[* Performance Tweaks][compilation deferral]].
+
 1. Clone this repository to =~/.config/emacs=
-2. Copy [[file:init.default.el][init.default.el]] to =~./init.el=
-3. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
-4. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
-5. Run emacs for the first time.
+2. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
+3. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+4. Run emacs for the first time.
 
 *** Current Mindset
 At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going poorly, but it's getting better over time.
 
-Be sure to check back later.
+I have some configs here that are tagged as either :fav: or :disabled:
+
+As I play with this config and refine my preferences I've lost the point in deleting/re-adding perfectly good configs that I may want to revist. If you see something you like, by all means, enable it. It /should/ work. Headings tagged with :disabled: are simply set to =:tangle no=.
 
 *** Licenses
 - For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
