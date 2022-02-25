@@ -140,6 +140,8 @@ Can be an integer to determine the exact padding."
    (typescript-jsdoc-value     :foreground cyan)
    ;;;; lsp
    (lsp-headerline-breadcrumb-symbols-face :foreground base7)
+   (lsp-ui-sideline-symbol-info :foreground fg-alt :background bg)
+   (lsp-ui-doc-background :foreground fg :background bg)
    ;;;; rainbow-delimiters
    (rainbow-delimiters-depth-1-face :foreground magenta)
    (rainbow-delimiters-depth-2-face :foreground orange)
