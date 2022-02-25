@@ -19,15 +19,11 @@ Herein lies my Emacs configuration. Use it well
   - [[#font-setup][Font Setup]]
   - [[#telephone-line][Telephone Line]]
 - [[#utility-packages][Utility Packages]]
-  - [[#avy][Avy]]
-  - [[#ctrlf][CTRLF]]
   - [[#dashboard][Dashboard]]
   - [[#diff-hl][Diff-hl]]
   - [[#elfeed][Elfeed]]
-  - [[#expand-region][Expand Region]]
   - [[#exec-path][Exec Path]]
-  - [[#goggles][Goggles]]
-  - [[#hydra][Hydra]]
+  - [[#evil][Evil!]]
   - [[#magit][Magit]]
   - [[#minibuffer-completions][Minibuffer Completions]]
   - [[#mu4e][Mu4e]]
@@ -90,9 +86,8 @@ I hate seeing project folders get all cluttered up
 
 #+begin_src emacs-lisp
 ;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
-(custom-set-variables
- '(auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/\\1" t)))
- '(backup-directory-alist '((".*" . "~/.emacs.d/backups/"))))
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))
+      backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
 
 ;; create the autosave dir if necessary, since emacs won't.
 (make-directory "~/.emacs.d/autosaves/" t)
@@ -286,10 +281,10 @@ A simple, but nicer looking modeline
 Packages that extend and augment emacs in a general way
 *** Avy
 #+begin_src emacs-lisp
-(use-package avy
-  :ensure t
-  :bind ("C-;" . avy-goto-char) ("M-g f" . avy-goto-line) ("M-g w" . avy-goto-word-1)
-  :config
+(straight-use-package 'avy)
+
+(global-set-key (kbd "C-;") 'avy-goto-char)
+(with-eval-after-load 'avy
   (avy-setup-default))
   #+end_src
 
@@ -346,9 +341,8 @@ Show me the diffs in the fringe!
 
 *** Expand Region
 #+begin_src emacs-lisp
-(use-package expand-region
-  :ensure t
-  :bind ("C-=" . er/expand-region))
+(straight-use-package 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
 #+end_src
 
 *** Exec Path
@@ -379,14 +373,53 @@ A tool for making repetative chords less cumbersome
   ("n" windmove-down))
 #+end_src
 
+*** Evil!
+Currently not tangled as I enjoy learning Emacs the righteous way.
+#+begin_src emacs-lisp :tangle no
+(straight-use-package 'evil)
+
+(setq evil-undo-system 'undo-tree
+      evil-search-module 'evil-search
+      evil-visual-state-cursor 'hbar
+      evil-want-keybinding nil
+      evil-disable-insert-state-bindings t)
+(evil-mode 1)
+
+(with-eval-after-load 'evil
+  (straight-use-package 'evil-collection)
+  (evil-collection-init)
+
+  (with-eval-after-load 'ledger-mode
+    (straight-use-package 'evil-ledger)
+    (add-hook 'ledger-mode-hook #'evil-ledger-mode))
+
+  (straight-use-package 'evil-surround)
+  (global-evil-surround-mode 1)
+
+  (straight-use-package 'evil-org)
+  (add-hook 'org-mode-hook #'evil-org-mode)
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys)
+
+  (straight-use-package 'evil-commentary)
+  (evil-commentary-mode)
+
+  (straight-use-package 'evil-snipe)
+  (evil-snipe-mode 1)
+  (evil-snipe-override-mode 1)
+  (setq evil-snipe-scope 'whole-visible
+        evil-snipe-spillover-scope 'whole-buffer)
+
+  (straight-use-package 'evil-matchit)
+  (global-evil-matchit-mode 1))
+#+end_src
+
 *** Magit
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
 #+begin_src emacs-lisp
-(use-package magit
-  :ensure t
-  :config
-  (global-set-key (kbd "C-c g") 'magit-status))
+(straight-use-package 'magit)
+(global-set-key (kbd "C-c g") 'magit-status)
 #+end_src
 
 *** Minibuffer Completions
@@ -570,7 +603,7 @@ Completions at point!
   :config
   (setq company-backends '((company-files company-keywords company-capf company-yasnippet)
                            (company-abbrev company-dabbrev)))
-  (setq company-idle-delay 0.0))
+  (setq company-idle-delay 0.01))
 #+end_src
 
 *** CSS/SCSS
@@ -599,8 +632,7 @@ Completions at point!
 #+begin_src emacs-lisp
 (straight-use-package 'flycheck)
 (straight-use-package 'flycheck-ledger)
-(dolist (mode '(lsp-mode-hook
-                ledger-mode-hook))
+(dolist (mode '(ledger-mode-hook))
   (add-hook mode #'flycheck-mode))
 (global-set-key (kbd "C-c f") #'flycheck-mode)
 
@@ -680,7 +712,7 @@ The free software documentation language of the Internet.
 (dolist (mode '(css-mode-hook
                  scss-mode-hook
                  html-mode-hook
-                 js2-mode-hook
+                 js-mode-hook
                  json-mode-hook
                  python-mode-hook
                  php-mode-hook
@@ -693,15 +725,24 @@ The free software documentation language of the Internet.
   (add-hook mode #'lsp-deferred))
 
 (with-eval-after-load 'lsp-mode
-  (setq lsp-log-io nil)
+  (setq lsp-log-io nil
+        lsp-enable-folding nil
+        lsp-clients-typescript-server-args '("--stdio"
+                                             "--tsserver-log-file"
+                                             "/dev/stderr"))
   (add-to-list
    'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
 
 (setq lsp-keymap-prefix "C-c l"
-      lsp-ui-peek-always-show t
+      lsp-ui-sideline-enable t
+      lsp-ui-sideline-update-mode 'line
+      lsp-ui-sideline-show-symbol nil
+      lsp-ui-sideline-show-hover nil
+      lsp-ui-sideline-delay 0.01
       lsp-ui-doc-enable t
       lsp-ui-doc-show-with-cursor t
-      lsp-ui-sideline-show-hover t
+      lsp-ui-doc-delay 0.01
+      lsp-ui-peek-enable t
       lsp-ui-imenu-window-width 350)
 
 (defun td/on-lsp-mode()
@@ -710,8 +751,8 @@ The free software documentation language of the Internet.
 
 (add-hook 'lsp-mode-hook #'td/on-lsp-mode)
 
-;; Shopify theme-check support
 (with-eval-after-load 'lsp-mode
+  ;; Shopify theme-check support
   (add-to-list 'lsp-language-id-configuration
                '(shopify-mode . "shopify"))
 
@@ -997,11 +1038,10 @@ A few settings that are useful in programming buffers
   (setq-local fill-column 80)
   (setq-local show-trailing-whitespace t)
   (show-paren-mode t)
+  (hs-minor-mode)
   (display-line-numbers-mode)
   (display-fill-column-indicator-mode)
   (electric-pair-local-mode)
-  (local-set-key (kbd "<RET>") 'newline-and-indent)
-  (local-set-key (kbd "C-c i") 'td/toggle-indent-tabs-mode)
   (yas-minor-mode)
   (td/infer-indentation-style)
   (whitespace-mode))
@@ -1017,7 +1057,8 @@ A few settings that are useful in programming buffers
 
 (dolist (combo '(("<RET>" . newline-and-indent)
                  ("C-c i" . td/toggle-indent-tabs-mode)
-                 ("C-i" . indent-relative)))
+                 ("C-i" . indent-relative)
+                 ("<C-return>" . default-indent-new-line)))
   (define-key prog-mode-map (kbd (car combo)) (cdr combo)))
 
 (add-hook 'prog-mode-hook 'td/prog-mode-settings)
@@ -1099,21 +1140,22 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 (straight-use-package 'tree-sitter-langs)
 (require 'tree-sitter)
 (require 'tree-sitter-langs)
-(add-hook 'typescript-mode-hook #'tree-sitter-mode)
+(global-tree-sitter-mode 1)
 (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 #+end_src
 
 *** TypeScript & JavaScript
 #+begin_src emacs-lisp
-(straight-use-package 'js-doc)
 (straight-use-package 'typescript-mode)
 (straight-use-package 'js2-mode)
-(straight-use-package 'rjsx-mode)
 (straight-use-package 'prettier-js)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(add-to-list 'auto-mode-alist '("\\.jsx\\'" . rjsx-mode))
-(setq js-indent-level 2)
-(setq typescript-indent-level 2)
+(add-hook 'js-mode-hook
+          #'(lambda()
+              (unless (string-match ".*\.json$" buffer-file-name)
+                (js2-minor-mode))))
+(setq js-indent-level 2
+      typescript-indent-level 2
+      js2-strict-inconsistent-return-warning nil)
 #+end_src
 
 *** VueJS
