@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: JSDoc One Liner
+# key: jsl
+# group: jsdoc
+# --
+/** @$1 */

@@ -1,9 +1,10 @@
 # -*- mode: snippet -*-
-# name: Generic JSDoc
-# key: jsdoc
+# name: New JSDoc
+# key: jsd
+# group: jsdoc
 # --
 /**
- * ${1:description}
+ * $1
  *
- * @${2:block}
+ * @$2
  */
