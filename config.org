@@ -148,8 +148,8 @@ We need packages, so we're going to setup some repos and pre-install use-package
 *** All The Icons                                                     :fav:
 These are used all over the place
 #+begin_src elisp
-(use-package all-the-icons
-  :ensure t)
+(straight-use-package 'all-the-icons)
+#+end_src
 #+end_src
 
 *** Dired
@@ -357,17 +357,14 @@ Show me the diffs in the fringe!
 #+end_src
 
 *** Elfeed
-
+RSS Reader :D
 #+begin_src elisp
-(use-package elfeed
-  :bind ("C-c e" . elfeed)
-  :ensure t)
-(use-package elfeed-org
-  :ensure t
-  :config
+(straight-use-package 'elfeed)
+(global-set-key (kbd "C-c e") 'elfeed)
+(straight-use-package 'elfeed-org)
+(with-eval-after-load 'elfeed
   (elfeed-org)
-  (setq rmh-elfeed-org-files (list "~/Org/elfeed.org"))
-  :after elfeed)
+  (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))
 #+end_src
 
 *** Expand Region
@@ -636,19 +633,16 @@ The most feature-complete side-bar "file explorer".
 Mostly want undo tree for better redo support for Evil
 
 #+begin_src elisp
-(use-package undo-tree
-  :ensure t
-  :config (global-undo-tree-mode))
+(straight-use-package 'undo-tree)
+(global-undo-tree-mode)
 #+end_src
 
 *** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
 #+begin_src elisp
-(use-package which-key
-  :ensure t
-  :config
-  (which-key-mode))
+(straight-use-package 'which-key)
+(which-key-mode)
 #+end_src
 
 ** Syntax Support
