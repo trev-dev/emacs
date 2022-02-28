@@ -212,44 +212,28 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
 #+begin_src elisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "Jetbrains Mono 10" ))
+(add-to-list 'default-frame-alist '(font . "Jetbrains Mono 10"))
+#+end_src
 
-(let ((ligatures `((?-  . ,(regexp-opt '("-|" "-~" "---" "-<<" "-<" "--" "->" "->>" "-->")))
-                   (?/  . ,(regexp-opt '("/**" "/*" "///" "/=" "/==" "/>" "//")))
-                   (?*  . ,(regexp-opt '("*>" "***" "*/")))
-                   (?<  . ,(regexp-opt '("<-" "<<-" "<=>" "<=" "<|" "<||" "<|||::=" "<|>"
-                                         "<:" "<>" "<-<" "<<<" "<==" "<<=" "<=<" "<==>"
-                                         "<-|" "<<" "<~>" "<=|" "<~~" "<~" "<$>" "<$" "<+>"
-                                         "<+" "</>" "</" "<*" "<*>" "<->" "<!--")))
-                   (?:  . ,(regexp-opt '(":>" ":<" ":::" "::" ":?" ":?>" ":=")))
-                   (?=  . ,(regexp-opt '("=>>" "==>" "=/=" "=!=" "=>" "===" "=:=" "==")))
-                   (?!  . ,(regexp-opt '("!==" "!!" "!=")))
-                   (?>  . ,(regexp-opt '(">]" ">:" ">>-" ">>=" ">=>" ">>>" ">-" ">=")))
-                   (?&  . ,(regexp-opt '("&&&" "&&")))
-                   (?|  . ,(regexp-opt '("|||>" "||>" "|>" "|]" "|}" "|=>" "|->" "|=" "||-"
-                                         "|-" "||=" "||")))
-                   (?.  . ,(regexp-opt '(".." ".?" ".=" ".-" "..<" "...")))
-                   (?+  . ,(regexp-opt '("+++" "+>" "++")))
-                   (?\[ . ,(regexp-opt '("[||]" "[<" "[|")))
-                   (?\{ . ,(regexp-opt '("{|")))
-                   (?\? . ,(regexp-opt '("??" "?." "?=" "?:")))
-                   (?#  . ,(regexp-opt '("####" "###" "#[" "#{" "#=" "#!" "#:" "#_(" "#_"
-                                         "#?" "#(" "##")))
-                   (?\; . ,(regexp-opt '(";;")))
-                   (?_  . ,(regexp-opt '("_|_" "__")))
-                   (?\\ . ,(regexp-opt '("\\" "\\/")))
-                   (?~  . ,(regexp-opt '("~~" "~~>" "~>" "~=" "~-" "~@")))
-                   (?$  . ,(regexp-opt '("$>")))
-                   (?^  . ,(regexp-opt '("^=")))
-                   (?\] . ,(regexp-opt '("]#"))))))
-  (dolist (char-regexp ligatures)
-    (set-char-table-range
-      composition-function-table (car char-regexp)
-      `([,(cdr char-regexp) 0 font-shape-gstring]))))
+Ligatures, in a separate block so that they are easy to disable. These don't always work well across versions and updates.
+#+begin_src elisp
+(defvar ligatures '("-|" "-~" "---" "-<<" "-<" "--" "->" "->>" "-->" "/**" "/*" "///"
+                    "/=" "/==" "/>" "//" "*>" "***" "*/" "<-" "<<-" "<=>" "<=" "<|"
+                    "<||" "<|||::=" "<|>" "<:" "<>" "<-<" "<<<" "<==" "<<=" "<=<" "<==>"
+                    "<-|" "<<" "<~>" "<=|" "<~~" "<~" "<$>" "<$" "<+>" "<+" "</>" "</"
+                    "<*" "<*>" "<->" "<!--" ":>" ":<" ":::" "::" ":?" ":?>" ":=" "=>>"
+                    "==>" "=/=" "=!=" "=>" "===" "=:=" "==" "!==" "!!" "!=" ">]" ">:"
+                    ">>-" ">>=" ">=>" ">>>" ">-" ">=" "&&&" "&&" "|||>" "||>" "|>" "|]"
+                    "|}" "|=>" "|->" "|=" "||-" "|-" "||=" "||" ".." ".?" ".=" ".-" "..<"
+                    "..." "+++" "+>" "++" "[||]" "[<" "[|" "{|" "??" "?." "?=" "?:" "####"
+                    "###" "#[" "#{" "#=" "#!" "#:" "#_(" "#_" "#?" "#(" "##" ";;" "_|_"
+                    "__" "\\\\" "\\/" "~~" "~~>" "~>" "~=" "~-" "~@" "$>" "^=" "]#")
+  "Ligatures for ligature.el.")
 
-(use-package composite
-  :hook (prog-mode . auto-composition-mode)
-  :init (global-auto-composition-mode -1))
+(straight-use-package '(ligature :type git :host github
+                                 :repo "mickeynp/ligature.el"))
+(ligature-set-ligatures 'prog-mode ligatures)
+(add-hook 'prog-mode-hook 'ligature-mode)
 #+end_src
 
 *** Telephone Line
