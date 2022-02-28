@@ -984,32 +984,29 @@ Customizations for what is one of the best features that emacs comes with. If we
              org-agenda-files))))))
   "Custom commands for Org Agenda.")
 
-(use-package org
-  :hook (org-mode . td/org-hook)
-  :config
-  (require 'ox-md nil t)
-  :bind
-  ("C-c a" . org-agenda)
-  (:map org-mode-map ("C-c t" . org-table-export))
-  :config
-  (setq org-fontify-quote-and-verse-blocks t
-        org-directory "~/Org"
-        org-archive-location "archives/%s_archive::"
-        org-log-done 'time
-        org-log-into-drawer t
-        org-enforce-todo-dependencies t
-        org-enforce-todo-checkbox-dependencies t
-        org-src-preserve-indentation t
-        org-clock-persist 'history
-        org-agenda-block-separator "──────────"
-        org-duration-format '(("h" . nil) (special . 2))
-        org-clock-total-time-cell-format "%s"
-        org-agenda-files '("~/Org")
-        org-tag-alist td/tag-list
-        org-todo-keywords td/todo-keywords
-        org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
-        org-timer-default-timer "25"
-        org-agenda-custom-commands td/org-agenda-commands))
+(add-hook 'org-mode-hook 'td/org-hook)
+(require 'ox-md nil t)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(define-key org-mode-map (kbd "C-c t") 'org-table-export)
+
+(setq org-fontify-quote-and-verse-blocks t
+      org-directory "~/Org"
+      org-archive-location "archives/%s_archive::"
+      org-log-done 'time
+      org-log-into-drawer t
+      org-enforce-todo-dependencies t
+      org-enforce-todo-checkbox-dependencies t
+      org-src-preserve-indentation t
+      org-clock-persist 'history
+      org-agenda-block-separator "──────────"
+      org-duration-format '(("h" . nil) (special . 2))
+      org-clock-total-time-cell-format "%s"
+      org-agenda-files '("~/Org")
+      org-tag-alist td/tag-list
+      org-todo-keywords td/todo-keywords
+      org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
+      org-timer-default-timer "25"
+      org-agenda-custom-commands td/org-agenda-commands)
 
 (setq org-capture-templates
       '(("c" "Cookbook" entry (file "~/org/cookbook.org")
@@ -1018,23 +1015,14 @@ Customizations for what is one of the best features that emacs comes with. If we
         ("m" "Manual Cookbook" entry (file "~/org/cookbook.org")
          "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")))
 
-(use-package org-chef
-  :ensure t)
+(straight-use-package 'org-chef)
 
-(use-package org-contrib :ensure t :after org)
+(straight-use-package
+ '(org-view-mode :type git :host github :repo "amno1/org-view-mode"
+                 :fork (:host github :repo "trev-dev/org-view-mode")))
 
-(straight-use-package '(org-view-mode :type git :host github :repo "amno1/org-view-mode"
-                                      :fork (:host github :repo "trev-dev/org-view-mode")))
-
-(use-package org-bullets
-  :ensure t
-  :custom
-  (org-bullets-bullet-list '(
-                             "◉" "○" "•" "·"
-                             ;;"" "❯" "»" "›"
-                            ))
-  :hook
-  (org-mode . (lambda () (org-bullets-mode 1))))
+(straight-use-package 'org-bullets)
+(setq org-bullets-bullet-list '("◉" "○" "•" "·"))
 
   ;; :config
   ;; ;; Set faces for heading levels
@@ -1048,9 +1036,10 @@ Customizations for what is one of the best features that emacs comes with. If we
   ;;                 (org-level-8 . 1.1)))
   ;;   (set-face-attribute (car face) nil :weight 'semi-bold :height (cdr face)))
 
-(use-package ox-gfm
-  :requires org
-  :ensure t)
+(straight-use-package 'ox-gfm)
+
+(straight-use-package 'visual-fill-column)
+(define-key org-mode-map (kbd "C-c v") 'visual-fill-column-mode)
 
 (defun org-visual-fill-setup()
   "Center the column 100 characters wide"
@@ -1058,26 +1047,20 @@ Customizations for what is one of the best features that emacs comes with. If we
               visual-fill-column-center-text nil)
   (visual-fill-column-mode 1))
 
-(use-package visual-fill-column
-  :ensure t
-  :hook (org-mode . org-visual-fill-setup)
-  :bind ("C-c v" . visual-fill-column-mode))
-
-(use-package org-alert
-  :ensure t
-  :config
-  (setq alert-default-style 'libnotify)
-  (setq org-alert-interval 7200)
-  (setq org-alert-notify-cutoff 60)
-  (setq org-alert-notification-title "Org Agenda")
+(straight-use-package 'org-alert)
+(with-eval-after-load 'org-alert
+  alert-default-style 'libnotify
+  org-alert-interval 7200
+  org-alert-notify-cutoff 60
+  org-alert-notification-title "Org Agenda"
   (org-alert-enable))
 
 (defvar td/org-auto-toc-files
   '("~/.config/emacs/config.org")
-  "Files that should auto-toc on save")
+  "Files that should auto-toc on save.")
 
 (defun td/set-auto-toc ()
-  "Set auto-toc if buffer in auto-toc-files"
+  "Set auto-toc if buffer in auto-toc-files."
   (if (member
        (buffer-file-name)
        (mapcar 'expand-file-name td/org-auto-toc-files))
@@ -1085,10 +1068,18 @@ Customizations for what is one of the best features that emacs comes with. If we
         (org-make-toc-mode)
         (message "Org make TOC mode is on!"))))
 
-(use-package org-make-toc
-  :requires (dash s)
-  :hook (org-mode . td/set-auto-toc)
-  :ensure t)
+(straight-use-package 'dash)
+(straight-use-package 's)
+(straight-use-package 'org-make-toc)
+
+(defun td/org-hook ()
+  "Do this on org mode startup."
+  (org-indent-mode)
+  (yas-minor-mode)
+  (org-clock-persistence-insinuate)
+  (org-bullets-mode 1)
+  (org-visual-fill-setup)
+  (td/set-auto-toc))
 #+end_src
 
 **** Custom Clock Table
