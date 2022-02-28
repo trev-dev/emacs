@@ -21,6 +21,7 @@ Herein lies my Emacs configuration. Use it well
   - [[#telephone-line][Telephone Line]]
 - [[#utility-packages][Utility Packages]]
   - [[#avy][Avy]]
+  - [[#ace-window][Ace Window]]
   - [[#ctrlf][CTRLF]]
   - [[#dashboard][Dashboard]]
   - [[#diff-hl][Diff-hl]]
@@ -36,6 +37,7 @@ Herein lies my Emacs configuration. Use it well
   - [[#ledger][Ledger]]
   - [[#projectile][Projectile]]
   - [[#rg][RG]]
+  - [[#treemacs][Treemacs]]
   - [[#undo-tree][Undo-Tree]]
   - [[#which-key][Which-key]]
 - [[#syntax-support][Syntax Support]]
@@ -323,7 +325,14 @@ Packages that extend and augment emacs in a general way
 (global-set-key (kbd "C-;") 'avy-goto-char)
 (with-eval-after-load 'avy
   (avy-setup-default))
-  #+end_src
+#+end_src
+
+*** Ace Window
+Make the "other window" way better. This is a dependency from [[* Treemacs][Treemacs]].
+#+begin_src elisp
+(straight-use-package 'ace-window)
+(global-set-key (kbd "M-o") 'ace-window)
+#+end_src
 
 *** CTRLF
 Improved buffer searching
@@ -353,12 +362,13 @@ Improved buffer searching
 Show me the diffs in the fringe!
 
 #+begin_src elisp
-(use-package diff-hl
-  :ensure t
-  :after magit
-  :init (global-diff-hl-mode)
-  :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
-         (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
+(straight-use-package 'diff-hl)
+
+(with-eval-after-load 'magit
+  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+
+(global-diff-hl-mode)
 #+end_src
 
 *** Elfeed
@@ -401,12 +411,23 @@ Goggles is light volatile highlights, but cooler. If you're familiar with evil-g
 A tool for making repetative chords less cumbersome
 #+begin_src elisp
 (straight-use-package 'hydra)
-(defhydra hydra-window (global-map "M-o")
-  "Switch Windows"
-  ("e" windmove-right)
-  ("a" windmove-left)
-  ("p" windmove-up)
-  ("n" windmove-down))
+
+(defhydra hydra-window (global-map "C-c o")
+  "Hydra Windmove"
+  ("e" windmove-right "Right")
+  ("a" windmove-left "Left")
+  ("p" windmove-up "Up")
+  ("n" windmove-down "Down"))
+
+(defhydra hydra-split (global-map "C-c p")
+  "Hydra Split"
+  ("v" split-window-right "Vertically")
+  ("h" split-window-below "Horizontally")
+  ("d" delete-window "Delete")
+  ("=" enlarge-window "Enlarge")
+  ("-" shrink-window "Shrink")
+  ("b" balance-windows "Balance")
+  ("k" delete-window "Delete"))
 #+end_src
 
 *** Evil!                                                        :disabled:
@@ -605,6 +626,25 @@ Knowing what resources you have at your disposal and learning how to budget are 
 (progn
   (straight-use-package 'rg)
   (rg-enable-default-bindings))
+#+end_src
+
+*** Treemacs
+The most feature-complete side-bar "file explorer".
+#+begin_src elisp
+(straight-use-package 'treemacs)
+(dolist (combo '(("C-x t 1"   . treemacs-delete-other-windows)
+                 ("C-x t t"   . treemacs)
+                 ("C-x t B"   . treemacs-bookmark)
+                 ("C-x t C-t" . treemacs-find-file)
+                 ("C-x t M-t" . treemacs-find-tag)))
+  (global-set-key (kbd (car combo)) (cdr combo)))
+
+;; Not sure if this required
+;; (straight-use-package 'treemacs-icon-dired)
+;; (add-hook 'dired-mode-hook #'treemacs-icons-dired-enable-once)
+
+(with-eval-after-load 'treemacs
+  (straight-use-package 'treemacs-magit))
 #+end_src
 
 *** Undo-Tree
@@ -816,6 +856,7 @@ The free software documentation language of the Internet.
 #+begin_src elisp
 (straight-use-package 'lsp-mode)
 (straight-use-package 'lsp-ui)
+(straight-use-package 'lsp-treemacs)
 
 (dolist (mode '(css-mode-hook
                  scss-mode-hook
@@ -830,7 +871,7 @@ The free software documentation language of the Internet.
                  typescript-mode-hook
                  vue-mode-hook
                  yaml-mode-hook))
-  (add-hook mode #'lsp-deferred))
+  (add-hook mode #'lsp))
 
 (with-eval-after-load 'lsp-mode
   (setq lsp-log-io nil
@@ -866,18 +907,15 @@ The free software documentation language of the Internet.
    (make-lsp-client :new-connection (lsp-stdio-connection "theme-check-language-server")
                     :activation-fn (lsp-activate-on "shopify")
                     :server-id 'theme-check)))
+
+(with-eval-after-load 'lsp-treemacs
+  (lsp-treemacs-sync-mode 1))
 #+end_src
 
 *** Org                                                               :fav:
 Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is. The fancy font-size setup is stolen from [[https://github.com/daviwil/emacs-from-scratch][Emacs from Scratch]] by [[https://www.youtube.com/c/SystemCrafters][System Crafters]]. Check them out :)
 
 #+begin_src elisp
-(defun td/org-hook ()
-  "My hooks for `org-mode`."
-  (org-indent-mode)
-  (yas-minor-mode)
-  (org-clock-persistence-insinuate))
-
 (defvar td/tag-list
   '((:startgroup)
     ;; Put mutually exclusive tags here
