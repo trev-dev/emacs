@@ -280,10 +280,11 @@ A simple, but nicer looking modeline
 ;; Props to 404cn for coming up with the idea for this segment for project.el
 ;; https://github.com/dbordak/telephone-line/issues/124#issuecomment-1013603600
 (defun td/project-name ()
-  (if (stringp td/project-custom-name)
-      (format "%s : " td/project-custom-name)
-    (file-name-nondirectory
-     (directory-file-name (project-root (project-current))))))
+  (format "%s:"
+          (if (stringp td/project-custom-name)
+              td/project-custom-name
+            (file-name-nondirectory
+             (directory-file-name (project-root (project-current)))))))
 
 (telephone-line-defsegment my--project-segment ()
   (propertize (td/project-name)
