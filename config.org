@@ -359,12 +359,16 @@ Show me the diffs in the fringe!
 *** Elfeed
 RSS Reader :D
 #+begin_src elisp
-(straight-use-package 'elfeed)
-(global-set-key (kbd "C-c e") 'elfeed)
-(straight-use-package 'elfeed-org)
-(with-eval-after-load 'elfeed
+(use-package elfeed
+  :config
+  (global-set-key (kbd "C-c e") 'elfeed))
+
+(use-package elfeed-org
+  :after elfeed
+  :config
   (elfeed-org)
   (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))
+
 #+end_src
 
 *** Expand Region
@@ -993,14 +997,15 @@ Customizations for what is one of the best features that emacs comes with. If we
         ("m" "Manual Cookbook" entry (file "~/org/cookbook.org")
          "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")))
 
-(straight-use-package 'org-chef)
-
+(use-package org-chef :ensure t)
 (straight-use-package
  '(org-view-mode :type git :host github :repo "amno1/org-view-mode"
                  :fork (:host github :repo "trev-dev/org-view-mode")))
 
-(straight-use-package 'org-bullets)
-(setq org-bullets-bullet-list '("◉" "○" "•" "·"))
+(use-package org-bullets
+  :ensure t
+  :config (setq org-bullets-bullet-list '("◉" "○" "•" "·")))
+
 
   ;; :config
   ;; ;; Set faces for heading levels
@@ -1014,10 +1019,12 @@ Customizations for what is one of the best features that emacs comes with. If we
   ;;                 (org-level-8 . 1.1)))
   ;;   (set-face-attribute (car face) nil :weight 'semi-bold :height (cdr face)))
 
-(straight-use-package 'ox-gfm)
+(use-package ox-gfm :ensure t)
 
-(straight-use-package 'visual-fill-column)
-(define-key org-mode-map (kbd "C-c v") 'visual-fill-column-mode)
+(use-package visual-fill-column
+  :ensure t
+  :config
+  (define-key org-mode-map (kbd "C-c v") 'visual-fill-column-mode))
 
 (defun org-visual-fill-setup()
   "Center the column 100 characters wide"
@@ -1025,12 +1032,13 @@ Customizations for what is one of the best features that emacs comes with. If we
               visual-fill-column-center-text nil)
   (visual-fill-column-mode 1))
 
-(straight-use-package 'org-alert)
+(use-package org-alert :ensure t)
+
 (with-eval-after-load 'org-alert
-  alert-default-style 'libnotify
+  (setq alert-default-style 'libnotify
   org-alert-interval 7200
   org-alert-notify-cutoff 60
-  org-alert-notification-title "Org Agenda"
+  org-alert-notification-title "Org Agenda")
   (org-alert-enable))
 
 (defvar td/org-auto-toc-files
@@ -1046,9 +1054,9 @@ Customizations for what is one of the best features that emacs comes with. If we
         (org-make-toc-mode)
         (message "Org make TOC mode is on!"))))
 
-(straight-use-package 'dash)
-(straight-use-package 's)
-(straight-use-package 'org-make-toc)
+(use-package org-make-toc
+  :ensure t
+  :requires (dash s))
 
 (defun td/org-hook ()
   "Do this on org mode startup."
