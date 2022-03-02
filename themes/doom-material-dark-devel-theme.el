@@ -132,10 +132,10 @@ Can be an integer to determine the exact padding."
    (js2-object-property          :foreground yellow)
    (js2-object-property-access   :foreground cyan)
    (js2-function-param           :foreground violet)
-   (js2-jsdoc-type               :foreground cyan)
+   (js2-jsdoc-type               :foreground base8)
    (js2-jsdoc-value              :foreground yellow)
    (js2-jsdoc-html-tag-delimiter :foreground base8)
-   (js2-jsdoc-html-tag-name      :foreground blue)
+   (js2-jsdoc-html-tag-name      :foreground base8)
    ;;;; typescript.el
    (typescript-jsdoc-tag       :foreground magenta)
    (typescript-jsdoc-type      :foreground base8)
