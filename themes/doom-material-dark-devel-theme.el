@@ -128,12 +128,14 @@ Can be an integer to determine the exact padding."
     :inherit 'ivy-minibuffer-match-face-1
     :foreground dark-cyan :background base1 :weight 'semi-bold)
    ;;;; js2-mode
-   (js2-jsdoc-tag              :foreground magenta)
-   (js2-object-property        :foreground yellow)
-   (js2-object-property-access :foreground cyan)
-   (js2-function-param         :foreground violet)
-   (js2-jsdoc-type             :foreground base8)
-   (js2-jsdoc-value            :foreground cyan)
+   (js2-jsdoc-tag                :foreground magenta)
+   (js2-object-property          :foreground yellow)
+   (js2-object-property-access   :foreground cyan)
+   (js2-function-param           :foreground violet)
+   (js2-jsdoc-type               :foreground cyan)
+   (js2-jsdoc-value              :foreground yellow)
+   (js2-jsdoc-html-tag-delimiter :foreground base8)
+   (js2-jsdoc-html-tag-name      :foreground blue)
    ;;;; typescript.el
    (typescript-jsdoc-tag       :foreground magenta)
    (typescript-jsdoc-type      :foreground base8)
