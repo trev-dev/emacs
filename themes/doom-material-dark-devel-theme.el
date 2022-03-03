@@ -69,8 +69,8 @@ Can be an integer to determine the exact padding."
    (vc-deleted     red)
 
    ;; custom categories
-   (modeline-bg     base2)
-   (modeline-bg-alt (doom-darken bg 0.01))
+   (modeline-bg     (doom-lighten bg 0.05))
+   (modeline-bg-alt bg-alt)
    (modeline-fg     base8)
    (modeline-fg-alt comments)
 
@@ -110,9 +110,9 @@ Can be an integer to determine the exact padding."
    (Man-overstrike :inherit 'bold :foreground magenta)
    (Man-underline :inherit 'underline :foreground blue)
    ;;;; org <built-in>
-   ((org-block &override) :background base2)
-   ((org-block-background &override) :background base2)
-   ((org-block-begin-line &override) :background base2)
+   ((org-block &override) :background (doom-lighten bg 0.04))
+   ((org-block-background &override) :background (doom-lighten bg 0.04))
+   ((org-block-begin-line &override) :background bg :height 0.85)
    ;;;; css-mode <built-in> / scss-mode
    (css-proprietary-property :foreground orange)
    (css-property             :foreground green)
@@ -179,6 +179,11 @@ Can be an integer to determine the exact padding."
    (org-level-7 :foreground teal)
    (org-level-8 :foreground violet)
    (org-todo :foreground orange)
+   (org-drawer :foreground comments :height 0.85)
+   (org-meta-line :foreground comments :height 0.85)
+   (org-special-keyword :foreground cyan :height 0.85)
+   (org-property-value :foreground fg-alt :height 0.85)
+   (org-tag :foreground fg-alt :height 0.85)
    ;;;; css
    (css-property :foreground orange)
    (css-proprietary-property :foreground magenta)
