@@ -25,101 +25,117 @@
 ;; This package contains a small function library for comparing your .org
 ;; configuration file against a timestamp of a previous version of that file.
 ;; If the timestamps do not match, or your config.el is missing, it will use
-;; org-babel-load-file to create and load a new config.el.  The stamp is stored
+;; org-babel-tangle-file to create a new config.el.  The stamp is stored
 ;; in a hidden file that is the same as your config file name with the .prev
 ;; extension
 
 ;;;  Example:
-;; (require 'compare-before-loading)
+;; (require 'compare-config)
 ;; If no path is provided the default is "~/.emacs.d/config.org"
-;; (compare-before-loading "/path/to/file.org")
+;; (compare-config-before-load "/path/to/file.org")
 
 ;;; Code:
-(require 'org)
-
 ;;; Global Variables:
 (defgroup compare-config nil
-  "Compare your config against an old version before babel-loading it"
+  "Compare your config against an old version before tangling it."
   :group 'tools)
 
-(defcustom path-to-org-config "~/.emacs.d/config.org"
+(defcustom compare-config-org-file "~/.emacs.d/config.org"
   "The location of your .org formatted configuration file."
   :type 'string
   :group 'compare-config)
 
-(defcustom use-temp-for-config-mtime nil
+(defcustom compare-config-use-temp nil
   "Use the systems temporary directory for storing a config file mtime."
+  :type 'boolean
+  :group 'compare-config)
+
+(defcustom compare-config-auto-tangle nil
+  "Automatically tangle the configuration file on save."
   :type 'boolean
   :group 'compare-config)
 
 ;;; Functions:
 
-(defun get-file-mtime-string (path)
+(defun compare-config-get-mtime (path)
   "Get the modified time of a file from a PATH if it exists."
-  (if (file-exists-p path)
+  (if (file-exists-p (expand-file-name path))
       (current-time-string
        (file-attribute-modification-time
-        (file-attributes path)))))
+        (file-attributes (expand-file-name path))))))
 
-(defun get-current-config-mtime()
-  "Get the modified time of the Org config file."
-  (if (file-exists-p path-to-org-config)
-      (get-file-mtime-string path-to-org-config)
-    (error (format
-            "Missing config Org file: %s"
-            (expand-file-name path-to-org-config))))
-  )
+(defun compare-config-get-config-mtime ()
+  "Get the modified time of the org config file, or error."
+  (let ((mtime (compare-config-get-mtime compare-config-org-file)))
+    (if (not mtime)
+        (error (format
+                "Missing config Org file: %s"
+                (expand-file-name compare-config-org-file))))
+    mtime))
 
-(defun get-stamp-storage-path ()
+(defun compare-config-get-storage-file ()
   "Get a path for where the saved time stamp of an Org config file should be."
   (format
    "%s.%s.prev"
-   (if use-temp-for-config-mtime
+   (if compare-config-use-temp
        temporary-file-directory
      (file-name-directory
-      (expand-file-name path-to-org-config)))
-   (file-name-nondirectory (expand-file-name path-to-org-config))))
+      (expand-file-name compare-config-org-file)))
+   (file-name-nondirectory (expand-file-name compare-config-org-file))))
 
-(defun get-previous-config-mtime()
-  "Retrieve the previously saved config modified time."
-  (let ((path (get-stamp-storage-path)))
+(defun compare-config-record-timestamp ()
+  "Record a timestamp of the current configuration."
+  (with-temp-file (compare-config-get-storage-file)
+    (insert (compare-config-get-config-mtime))
+    (buffer-string)))
+
+(defun compare-config-get-previous-mtime ()
+  "Retrieve the previously saved config modified time.
+If it does not exist, make a new timestamp and return that instead."
+  (let ((path (compare-config-get-storage-file)))
     (if (file-exists-p path)
         (with-temp-buffer
           (insert-file-contents path)
-          (buffer-string)))))
+          (buffer-string))
+      (compare-config-record-timestamp))))
 
 (defun config-has-changed ()
-  "Compare a config file against its previous version using a CONF-PATH.
-Returns a boolean value for whether or not it has changed."
-  (let ((prev-mtime (get-previous-config-mtime))
-        (next-mtime (get-current-config-mtime)))
-    (message (format "%s" (equal prev-mtime next-mtime)))
-    (not (equal prev-mtime next-mtime))))
+  "Compare a config file against its previous version using a CONF-PATH."
+  (let ((prev-mtime (compare-config-get-previous-mtime))
+        (next-mtime (compare-config-get-config-mtime)))
+    (if prev-mtime
+        (progn
+          (message (format "%s" (equal prev-mtime next-mtime)))
+          (not (equal prev-mtime next-mtime))))))
 
-(defun stamp-and-load-config()
-  "Create a timestamp file for the current Org config file then load it."
-  (let ((dest (get-stamp-storage-path)))
-    (with-temp-file dest (insert (get-current-config-mtime)))
-    (message (format "Recorded config timestamp to %s" dest))
-    (org-babel-load-file path-to-org-config)))
+(defun compare-config-tangle-config ()
+  "Tangle, then create a new timestamp for the org config.
+Prompt the user to restart Emacs."
+  (interactive)
+  (if (not (functionp 'org-babel-tangle-file))
+      (require 'org))
+  (compare-config-record-timestamp)
+  (org-babel-tangle-file compare-config-org-file)
+  (message "Your configuration has been tangled. Restart Emacs to use it."))
 
-(defun load-existing-config()
-  "Load the existing untangled .org config as it should be unchanged.
-If it does not exist, do `org-babel-load-file' on the config Org file"
+(defun compare-config-load-config()
+  "Load an existing configuration."
   (let* ((name (file-name-sans-extension
-               (file-name-nondirectory path-to-org-config)))
-         (dir (file-name-directory path-to-org-config))
+               (file-name-nondirectory compare-config-org-file)))
+         (dir (file-name-directory compare-config-org-file))
          (path (format "%s%s.el" dir name)))
     (if (file-exists-p path)
         (load-file path)
-      (org-babel-load-file path-to-org-config))))
+      (compare-config-tangle-config))))
 
 ;;;###autoload
-(defun compare-before-loading ()
-  "Compare your Org config to its prvious version before using org babel."
+(defun compare-config-before-load (&optional config)
+  "Compare your Org `CONFIG' to its previous version before using org babel."
+  (if (stringp config)
+      (setq compare-config-org-file config))
   (if (config-has-changed)
-      (stamp-and-load-config)
-    (load-existing-config)))
+      (compare-config-tangle-config)
+    (compare-config-load-config)))
 
-(provide 'compare-before-loading)
+(provide 'compare-config)
 ;;; compare-before-loading.el ends here
