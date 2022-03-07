@@ -3,7 +3,7 @@
 ;; Copyright (C) Trevor Richards
 
 ;; Author: Trevor Richards <trev@trevdev.ca>
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Keywords: performance, utility
 ;; URL: https://github.com/trev-dev/compare-before-loading.el
 
