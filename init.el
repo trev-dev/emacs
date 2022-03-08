@@ -9,14 +9,14 @@
 ;; If you don't like those lazy configs just delete everything after the ends
 ;; here line"
 
-
-;;; Packages:
-(require 'org)
-
-"Load org config"
 ;;; Code:
+
+;; Load config.el if it exists. If it does not, tangle the configuration file
+;; and prompt the user to restart. By using this method, we remove any need
+;; to (require 'org) so early in the configuration.
 (add-to-list 'load-path "~/.config/emacs/packages")
-(org-babel-load-file "~/.config/emacs/config.org")
+(require 'compare-config)
+(org-tangle-config-before-load "~/.config/emacs/config.org")
 
 (provide 'emacs)
 (setq custom-file (locate-user-emacs-file "custom-vars.el"))

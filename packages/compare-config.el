@@ -32,7 +32,7 @@
 ;;;  Example:
 ;; (require 'compare-config)
 ;; If no path is provided the default is "~/.emacs.d/config.org"
-;; (compare-config-before-load "/path/to/file.org")
+;; (org-tangle-config-before-load "/path/to/file.org")
 
 ;;; Code:
 ;;; Global Variables:
@@ -40,102 +40,102 @@
   "Compare your config against an old version before tangling it."
   :group 'tools)
 
-(defcustom compare-config-org-file "~/.emacs.d/config.org"
+(defcustom org-tangle-config-org-file "~/.emacs.d/config.org"
   "The location of your .org formatted configuration file."
   :type 'string
   :group 'compare-config)
 
-(defcustom compare-config-use-temp nil
+(defcustom org-tangle-config-use-temp nil
   "Use the systems temporary directory for storing a config file mtime."
   :type 'boolean
   :group 'compare-config)
 
-(defcustom compare-config-auto-tangle nil
+(defcustom org-tangle-config-auto-tangle nil
   "Automatically tangle the configuration file on save."
   :type 'boolean
   :group 'compare-config)
 
 ;;; Functions:
 
-(defun compare-config-get-mtime (path)
+(defun org-tangle-config-get-mtime (path)
   "Get the modified time of a file from a PATH if it exists."
   (if (file-exists-p (expand-file-name path))
       (current-time-string
        (file-attribute-modification-time
         (file-attributes (expand-file-name path))))))
 
-(defun compare-config-get-config-mtime ()
+(defun org-tangle-config-get-config-mtime ()
   "Get the modified time of the org config file, or error."
-  (let ((mtime (compare-config-get-mtime compare-config-org-file)))
+  (let ((mtime (org-tangle-config-get-mtime org-tangle-config-org-file)))
     (if (not mtime)
         (error (format
                 "Missing config Org file: %s"
-                (expand-file-name compare-config-org-file))))
+                (expand-file-name org-tangle-config-org-file))))
     mtime))
 
-(defun compare-config-get-storage-file ()
+(defun org-tangle-config-get-storage-file ()
   "Get a path for where the saved time stamp of an Org config file should be."
   (format
    "%s.%s.prev"
-   (if compare-config-use-temp
+   (if org-tangle-config-use-temp
        temporary-file-directory
      (file-name-directory
-      (expand-file-name compare-config-org-file)))
-   (file-name-nondirectory (expand-file-name compare-config-org-file))))
+      (expand-file-name org-tangle-config-org-file)))
+   (file-name-nondirectory (expand-file-name org-tangle-config-org-file))))
 
-(defun compare-config-record-timestamp ()
+(defun org-tangle-config-record-timestamp ()
   "Record a timestamp of the current configuration."
-  (with-temp-file (compare-config-get-storage-file)
-    (insert (compare-config-get-config-mtime))
+  (with-temp-file (org-tangle-config-get-storage-file)
+    (insert (org-tangle-config-get-config-mtime))
     (buffer-string)))
 
-(defun compare-config-get-previous-mtime ()
+(defun org-tangle-config-get-previous-mtime ()
   "Retrieve the previously saved config modified time.
 If it does not exist, make a new timestamp and return that instead."
-  (let ((path (compare-config-get-storage-file)))
+  (let ((path (org-tangle-config-get-storage-file)))
     (if (file-exists-p path)
         (with-temp-buffer
           (insert-file-contents path)
           (buffer-string))
-      (compare-config-record-timestamp))))
+      (org-tangle-config-record-timestamp))))
 
 (defun config-has-changed ()
   "Compare a config file against its previous version using a CONF-PATH."
-  (let ((prev-mtime (compare-config-get-previous-mtime))
-        (next-mtime (compare-config-get-config-mtime)))
+  (let ((prev-mtime (org-tangle-config-get-previous-mtime))
+        (next-mtime (org-tangle-config-get-config-mtime)))
     (if prev-mtime
         (progn
           (message (format "%s" (equal prev-mtime next-mtime)))
           (not (equal prev-mtime next-mtime))))))
 
-(defun compare-config-tangle-config ()
+(defun org-tangle-config-tangle-config ()
   "Tangle, then create a new timestamp for the org config.
 Prompt the user to restart Emacs."
   (interactive)
   (if (not (functionp 'org-babel-tangle-file))
       (require 'org))
-  (compare-config-record-timestamp)
-  (org-babel-tangle-file compare-config-org-file)
-  (message "Your configuration has been tangled. Restart Emacs to use it."))
+  (org-tangle-config-record-timestamp)
+  (org-babel-tangle-file org-tangle-config-org-file)
+  (message-box "Your configuration has been tangled. Restart Emacs to use it."))
 
-(defun compare-config-load-config()
+(defun org-tangle-config-load-config()
   "Load an existing configuration."
   (let* ((name (file-name-sans-extension
-               (file-name-nondirectory compare-config-org-file)))
-         (dir (file-name-directory compare-config-org-file))
+               (file-name-nondirectory org-tangle-config-org-file)))
+         (dir (file-name-directory org-tangle-config-org-file))
          (path (format "%s%s.el" dir name)))
     (if (file-exists-p path)
         (load-file path)
-      (compare-config-tangle-config))))
+      (org-tangle-config-tangle-config))))
 
 ;;;###autoload
-(defun compare-config-before-load (&optional config)
+(defun org-tangle-config-before-load (&optional config)
   "Compare your Org `CONFIG' to its previous version before using org babel."
   (if (stringp config)
-      (setq compare-config-org-file config))
+      (setq org-tangle-config-org-file config))
   (if (config-has-changed)
-      (compare-config-tangle-config)
-    (compare-config-load-config)))
+      (org-tangle-config-tangle-config)
+    (org-tangle-config-load-config)))
 
 (provide 'compare-config)
 ;;; compare-before-loading.el ends here
