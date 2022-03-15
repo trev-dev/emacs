@@ -354,6 +354,31 @@ Packages that extend and augment emacs in a general way
 **** Completions
 A combination of packages to enhance completions, centered around [[https://github.com/minad][Minad's]] work. There are a few packages to implement here. This section is a work in progress.
 
+***** Cape/Corfu/Kind-Icon
+Drop-down style completion-at-point utilities & fluff.
+
+#+begin_src elisp :tangle yes
+(defun td/corfu-config ()
+  "Configuration for corfu, cape & kind-icon."
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-tex)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
+  (setq corfu-cycle t
+        tab-always-indent 'complete
+        corfu-preselect-first nil)
+  (with-eval-after-load 'corfu
+    (require 'kind-icon)
+    (setq kind-icon-default-face 'corfu-default)
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+  (corfu-global-mode))
+(dolist (pkg '(corfu
+               cape
+               kind-icon))
+  (add-to-list 'td/package-list pkg))
+(add-to-list 'td/package-configs #'td/corfu-config)
+#+end_src
+
 ***** Consult
 I am currently giving consult a try as my completion-at-point solution, amongst many
 other better ways to reference things in Emacs.
@@ -469,7 +494,8 @@ A completion style that permits entering parts of completion names in any order.
   "Orderless configuration."
   (setq completion-styles '(orderless)
         completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+        completion-category-overrides '((file
+                                         (styles . (partial-completion))))))
 (add-to-list 'td/package-list 'orderless)
 (add-to-list 'td/package-configs #'td/orderless-conf)
 #+end_src
@@ -477,9 +503,8 @@ A completion style that permits entering parts of completion names in any order.
 ***** Savehist
 Save history for Vertico to look at later.
 #+begin_src elisp :tangle yes
-(add-to-list 'td/package-list 'savehist)
-(add-to-list #'td/package-configs #'(lambda () "Savehist config."
-                                      (savehist-mode)))
+;; Built into emacs 29
+(savehist-mode)
 #+end_src
 
 ***** Vertico
