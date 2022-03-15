@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: A configuration blog for my configuration.org
+# key: econf
+# --
+#+begin_src elisp :tangle $1
+$2
+#+end_src

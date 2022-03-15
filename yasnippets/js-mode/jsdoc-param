@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: JSDoc Param
-# key: jdp
+# key: jsp
 # group: jsdoc
 # --
 * @param {$1} $2 - $3
