@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: A JSDoc file documentation template
+# key: jsf
+# group: jsdoc
+# --
+/**
+ * @file $1
+ * @author $2
+ * @version $3
+ * @license $4
+ */
