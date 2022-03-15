@@ -4,51 +4,8 @@
 #+TAGS: disabled(d) fav(f)
 :END:
 Herein lies my Emacs configuration. Use it well
-** Contents
-:PROPERTIES:
-:TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
-:END:
-:CONTENTS:
-- [[#performance-tweaks][Performance Tweaks]]
-- [[#autosaves--backups][Autosaves & Backups]]
-:END:
-
-** Performance Tweaks
-Give the garbage collector free-reign at start-up, then take it back to 8M. Use so-long-mode for editor-breaking minified css/js.
-#+begin_src elisp :tangle yes
-;; Minimize garbage collection during startup
-(setq gc-cons-threshold most-positive-fixnum)
-
-;; Lower threshold back to 8 MiB (default is 800kB)
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold (expt 2 23))))
-
-(setq read-process-output-max (* 1024 1024))
-
-;; Don't die when handling large, minified files
-(global-so-long-mode 1)
-
-;; For native compilation with Emacs 28+
-(setq comp-deferred-compilation t)
-#+end_src
-
-** Autosaves & Backups
-I hate seeing project folders get all cluttered up
-
-#+begin_src elisp :tangle yes
-;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))
-      backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
-
-;; create the autosave dir if necessary, since emacs won't.
-(make-directory "~/.emacs.d/autosaves/" t)
-
-(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
-#+end_src
-
-* Package Configuration
-In my early Emacs days, I used =use-package=. In my desire to keep learning and move away from confusing (for a beginner) abstractions, I checked out =straight.el= which tries to replace package.el entirely with its own abstraction.
+** Package Configuration
+In my early Emacs days, I used =use-package=. In my desire to keep learning and move away from confusing (for a beginner) abstractions, I checked out =straight.el= which tries to replace package.el entirely with its own (albeit smaller) abstraction.
 
 While I really admire and appreciate what straight is trying to do, my desire has shifted to a lower-level emacs init while trying to stick to some newer, supported standards.
 
@@ -61,51 +18,70 @@ For now, I'm going to use package.el the un-abstracted way. If I need a git-only
                 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
   (add-to-list 'package-archives repo))
 
-(setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil) ; Please don't start loading packages right away.
 (package-initialize)
+#+end_src
 
-; Quelpa bootstrapping
+Quelpa bootstrapping.
+
+#+begin_src elisp :tangle yes
 (unless (package-installed-p 'quelpa)
   (with-temp-buffer
     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
     (eval-buffer)
     (quelpa-self-upgrade)))
-(setq quelpa-update-melpa-p nil)
+(setq quelpa-update-melpa-p nil) ; Please don't attempt to replace package.el for melpa.
 (require 'quelpa)
 #+end_src
 
-As the best init strategy is to create a list of packages, then retrieve them if they're not already here, then do the configs, I feel like the best way to keep this config organized isb to add to a lists as we go. This way we can load everything at the end of these organized package categories then execute the configurations.
+My init strategy will be to explicitly add to the the =td/package-list= variable while adding my configs (as functions) to =td/package-configs=. At the end of this file both lists will be iterated to install missing packages & call the config functions.
+
+The idea here is I may be able to keep a tight lid on which packages are loaded and be able to choose whatever order I prefer to write this config in, aside from defining this variable and running the loops at the end.
 
 #+begin_src elisp :tangle yes
+(defvar td/package-list '(quelpa) "My explicit list of packages from melpa")
 (defvar td/package-configs nil
   "A list of config functions to call after checking for/installing packages.")
 #+end_src
 
-** Look & Feel
-*** All The Icons
+Some helpful functions.
+
+#+begin_src elisp :tangle yes
+(defun td/bind-many (conses &optional mode-map)
+  "Bind several keybinds using a list of `CONSES'.
+Binds will be global unless the optional `MODE-MAP' is specified."
+  (dolist (combo conses)
+     (if mode-map
+         (lambda (combo)
+           (define-key mode-map (kbd (car combo)) (cdr combo)))
+       (lambda (combo)
+         (global-set-key (kbd (car combo)) (cdr combo))))))
+#+end_src
+
+*** Look & Feel
+**** All The Icons
 I really enjoy these, even if it feels over-the-top.
 #+begin_src elisp :tangle yes
 (defun td/all-the-icons-conf () "All the icons config."
   (when (display-graphic-p)
     (require 'all-the-icons)))
-(add-to-list 'package-selected-packages 'all-the-icons)
+(add-to-list 'td/package-list 'all-the-icons)
 (add-to-list 'td/package-configs #'td/all-the-icons-conf)
 #+end_src
-*** Dired
+**** Dired
 #+begin_src elisp :tangle yes
 (defun td/all-the-icons-dired-conf () "ATC Dired configuration."
   (with-eval-after-load 'all-the-icons
-    (require 'all-the-icons-dired)
     (setq all-the-icons-dired-monochrome nil)
     (add-hook 'dired-mode-hook #'(lambda()
                                    (dired-hide-details-mode)
                                    (when (display-graphic-p)
                                      (all-the-icons-dired-mode))))))
-(add-to-list 'package-selected-packages 'all-the-icons-dired)
+(add-to-list 'td/package-list 'all-the-icons-dired)
 (add-to-list 'td/package-configs #'td/all-the-icons-dired-conf)
 #+end_src
 
-*** Doom Themes
+**** Doom Themes
 Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 #+begin_src elisp :tangle yes
 (defun td/doom-theme-conf () "Doom theme config"
@@ -116,43 +92,14 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
         doom-themes-padded-modeline 1)
   (load-theme 'doom-material-dark-devel t)
   (doom-themes-org-config))
-(add-to-list 'package-selected-packages 'doom-themes)
+(add-to-list 'td/package-list 'doom-themes)
 (add-to-list 'td/package-configs #'td/doom-theme-conf)
 #+end_src
 
-**** TODO Refactor Custom Theme
+***** TODO Refactor Custom Theme
 I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark" as a standalone thing.
 
-*** Emacs
-Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well
-
-#+begin_src elisp :tangle yes
-;; Interface
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(blink-cursor-mode 1)
-(setq display-line-numbers-type 'relative)
-(global-visual-line-mode 1)
-(recentf-mode 1)
-(setq history-length 25)
-(save-place-mode 1)
-(global-auto-revert-mode 1)
-(fringe-mode '(4 . 0))
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message "")
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-;; Spelling
-(setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd")
-(setq ispell-program-name "aspell")
-(setq ispell-dictionary "english")
-
-;; Browser
-(setq browse-url-generic-program "/usr/bin/firefox")
-#+end_src
-
-*** Font Setup
+**** Font Setup
 I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and I'm really enjoying it.
 
 #+begin_src elisp :tangle yes
@@ -163,26 +110,29 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
 
 Ligatures, in a separate block so that they are easy to disable. These don't always work well across versions and updates.
 #+begin_src elisp :tangle yes
-(defvar ligatures '("-|" "-~" "---" "-<<" "-<" "--" "->" "->>" "-->" "/**" "/*" "///"
-                    "/=" "/==" "/>" "//" "*>" "***" "*/" "<-" "<<-" "<=>" "<=" "<|"
-                    "<||" "<|||::=" "<|>" "<:" "<>" "<-<" "<<<" "<==" "<<=" "<=<" "<==>"
-                    "<-|" "<<" "<~>" "<=|" "<~~" "<~" "<$>" "<$" "<+>" "<+" "</>" "</"
-                    "<*" "<*>" "<->" "<!--" ":>" ":<" ":::" "::" ":?" ":?>" ":=" "=>>"
-                    "==>" "=/=" "=!=" "=>" "===" "=:=" "==" "!==" "!!" "!=" ">]" ">:"
-                    ">>-" ">>=" ">=>" ">>>" ">-" ">=" "&&&" "&&" "|||>" "||>" "|>" "|]"
-                    "|}" "|=>" "|->" "|=" "||-" "|-" "||=" "||" ".." ".?" ".=" ".-" "..<"
-                    "..." "+++" "+>" "++" "[||]" "[<" "[|" "{|" "??" "?." "?=" "?:" "####"
-                    "###" "#[" "#{" "#=" "#!" "#:" "#_(" "#_" "#?" "#(" "##" ";;" "_|_"
-                    "__" "\\\\" "\\/" "~~" "~~>" "~>" "~=" "~-" "~@" "$>" "^=" "]#")
-  "Ligatures for ligature.el.")
+(defun td/ligatures-conf ()
+  "Ligature.el configuration."
+  (defvar ligatures '("-|" "-~" "---" "-<<" "-<" "--" "->" "->>" "-->" "/**" "/*" "///"
+                      "/=" "/==" "/>" "//" "*>" "***" "*/" "<-" "<<-" "<=>" "<=" "<|"
+                      "<||" "<|||::=" "<|>" "<:" "<>" "<-<" "<<<" "<==" "<<=" "<=<" "<==>"
+                      "<-|" "<<" "<~>" "<=|" "<~~" "<~" "<$>" "<$" "<+>" "<+" "</>" "</"
+                      "<*" "<*>" "<->" "<!--" ":>" ":<" ":::" "::" ":?" ":?>" ":=" "=>>"
+                      "==>" "=/=" "=!=" "=>" "===" "=:=" "==" "!==" "!!" "!=" ">]" ">:"
+                      ">>-" ">>=" ">=>" ">>>" ">-" ">=" "&&&" "&&" "|||>" "||>" "|>" "|]"
+                      "|}" "|=>" "|->" "|=" "||-" "|-" "||=" "||" ".." ".?" ".=" ".-" "..<"
+                      "..." "+++" "+>" "++" "[||]" "[<" "[|" "{|" "??" "?." "?=" "?:" "####"
+                      "###" "#[" "#{" "#=" "#!" "#:" "#_(" "#_" "#?" "#(" "##" ";;" "_|_"
+                      "__" "\\\\" "\\/" "~~" "~~>" "~>" "~=" "~-" "~@" "$>" "^=" "]#")
+    "Ligatures for ligature.el.")
 
-(straight-use-package '(ligature :type git :host github
-                                 :repo "mickeynp/ligature.el"))
-(ligature-set-ligatures 'prog-mode ligatures)
-(add-hook 'prog-mode-hook 'ligature-mode)
+  (quelpa '(ligature :fetcher github :repo "mickeynp/ligature.el"))
+  (ligature-set-ligatures 'prog-mode ligatures)
+  (add-hook 'prog-mode-hook 'ligature-mode))
+(add-to-list 'td/package-list 'ligature)
+(add-to-list 'td/package-configs #'td/ligatures-conf)
 #+end_src
 
-*** Telephone Line
+**** Telephone Line
 A simple, but nicer looking modeline
 #+begin_src elisp :tangle yes
 (defun td/telephone-line-conf ()
@@ -258,99 +208,31 @@ A simple, but nicer looking modeline
           (emacs   . (telephone-line-airline-position-segment))))
 
   (telephone-line-mode 1))
-
-(add-to-list 'package-selected-packages 'telephone-line)
+(add-to-list 'td/package-list 'telephone-line)
 (add-to-list 'td/package-configs #'td/telephone-line-conf)
 #+end_src
-
-** Utility Packages
+*** Utility Packages
 Packages that extend and augment emacs in a general way
-*** Avy
+**** Avy
 #+begin_src elisp :tangle yes
-(straight-use-package 'avy)
-
-(global-set-key (kbd "C-;") 'avy-goto-char)
-(with-eval-after-load 'avy
-  (avy-setup-default))
+(defun td/avy-conf ()
+  "Avy configuration"
+  (with-eval-after-load 'avy
+    (global-set-key (kbd "C-;") 'avy-goto-char)
+    (avy-setup-default)))
+(add-to-list 'td/package-list 'avy)
+(add-to-list 'td/package-configs #'td/avy-conf)
 #+end_src
 
-*** CTRLF
-Improved buffer searching
+**** Completions
+A combination of packages to enhance completions, centered around [[https://github.com/minad][Minad's]] work. There are a few packages to implement here. This section is a work in progress.
+
+***** Consult
+I am currently giving consult a try as my completion-at-point solution, amongst many
+other better ways to reference things in Emacs.
 #+begin_src elisp :tangle yes
-(straight-use-package 'ctrlf)
-(ctrlf-mode +1)
-#+end_src
-
-*** Completions
-A combination of packages to enhance completions, centered around [[https://github.com/minad][Minad's]] work.
-#+begin_src elisp :tangle yes
-;; Selectrum completions with prescient
-(straight-use-package 'vertico)
-
-;; Enable richer annotations using the Marginalia package
-(use-package marginalia
-  :ensure t
-  :bind (:map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
-  :init
-  (marginalia-mode))
-
-;; Example configuration for Consult
-;; (straight-use-package 'consult-flycheck)
-(use-package consult
-  :ensure t
-  ;; Replace bindings. Lazily loaded due by `use-package'.
-  :bind (;; C-c bindings (mode-specific-map)
-         ("C-c h" . consult-history)
-         ("C-c m" . consult-mode-command)
-         ("C-c k" . consult-kmacro)
-         ;; C-x bindings (ctl-x-map)
-         ("C-x M-:" . consult-complex-command)     ; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ; orig. switch-to-buffer-other-frame
-         ("C-x r b" . consult-bookmark)            ; orig. bookmark-jump
-         ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)          ; orig. abbrev-prefix-mark (unrelated)
-         ("C-M-#" . consult-register)
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)                ; orig. yank-pop
-         ("<help> a" . consult-apropos)            ; orig. apropos-command
-         ;; M-g bindings (goto-map)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ; Alternative: consult-flymake
-         ("M-g g" . consult-goto-line)             ; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ; orig. goto-line
-         ("M-g o" . consult-outline)               ; Alternative: consult-org-heading
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ;; M-s bindings (search-map)
-         ("M-s d" . consult-find)
-         ("M-s D" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)         ; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history)       ; orig. isearch-edit-string
-         ("M-s l" . consult-line)                  ; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi))           ; needed by consult-line to detect isearch
-
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI. You may want to also
-  ;; enable `consult-preview-at-point-mode` in Embark Collect buffers.
-  :hook (completion-list-mode . consult-preview-at-point-mode)
-  :init
+(defun td/consult-config ()
+  "Consult configuration"
   (setq register-preview-delay 0
         register-preview-function #'consult-register-format)
 
@@ -359,25 +241,76 @@ A combination of packages to enhance completions, centered around [[https://gith
   (advice-add #'register-preview :override #'consult-register-window)
 
   ;; Optionally replace `completing-read-multiple' with an enhanced version.
-  (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+  (advice-add #'completing-read-multiple
+              :override #'consult-completing-read-multiple)
 
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
-  :config
-  ;; Optionally configure preview. The default value
-  ;; is 'any, such that any key triggers the preview.
-  ;; (setq consult-preview-key 'any)
-  ;; (setq consult-preview-key (kbd "M-."))
-  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-  ;; For some commands and buffer sources it is useful to configure the
-  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+
+  (require 'consult) ; No lazy load for you.
+
+  (td/bind-many '(("C-c h" . consult-history)
+                  ("C-c m" . consult-mode-command)
+                  ("C-c k" . consult-kmacro)
+                  ;; C-x bindings (ctl-x-map)
+                  ("C-x M-:" . consult-complex-command)
+                  ("C-x b" . consult-buffer)
+                  ("C-x 4 b" . consult-buffer-other-window)
+                  ("C-x 5 b" . consult-buffer-other-frame)
+                  ("C-x r b" . consult-bookmark)
+                  ;; Custom M-# bindings for fast register access
+                  ("M-#" . consult-register-load)
+                  ("M-'" . consult-register-store)
+                  ("C-M-#" . consult-register)
+                  ;; Other custom bindings
+                  ("M-y" . consult-yank-pop)
+                  ("<help> a" . consult-apropos)
+                  ;; M-g bindings (goto-map)
+                  ("M-g e" . consult-compile-error)
+                  ("M-g f" . consult-flymake) ; or flycheck?
+                  ("M-g g" . consult-goto-line)
+                  ("M-g M-g" . consult-goto-line)
+                  ("M-g o" . consult-outline)
+                  ("M-g m" . consult-mark)
+                  ("M-g k" . consult-global-mark)
+                  ("M-g i" . consult-imenu)
+                  ("M-g I" . consult-imenu-multi)
+                  ;; M-s bindings (search-map)
+                  ("M-s d" . consult-find)
+                  ("M-s D" . consult-locate)
+                  ("M-s g" . consult-grep)
+                  ("M-s G" . consult-git-grep)
+                  ("M-s r" . consult-ripgrep)
+                  ("M-s l" . consult-line)
+                  ("M-s L" . consult-line-multi)
+                  ("M-s m" . consult-multi-occur)
+                  ("M-s k" . consult-keep-lines)
+                  ("M-s u" . consult-focus-lines)
+                  ;; Isearch integration
+                  ("M-s e" . consult-isearch-history)
+                  :map isearch-mode-map
+                  ("M-e" . consult-isearch-history)
+                  ("M-s e" . consult-isearch-history)
+                  ("M-s l" . consult-line)
+                  ("M-s L" . consult-line-multi)
+                  ))
+  (add-hook 'completion-list-mode #'consult-preview-at-point-mode)
+  ;; Consult completion-at-point solution.
+  (setq completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args)))
+  ;; Other customizations
   (consult-customize
    consult-theme
    :preview-key '(:debounce 0.2 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
-   consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+   consult--source-recent-file consult--source-project-recent-file
+   consult--source-bookmark
    :preview-key (kbd "M-."))
 
   ;; Optionally configure the narrowing key.
@@ -387,348 +320,346 @@ A combination of packages to enhance completions, centered around [[https://gith
         (lambda ()
           (when-let (project (project-current))
             (car (project-roots project))))))
+(add-to-list 'td/package-list 'consult)
+(add-to-list 'td/package-configs #'td/consult-config)
 #+end_src
 
-*** Dashboard
+***** Marginalia
+Better descriptions of symbols in the minibuffer.
 #+begin_src elisp :tangle yes
-(straight-use-package 'dashboard)
-(setq dashboard-startup-banner 'logo
-      dashboard-projects-backend 'project-el
-      dashboard-items '((projects . 5)
-                        (recents . 5)
-                        (agenda . 5)
-                        (bookmarks . 5))
-      dashboard-set-heading-icons t
-      dashboard-set-file-icons t
-      dashboard-center-content t
-      dashboard-set-init-info t)
-(dashboard-setup-startup-hook)
-(when (daemonp)
-  (setq initial-buffer-choice
-        (lambda ()
-          (if (< (length command-line-args) 2)
-              (get-buffer dashboard-buffer-name)))))
+(add-to-list 'td/package-list 'marginalia)
+(add-to-list 'td/package-configs
+             #'(lambda () "Marginalia config."
+                 (marginalia-mode)
+                 (define-key minibuffer-local-map (kbd "M-A")
+                             #'marginalia-cycle)))
 #+end_src
 
-*** Diff-hl                                                           :fav:
+***** Orderless
+A completion style that permits entering parts of completion names in any order.
+#+begin_src elisp :tangle yes
+(defun td/orderless-conf ()
+  "Orderless configuration."
+  (setq completion-styles '(orderless)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+(add-to-list 'td/package-list 'orderless)
+(add-to-list 'td/package-configs #'td/orderless-conf)
+#+end_src
+
+***** Savehist
+Save history for Vertico to look at later.
+#+begin_src elisp :tangle yes
+(add-to-list 'td/package-list 'savehist)
+(add-to-list #'td/package-configs #'(lambda () "Savehist config."
+                                      (savehist-mode)))
+#+end_src
+
+***** Vertico
+Mini-buffer completions back-end.
+#+begin_src elisp :tangle yes
+(defun td/vertico-conf ()
+  "Vertico configuration."
+  (vertico-mode)
+  (setq enable-recursive-minibuffers t)
+  (with-eval-after-load 'consult
+    (advice-add #'completing-read-multiple :filter-args
+                #'consult-completing-read-multiple)))
+(add-to-list 'td/package-list 'vertico)
+(add-to-list 'td/package-configs #'td/vertico-conf)
+#+end_src
+
+**** Dashboard
+#+begin_src elisp :tangle yes
+(defun td/dashboard-config ()
+  "Dashboard configuration"
+  (setq dashboard-startup-banner 'logo
+        dashboard-projects-backend 'project-el
+        dashboard-items '((projects . 5)
+                          (recents . 5)
+                          (agenda . 5)
+                          (bookmarks . 5))
+        dashboard-set-heading-icons t
+        dashboard-set-file-icons t
+        dashboard-center-content t
+        dashboard-set-init-info t)
+  (dashboard-setup-startup-hook)
+  (when (daemonp)
+    (setq initial-buffer-choice
+          (lambda ()
+            (if (< (length command-line-args) 2)
+                (get-buffer dashboard-buffer-name))))))
+(add-to-list 'td/package-list 'dashboard)
+(add-to-list 'td/package-configs #'td/dashboard-config)
+#+end_src
+
+**** Diff-hl                                                         :fav:
 Show me the diffs in the fringe!
-
 #+begin_src elisp :tangle yes
-(straight-use-package 'diff-hl)
-
-(with-eval-after-load 'magit
-  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
-
-(global-diff-hl-mode)
+(add-to-list 'td/package-list 'diff-hl)
+(add-to-list
+ 'td/package-configs
+ #'(lambda () "Diff-hl configuration"
+     (with-eval-after-load 'magit
+       (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+       (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+     (global-diff-hl-mode)))
 #+end_src
 
-*** Elfeed
+**** Elfeed
 RSS Reader :D
 #+begin_src elisp :tangle yes
-(use-package elfeed
-  :config
-  (global-set-key (kbd "C-c e") 'elfeed))
-
-(use-package elfeed-org
-  :after elfeed
-  :config
-  (elfeed-org)
-  (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))
-
+(add-to-list 'td/package-list 'elfeed)
+(add-to-list 'td/package-list 'elfeed-org)
+(add-to-list
+ 'td/package-configs
+ #'(lambda ()
+     "Elfeed config."
+     (global-set-key (kbd "C-c e") 'elfeed)
+     (with-eval-after-load 'elfeed
+       (elfeed-org)
+       (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))))
 #+end_src
 
-*** Expand Region
+**** Expand Region
+It just makes selecting text between sexps easy.
 #+begin_src elisp :tangle yes
-(straight-use-package 'expand-region)
-(global-set-key (kbd "C-=") 'er/expand-region)
+(add-to-list 'td/package-list 'expand-region)
+(add-to-list 'td/package-configs
+             #'(lambda () "Expand region config."
+                 (global-set-key (kbd "C-=") 'er/expand-region)))
 #+end_src
 
-*** Exec Path
+**** Exec Path
 It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
 #+begin_src elisp :tangle yes
-(straight-use-package 'exec-path-from-shell)
-(when (daemonp)
-  (exec-path-from-shell-initialize))
+(add-to-list 'td/package-list 'exec-path-from-shell)
+(add-to-list 'td/package-configs #'exec-path-from-shell-initialize)
 #+end_src
 
-*** Goggles
-Goggles is light volatile highlights, but cooler. If you're familiar with evil-goggles, this is the "holy" equivalent.
+**** Goggles
+Goggles is light volatile highlights, but cooler. This is very handy for spotting buffer changes that are intentional, or perhaps unintentional.
 #+begin_src elisp :tangle yes
-(straight-use-package 'goggles)
-(add-hook 'prog-mode-hook 'goggles-mode)
-(add-hook 'text-mode-hook 'goggles-mode)
+(add-to-list 'td/package-list 'goggles)
+(add-to-list 'td/package-configs
+             #'(lambda () "Goggles config"
+                 (add-hook 'prog-mode-hook 'goggles-mode)
+                 (add-hook 'text-mode-hook 'goggles-mode)))
 #+end_src
 
-*** Hydra
+**** Hydra
 A tool for making repetative chords less cumbersome
 #+begin_src elisp :tangle yes
-(straight-use-package 'hydra)
+(defun td/hydra-config ()
+  "Hydra configuration"
+  (defhydra hydra-window (global-map "C-c o")
+    "Hydra Windmove"
+    ("e" windmove-right "Right")
+    ("a" windmove-left "Left")
+    ("p" windmove-up "Up")
+    ("n" windmove-down "Down")
+    ("o" other-window "Other"))
 
-(defhydra hydra-window (global-map "C-c o")
-  "Hydra Windmove"
-  ("e" windmove-right "Right")
-  ("a" windmove-left "Left")
-  ("p" windmove-up "Up")
-  ("n" windmove-down "Down")
-  ("o" other-window "Other"))
-
-(defhydra hydra-split (global-map "C-c p")
-  "Hydra Split"
-  ("v" split-window-right "Vertically")
-  ("h" split-window-below "Horizontally")
-  ("d" delete-window "Delete")
-  ("=" enlarge-window "Enlarge")
-  ("-" shrink-window "Shrink")
-  ("b" balance-windows "Balance")
-  ("D" delete-other-windows "Delete Others"))
+  (defhydra hydra-split (global-map "C-c p")
+    "Hydra Split"
+    ("v" split-window-right "Vertically")
+    ("h" split-window-below "Horizontally")
+    ("d" delete-window "Delete")
+    ("=" enlarge-window "Enlarge")
+    ("-" shrink-window "Shrink")
+    ("b" balance-windows "Balance")
+    ("D" delete-other-windows "Delete Others")))
+(add-to-list 'td/package-list 'hydra)
+(add-to-list 'td/package-configs #'td/hydra-config)
 #+end_src
 
-*** Evil!                                                        :disabled:
-Currently not tangled as I enjoy learning Emacs the righteous way.
-#+begin_src elisp :tangle no
-(straight-use-package 'evil)
-
-(setq evil-undo-system 'undo-tree
-      evil-search-module 'evil-search
-      evil-visual-state-cursor 'hbar
-      evil-want-keybinding nil
-      evil-disable-insert-state-bindings t)
-(evil-mode 1)
-
-(with-eval-after-load 'evil
-  (straight-use-package 'evil-collection)
-  (evil-collection-init)
-
-  (with-eval-after-load 'ledger-mode
-    (straight-use-package 'evil-ledger)
-    (add-hook 'ledger-mode-hook #'evil-ledger-mode))
-
-  (straight-use-package 'evil-surround)
-  (global-evil-surround-mode 1)
-
-  (straight-use-package 'evil-org)
-  (add-hook 'org-mode-hook #'evil-org-mode)
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys)
-
-  (straight-use-package 'evil-commentary)
-  (evil-commentary-mode)
-
-  (straight-use-package 'evil-snipe)
-  (evil-snipe-mode 1)
-  (evil-snipe-override-mode 1)
-  (setq evil-snipe-scope 'whole-visible
-        evil-snipe-spillover-scope 'whole-buffer)
-
-  (straight-use-package 'evil-matchit)
-  (global-evil-matchit-mode 1))
-#+end_src
-
-*** Magit                                                             :fav:
+**** Magit                                                           :fav:
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
 #+begin_src elisp :tangle yes
-(straight-use-package 'magit)
-(global-set-key (kbd "C-c g") 'magit-status)
+(add-to-list 'td/package-list 'magit)
+(add-to-list 'td/package-configs
+             #'(lambda () "Magit config."
+                 (global-set-key (kbd "C-c g") 'magit-status)))
 #+end_src
 
-*** Mu4e
-Setting up mu4e with contexts feels like a pretty massive process. I've decided to load that config from an external file to keep this file sane. Also, I've decided not to expose my email addresses/configs here. Apologies for those who may be looking for an example!
+**** Mu4e
+Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my
+context settings out of this source-controlled repository as to keep some more sensitive
+info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Contexts]] are well documented if you need a hand with them.
 
-If you're looking for help with mu/4e I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]]
+Also, If you need a good starting point with mu4e, I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]].
+
 #+begin_src elisp :tangle yes
-(load-file "~/.config/emacs/mu4e-config.el")
+(defun td/mu4e-config ()
+  "Mu4e config."
+  (defun get-signature(file)
+    "Retrieve the signature file from the signatures directory.
+Mostly used in contexts configuration."
+    (let ((dir "/home/trevdev/.local/mail/signatures/"))
+      (with-temp-buffer
+        (insert-file-contents (format "%s%s" dir file))
+        (buffer-string))))
+
+  ;; org-contacts is currently broken :/
+  ;; (require 'org-contacts)
+  ;; (setq org-contacts-files '("~/Org/contacts.org"))
+  ;; org-msg
+  (setq org-msg-options "html-postamble:nil num:nil ^:{} toc:nil author:nil
+                         email:nil \\n:t"
+        org-msg-startup "hidestars indent inlineimages"
+        org-msg-greeting-fmt "\nHi%s,\n\n"
+        org-msg-greeting-name-limit 3
+        org-msg-default-alternatives '((new            . (text html))
+                                       (reply-to-html  . (text html))
+                                       (reply-to-text  . (text))))
+  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
+  (require 'mu4e)
+  (setq mu4e-maildir "~/.local/mail"
+        mu4e-change-filenames-when-moving t
+        mu4e-update-interval (* 10 60)
+        mu4e-get-mail-command "mbsync -a"
+        mail-user-agent 'mu4e-user-agent
+        mu4e-maildir-shortcuts '((:maildir "/fastmail/INBOX" :key ?p)
+                                 (:maildir "/fastmail/Business" :key ?b)
+                                 (:maildir "/voltage/INBOX" :key ?v))
+        message-send-mail-function 'smtpmail-send-it
+        mu4e-attachment-dir "~/Downloads"
+        mu4e-context-policy 'pick-first
+        mu4e-compose-format-flowed t
+        mu4e-compose-signature-auto-include nil
+        mml-secure-openpgp-encrypt-to-self t)
+  ;; Load mu4e contexts settings. This is the stuff I don't feel like sharing.
+  (setq mu4e-contexts (eval (let ((contexts "~/.config/emacs/mu4e-contexts.el"))
+                              (when (file-exists-p contexts)
+                                (with-temp-buffer
+                                  (insert-file-contents contexts)
+                                  (read (current-buffer)))))))
+  (add-to-list
+   'mu4e-bookmarks
+   '(:name "Flagged"
+           :key ?f
+           :query "flag:flagged"))
+  (add-hook
+   'message-mode-hook
+   (lambda ()
+     "Message Mode Keybinds"
+     (local-set-key (kbd "C-c C-o") 'org-mime-edit-mail-in-org-mode)
+     (local-set-key (kbd "C-c C-h") 'org-mime-htmlize)))
+
+  (global-set-key (kbd "C-c m") 'mu4e))
+; (add-to-list 'td/package-list 'org-contrib)
+(add-to-list 'td/package-list 'org-mime)
+(add-to-list 'td/package-list 'org-msg)
+(add-to-list 'td/package-configs #'td/mu4e-config)
 #+end_src
 
-*** Ledger
+**** Ledger
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
 #+begin_src elisp :tangle yes
-(use-package ledger-mode
-  :hook (ledger-mode . (lambda()
-                         (flymake-mode)))
-  :custom
-  (ledger-report-use-native-highlighting t)
-  :ensure t)
+(add-to-list 'td/package-list 'ledger-mode)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 (add-hook 'ledger-mode-hook #'flymake-mode)
+                 (with-eval-after-load 'ledger-mode
+                   (setq ledger-use-native-highlighting t))))
 #+end_src
 
-*** Projectile                                                   :disabled:
-#+begin_src elisp :tangle no
-(straight-use-package 'projectile)
-(setq projectile-project-search-path '(("~/Projects/" . 3) "/srv/www"))
-(setq projectile-enable-caching t)
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-#+end_src
+**** RG
 
-*** RG
 #+begin_src elisp :tangle yes
-(progn
-  (straight-use-package 'rg)
-  (rg-enable-default-bindings))
+(add-to-list 'td/package-list 'rg)
+(add-to-list 'td/package-configs #'rg-enable-default-bindings)
 #+end_src
 
-*** Undo-Tree
+**** Undo-Tree
 Mostly want undo tree for better redo support for Evil
 
 #+begin_src elisp :tangle yes
-(straight-use-package 'undo-tree)
-(global-undo-tree-mode)
+(add-to-list 'td/package-list 'undo-tree)
+(add-to-list 'td/package-configs #'global-undo-tree-mode)
 #+end_src
 
-*** Which-key
+**** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
 #+begin_src elisp :tangle yes
-(straight-use-package 'which-key)
-(which-key-mode)
+(add-to-list 'td/package-list 'which-key)
+(add-to-list 'td/package-configs #'which-key-mode)
 #+end_src
 
-** Syntax Support
+*** Syntax Support
 We're getting into to the language specific stuff now. Much of this is specifically tailored for Shopify, TypeScript and JavaScript development. Many if not all of these features stay out of the way when you're not in the language mode. There's also a very tedious attempt to make all of these disjointed program modes listen to my gosh dang tab-width setting instead of doing their own thing as an insane default.
-*** Company Completions                                          :disabled:
-Completions at point!
-#+begin_src elisp :tangle no
-(use-package company
-  :ensure t
-  :bind (:map company-active-map ("<tab>" . company-complete-selection))
-  (:map prog-mode-map ("<tab>" . company-indent-or-complete-common))
-  :config
-  (setq company-backends '((company-files company-keywords company-capf company-yasnippet)
-                           (company-abbrev company-dabbrev)))
-  (setq company-idle-delay 0.01))
-#+end_src
-
-*** CSS/SCSS
+**** CSS/SCSS
 
 #+begin_src elisp :tangle yes
 (add-hook 'css-mode-hook #'(lambda () (setq-local css-indent-offset 2
                                                   tab-width 2)))
 #+end_src
 
-*** Emmet
+**** Emmet
 ~.Emmet[data-love="true"]~
 
 #+begin_src elisp :tangle yes
-(use-package emmet-mode
-  :ensure t
-  :config
+(defun td/emmet-conf ()
+  "Emmet mode config."
   (setq emmet-expand-jsx-className t)
-  :hook
-  (sgml-mode-hook . emmet-mode)
-  (css-mode-hook . emmet-mode)
-  (web-mode . emmet-mode)
-  (svelte-mode . emmet-mode))
+  (dolist (mode '(sgml-mode-hook
+                  css-mode-hook
+                  web-mode-hook
+                  svelte-mode-hook))
+    (add-hook mode #'emmet-mode)))
+
+(add-to-list 'td/package-list 'emmet-mode)
+(add-to-list 'td/package-configs #'td/emmet-conf)
 #+end_src
 
-*** Eglot
+**** Eglot
 Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be leaner, faster and less intense.
 #+begin_src elisp :tangle yes
-;;; Eglot likes these packages to be up to date.
-(straight-use-package 'project)
-(straight-use-package 'xref)
-(straight-use-package 'eldoc)
+(defun td/eglot-conf ()
+  "Eglot configuration."
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
+    (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
+    (add-to-list 'eglot-server-programs '(shopify-mode
+                                          . ("theme-check-language-server" "--stdio")))
+    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
+    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
+    (define-key eglot-mode-map (kbd "C-c r") 'xref-find-definitions))
 
-;;; Then, there is Eglot.
-(straight-use-package 'eglot)
+  ;; Floating eldoc for eglot
+  (setq x-gtk-resize-child-frames 'resize-mode)
+  (setq eldoc-box-offset '(16 36 16)
+        eldoc-box-cleanup-interval 2
+        eldoc-box-max-pixel-height 900
+        eldoc-box-max-pixel-width 1500)
 
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
-  (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
-  (add-to-list 'eglot-server-programs '(shopify-mode
-                                        . ("theme-check-language-server" "--stdio")))
-  (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
-  (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
-  (define-key eglot-mode-map (kbd "C-c r") 'xref-find-definitions))
+  (defun td/eglot-hook ()
+    "Functions to call on-eglot."
+    (eglot-ensure)
+    (eldoc-box-hover-mode))
 
-;;; Floating eldoc for eglot
-(setq x-gtk-resize-child-frames 'resize-mode)
-(straight-use-package 'eldoc-box)
-(setq eldoc-box-offset '(16 36 16)
-      eldoc-box-cleanup-interval 2
-      eldoc-box-max-pixel-height 900
-      eldoc-box-max-pixel-width 1500)
+  ;; Set-up programming modes to use Eglot
+  (dolist (mode '(css-mode-hook
+                  scss-mode-hook
+                  php-mode-hook
+                  js-mode-hook
+                  rjsx-mode-hook
+                  typescript-mode-hook
+                  svelte-mode-hook))
+    (add-hook mode #'td/eglot-hook)))
 
-(defun td/eglot-hook ()
-  "Functions to call on-eglot."
-  (eglot-ensure)
-  (eldoc-box-hover-mode))
-
-;;; Set-up programming modes to use Eglot
-(dolist (mode '(css-mode-hook
-                scss-mode-hook
-                php-mode-hook
-                js-mode-hook
-                rjsx-mode-hook
-                typescript-mode-hook
-                svelte-mode-hook))
-  (add-hook mode #'td/eglot-hook))
+(add-to-list 'td/package-list 'eglot)
+(add-to-list 'td/package-list 'eldoc-box)
+(add-to-list 'td/package-configs #'td/eglot-conf)
 #+end_src
 
-*** Flycheck                                                     :disabled:
-#+begin_src elisp :tangle no
-(straight-use-package 'flycheck)
-(straight-use-package 'flycheck-ledger)
-(dolist (mode '(ledger-mode-hook))
-  (add-hook mode #'flycheck-mode))
-(global-set-key (kbd "C-c f") #'flycheck-mode)
+**** Flymake
+The built-in linting package.
 
-(define-fringe-bitmap 'flycheck-fringe-bitmap-caret
-  (vector #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b10000000
-          #b11000000
-          #b11100000
-          #b11110000
-          #b11100000
-          #b11000000
-          #b10000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000))
-
-(with-eval-after-load 'flycheck
-  (setq flycheck-checker-error-threshold 1000)
-  (flycheck-define-error-level
-   'error
-   :severity 100
-   :compilation-level 2
-   :overlay-category 'flycheck-error-overlay
-   :fringe-bitmap 'flycheck-fringe-bitmap-caret
-   :fringe-face 'flycheck-fringe-error
-   :error-list-face 'flycheck-error-list-error)
-  (flycheck-define-error-level
-   'warning
-   :severity 100
-   :compilation-level 1
-   :overlay-category 'flycheck-warning-overlay
-   :fringe-bitmap 'flycheck-fringe-bitmap-caret
-   :fringe-face 'flycheck-fringe-warning
-   :warning-list-face 'flycheck-warning-list-warning)
-  (flycheck-define-error-level
-   'info
-   :severity 100
-   :compilation-level 1
-   :overlay-category 'flycheck-info-overlay
-   :fringe-bitmap 'flycheck-fringe-bitmap-caret
-   :fringe-face 'flycheck-fringe-info
-   :info-list-face 'flycheck-info-list-info)
-  (require 'flycheck-ledger))
-#+end_src
-
-*** Flymake
 #+begin_src elisp :tangle yes
-(straight-use-package 'flymake)
-(straight-use-package '(eslint-flymake
-                        :provider git
-                        :host github
-                        :repo "emacs-pe/eslint-flymake"))
 (define-fringe-bitmap 'small-right-triangle
   (vector #b00000000
           #b00000000
@@ -748,91 +679,36 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
           #b00000000
           #b00000000))
 
-(setq flymake-note-bitmap '(small-right-triangle compilation-info))
-(setq flymake-error-bitmap '(small-right-triangle compilation-error))
-(setq flymake-warning-bitmap '(small-right-triangle compilation-warning))
+(setq flymake-note-bitmap '(small-right-triangle compilation-info)
+      flymake-error-bitmap '(small-right-triangle compilation-error)
+      flymake-warning-bitmap '(small-right-triangle compilation-warning))
 #+end_src
 
-*** GoLang
+**** GoLang
+
 #+begin_src elisp :tangle yes
-(use-package go-mode
-  :ensure t
-  :mode "\\.go\\'")
+(add-to-list 'td/package-list 'go-mode)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 (add-to-list 'auto-mode-alist '("\\.go\\'". go-mode))))
 #+end_src
 
-*** Markdown
+**** Markdown
 The free software documentation language of the Internet.
 
 #+begin_src elisp :tangle yes
-(use-package markdown-mode
-  :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+(defun td/markdown-conf ()
+  "Markdown mode config."
+  (setq markdown-command "multimarkdown")
+  (dolist (mode '(("README\\.md\\'" . gfm-mode)
+                  ("\\.md\\'" . markdown-mode)
+                  ("\\.markdown\\'" . markdown-mode)))
+    (add-to-list 'auto-mode-alist mode)))
+(add-to-list 'td/package-list 'markdown-mode)
+(add-to-list 'td/package-configs #'td/markdown-conf)
 #+end_src
 
-*** LSP Mode
-#+begin_src elisp :tangle no
-(straight-use-package 'lsp-mode)
-(straight-use-package 'lsp-ui)
-(straight-use-package 'consult-lsp)
-
-(dolist (mode '(css-mode-hook
-                scss-mode-hook
-                html-mode-hook
-                js-mode-hook
-                json-mode-hook
-                python-mode-hook
-                php-mode-hook
-                rust-mode-hook
-                scss-mode-hook
-                svelte-mode-hook
-                typescript-mode-hook
-                vue-mode-hook
-                yaml-mode-hook))
-  (add-hook mode #'lsp))
-
-(with-eval-after-load 'lsp-mode
-  (setq lsp-log-io nil
-        lsp-enable-folding nil
-        lsp-clients-typescript-server-args '("--stdio"
-                                             "--tsserver-log-file"
-                                             "/dev/stderr"))
-  (add-to-list
-   'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'"))
-
-(setq lsp-ui-sideline-enable t
-      lsp-ui-sideline-update-mode 'line
-      lsp-ui-sideline-show-symbol nil
-      lsp-ui-sideline-show-hover nil
-      lsp-ui-doc-enable t
-      lsp-ui-doc-show-with-cursor t
-      lsp-ui-peek-enable t
-      lsp-ui-imenu-window-width 350)
-
-(defun td/on-lsp-mode()
-  "Things to do when LSP Mode starts."
-  (lsp-dired-mode)
-  (lsp-lens-mode)
-  (consult-lsp-marginalia-mode))
-
-(add-hook 'lsp-mode-hook #'td/on-lsp-mode)
-
-(with-eval-after-load 'lsp-mode
-  ;; Shopify theme-check support
-  (add-to-list 'lsp-language-id-configuration
-               '(shopify-mode . "shopify"))
-
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "theme-check-language-server")
-                    :activation-fn (lsp-activate-on "shopify")
-                    :server-id 'theme-check)))
-
-#+end_src
-
-*** Org                                                               :fav:
+**** Org                                                             :fav:
 Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is. The fancy font-size setup is stolen from [[https://github.com/daviwil/emacs-from-scratch][Emacs from Scratch]] by [[https://www.youtube.com/c/SystemCrafters][System Crafters]]. Check them out :)
 
 #+begin_src elisp :tangle yes
@@ -851,56 +727,56 @@ Customizations for what is one of the best features that emacs comes with. If we
   "The tags for org headlines.")
 
 (defvar td/todo-keywords
-`((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-  (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)"
-            "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)"))
+  `((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+    (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)"
+              "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)"))
   "A sequence of keywords for Org headlines.")
 
 (defvar td/org-agenda-commands
   '(("d" "Dashboard"
      ((agenda "" ((org-deadline-warning-days 7)))
-     (todo "NEXT"
-           ((org-agenda-overriding-header "Next Tasks")))
-     (tags-todo "agenda/ACTIVE"
-                ((org-agenda-overriding-header "Active Projects")))))
-   ("n" "Next Tasks"
-    ((todo "NEXT"
-           ((org-agenda-overriding-header "Next Tasks")))))
-   ("g" "GURPS" tags-todo "+gurps")
-   ("U" "Urgent Tasks" tags-todo "+urgent")
-   ;; Low-effort next actions
-   ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-    ((org-agenda-overriding-header "Low Effort Tasks")
-     (org-agenda-max-todos 20)
-     (org-agenda-files org-agenda-files)))
-   ("w" "Workflow Status"
-    ((todo "WAIT"
-           ((org-agenda-overriding-header "Waiting on External")
-            (org-agenda-files org-agenda-files)))
-     (todo "REVIEW"
-           ((org-agenda-overriding-header "In Review")
-            (org-agenda-files org-agenda-files)))
-     (todo "PLAN"
-           ((org-agenda-overriding-header "In Planning")
-            (org-agenda-todo-list-sublevels nil)
-            (org-agenda-files org-agenda-files)))
-     (todo "BACKLOG"
-           ((org-agenda-overriding-header "Project Backlog")
-            (org-agenda-todo-list-sublevels nil)
-            (org-agenda-files org-agenda-files)))
-     (todo "READY"
-           ((org-agenda-overriding-header "Ready for Work")
-            (org-agenda-files org-agenda-files)))
-     (todo "ACTIVE"
-           ((org-agenda-overriding-header "Active Projects")
-            (org-agenda-files org-agenda-files)))
-     (todo "COMPLETED"
-           ((org-agenda-overriding-header "Completed Projects")
-            (org-agenda-files org-agenda-files)))
-     (todo "CANC"
-           ((org-agenda-overriding-header "Cancelled Projects")
-            (org-agenda-files
-             org-agenda-files))))))
+      (todo "NEXT"
+            ((org-agenda-overriding-header "Next Tasks")))
+      (tags-todo "agenda/ACTIVE"
+                 ((org-agenda-overriding-header "Active Projects")))))
+    ("n" "Next Tasks"
+     ((todo "NEXT"
+            ((org-agenda-overriding-header "Next Tasks")))))
+    ("g" "GURPS" tags-todo "+gurps")
+    ("U" "Urgent Tasks" tags-todo "+urgent")
+    ;; Low-effort next actions
+    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+     ((org-agenda-overriding-header "Low Effort Tasks")
+      (org-agenda-max-todos 20)
+      (org-agenda-files org-agenda-files)))
+    ("w" "Workflow Status"
+     ((todo "WAIT"
+            ((org-agenda-overriding-header "Waiting on External")
+             (org-agenda-files org-agenda-files)))
+      (todo "REVIEW"
+            ((org-agenda-overriding-header "In Review")
+             (org-agenda-files org-agenda-files)))
+      (todo "PLAN"
+            ((org-agenda-overriding-header "In Planning")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "BACKLOG"
+            ((org-agenda-overriding-header "Project Backlog")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "READY"
+            ((org-agenda-overriding-header "Ready for Work")
+             (org-agenda-files org-agenda-files)))
+      (todo "ACTIVE"
+            ((org-agenda-overriding-header "Active Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "COMPLETED"
+            ((org-agenda-overriding-header "Completed Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "CANC"
+            ((org-agenda-overriding-header "Cancelled Projects")
+             (org-agenda-files
+              org-agenda-files))))))
   "Custom commands for Org Agenda.")
 
 (defun td/tweak-org-levels ()
@@ -915,7 +791,6 @@ Customizations for what is one of the best features that emacs comes with. If we
                   (org-level-8 . 1.0)))
     (set-face-attribute (car face) nil :weight 'semi-bold :height (cdr face))))
 
-(add-hook 'org-mode-hook 'td/org-hook)
 (require 'ox-md nil t)
 (global-set-key (kbd "C-c a") 'org-agenda)
 (define-key org-mode-map (kbd "C-c t") 'org-table-export)
@@ -946,60 +821,61 @@ Customizations for what is one of the best features that emacs comes with. If we
         ("m" "Manual Cookbook" entry (file "~/org/cookbook.org")
          "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")))
 
-(use-package org-chef :ensure t)
-(straight-use-package
- '(org-view-mode :type git :host github :repo "amno1/org-view-mode"
-                 :fork (:host github :repo "trev-dev/org-view-mode")))
+(defun td/org-packages-conf ()
+  "The configurations for the many org addon packages I am using."
+  ;; Visual fill
+  (defun org-visual-fill-setup ()
+    "Center the column 100 characters wide"
+    (setq-local visual-fill-column-width 100
+                visual-fill-column-center-text nil)
+    (visual-fill-column-mode 1))
 
-(use-package ox-gfm :ensure t)
+  (define-key org-mode-map (kbd "C-c v") 'visual-fill-column-mode)
 
-(use-package visual-fill-column
-  :ensure t
-  :config
-  (define-key org-mode-map (kbd "C-c v") 'visual-fill-column-mode))
+  ;; Org make toc
+  (defvar td/org-auto-toc-files
+    '("~/.config/emacs/config.org")
+    "Files that should auto-toc on save.")
 
-(defun org-visual-fill-setup()
-  "Center the column 100 characters wide"
-  (setq-local visual-fill-column-width 100
-              visual-fill-column-center-text nil)
-  (visual-fill-column-mode 1))
+  (defun td/set-auto-toc ()
+    "Set auto-toc if buffer in auto-toc-files."
+    (if (member
+         (buffer-file-name)
+         (mapcar 'expand-file-name td/org-auto-toc-files))
+        (progn
+          (org-make-toc-mode)
+          (message "Org make TOC mode is on!"))))
 
-(use-package org-alert :ensure t)
+  ;; org-alert
+  (with-eval-after-load 'org-alert
+    (setq alert-default-style 'libnotify
+          org-alert-interval 7200
+          org-alert-notify-cutoff 60
+          org-alert-notification-title "Org Agenda")
+    (org-alert-enable))
 
-(with-eval-after-load 'org-alert
-  (setq alert-default-style 'libnotify
-  org-alert-interval 7200
-  org-alert-notify-cutoff 60
-  org-alert-notification-title "Org Agenda")
-  (org-alert-enable))
+  ;; One hook to start it all.
+  (defun td/org-hook ()
+    "Do this on org mode startup."
+    (org-indent-mode)
+    (yas-minor-mode)
+    (org-clock-persistence-insinuate)
+    (org-visual-fill-setup)
+    (td/set-auto-toc))
 
-(defvar td/org-auto-toc-files
-  '("~/.config/emacs/config.org")
-  "Files that should auto-toc on save.")
+  (add-hook 'org-mode-hook 'td/org-hook))
 
-(defun td/set-auto-toc ()
-  "Set auto-toc if buffer in auto-toc-files."
-  (if (member
-       (buffer-file-name)
-       (mapcar 'expand-file-name td/org-auto-toc-files))
-      (progn
-        (org-make-toc-mode)
-        (message "Org make TOC mode is on!"))))
-
-(use-package org-make-toc
-  :ensure t
-  :requires (dash s))
-
-(defun td/org-hook ()
-  "Do this on org mode startup."
-  (org-indent-mode)
-  (yas-minor-mode)
-  (org-clock-persistence-insinuate)
-  (org-visual-fill-setup)
-  (td/set-auto-toc))
+(dolist (pkg '(org-chef
+               ox-gfm
+               visual-fill-column
+               org-alert
+               org-make-toc))
+  (add-to-list 'td/package-list pkg))
+(add-to-list 'td/package-configs #'td/org-packages-conf)
 #+end_src
-
-**** Custom Clock Table
+***** TODO Clean Up Package Config
+The package config function for org-mode is messy and consolidated. Separate the bits.
+***** Custom Clock Table
 I decided to write a [[file:td-custom-clocktable.el?ts=2][custom clocktable formatter]]. I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting to certain subcontracts.
 
 #+begin_src elisp :tangle yes
@@ -1024,7 +900,7 @@ Here's an example:
 | Totals            |       | 20.43h | $1327.95 |                        |
 #+END
 
-*** PHP
+**** PHP
 
 #+begin_src elisp :tangle yes
 (define-derived-mode php-mode web-mode "PHP"
@@ -1056,15 +932,14 @@ Here's an example:
 (add-to-list 'auto-mode-alist '("\\.twig\\'" . php-mode))
 #+end_src
 
-*** Prettier
+**** Prettier
 An opinionated way to clean up my web-dev code quickly.
 
 #+begin_src elisp :tangle yes
-(use-package prettier-js
-  :ensure t)
+(add-to-list 'td/package-list 'prettier-js)
 #+end_src
 
-*** Prog Mode
+**** Prog Mode
 A few settings that are useful in programming buffers
 
 #+begin_src elisp :tangle yes
@@ -1115,49 +990,50 @@ A few settings that are useful in programming buffers
 (add-hook 'prog-mode-hook 'td/prog-mode-settings)
 #+end_src
 
-*** Python
+**** Python
 <3 Python
 
 #+begin_src elisp :tangle yes
-(use-package pyvenv :ensure t)
-(use-package pipenv
-  :ensure t
-  :hook (python-mode . pipenv-mode))
+(add-to-list 'td/package-list 'pyvenv)
 #+end_src
 
-*** Rainbow Delimiters
+**** Rainbow Delimiters
 This comes in handier than you think it would. Especially with these (lisp '((config . files)))
 
 #+begin_src elisp :tangle yes
-(use-package rainbow-delimiters
-  :ensure t
-  :config
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+(add-to-list 'td/package-list 'rainbow-delimiters)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)))
 #+end_src
 
-*** Rainbow Mode
+**** Rainbow Mode
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
 #+begin_src elisp :tangle yes
-(use-package rainbow-mode :ensure t)
+(add-to-list 'td/package-list 'rainbow-mode)
 #+end_src
 
-*** Rust
+**** Rust
 #+begin_src elisp :tangle yes
-(use-package rust-mode
-  :ensure t
-  :bind (:map rust-mode-map ("C-c c r" . rust-run) ("C-c c a r" . td/rust-run-args)))
+(defun td/rust-conf ()
+  "Rust mode config"
+  (defun td/rust-run-args (s)
+    (interactive "sOptional Args:")
+    (rust--compile (concat "%s run " s) rust-cargo-bin))
 
-(defun td/rust-run-args (s)
-  (interactive "sOptional Args:")
-  (rust--compile (concat "%s run " s) rust-cargo-bin))
+  (td/bind-many '(("C-c c r" . rust-run)
+                  ("C-c c a r" . td/rust-run-args))
+                'rust-mode-map))
+(add-to-list 'td/package-list 'rust-mode)
+(add-to-list 'td/package-configs #'td/rust-conf)
 #+end_src
 
-*** Shopify Mode
+**** Shopify Mode
 This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
 
 #+begin_src elisp :tangle yes
-                                        ; Derive liquid-mode from web-mode
+;; Derive liquid-mode from web-mode
 (define-derived-mode shopify-mode web-mode "Shopify"
   "Use web mode to highlight shopify liquid files")
 (provide 'shopify-mode)
@@ -1165,15 +1041,14 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
 (add-to-list 'auto-mode-alist '("\\.liquid\\'" . shopify-mode))
 
 (defvar liquid-electric-pairs '((?% . ?%)) "Electric pairs for liquid syntax.")
-
 (defun liquid-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs liquid-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
-
+  (setq-local electric-pair-pairs (append electric-pair-pairs
+                                          liquid-electric-pairs)
+              electric-pair-text-pairs electric-pair-pairs))
 (add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
 #+end_src
 
-*** Svelte
+**** Svelte
 Fake-out a "svelte-mode" for the purposes of activating with the svelte-language-server. I'm extending web-mode because it highlights =.svelte= files well.
 
 #+begin_src elisp :tangle yes
@@ -1183,37 +1058,41 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
 #+end_src
 
-*** Treesitter                                                        :fav:
+**** Treesitter                                                      :fav:
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
 #+begin_src elisp :tangle yes
-(straight-use-package 'tree-sitter)
-(straight-use-package 'tree-sitter-langs)
-(require 'tree-sitter)
-(require 'tree-sitter-langs)
+(defun td/tree-sitter-conf ()
+  "Tree sitter config."
+  (require 'tree-sitter)
+  (require 'tree-sitter-langs)
 
-(defvar td/tree-sitter-modes '("php-mode" "typescript-mode" "yaml-mode"
-                               "json-mode" "html-mode")
-  "A list of modes to apply tree-sitter to.")
-(dolist (mode-string td/tree-sitter-modes)
-  (add-hook (intern (concat mode-string "-hook")) #'tree-sitter-hl-mode))
-
-;; (global-tree-sitter-mode 1)
-;; (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+  (defvar td/tree-sitter-modes '("php-mode" "typescript-mode" "yaml-mode"
+                                 "json-mode" "html-mode")
+    "A list of modes to apply tree-sitter to.")
+  (dolist (mode-string td/tree-sitter-modes)
+    (add-hook (intern (concat mode-string "-hook")) #'tree-sitter-hl-mode)))
+(add-to-list 'td/package-list 'tree-sitter)
+(add-to-list 'td/package-list 'tree-sitter-langs)
+(add-to-list 'td/package-configs #'td/tree-sitter-conf)
 #+end_src
 
-*** TypeScript & JavaScript
+**** TypeScript & JavaScript
 #+begin_src elisp :tangle yes
-(straight-use-package 'typescript-mode)
-(straight-use-package 'js2-mode)
-(straight-use-package 'prettier-js)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(setq js-indent-level 2
-      typescript-indent-level 2
-      js2-strict-inconsistent-return-warning nil)
+(dolist (pkg '(typescript-mode
+               js2-mode
+               prettier-js))
+  (add-to-list 'td/package-list pkg))
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 "TypeScript/JavaScript configs."
+                 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+                 (setq js-indent-level 2
+                       typescript-indent-level 2
+                       js2-strict-inconsistent-return-warning nil)))
 #+end_src
 
-*** VueJS
+**** VueJS
 #+begin_src elisp :tangle yes
 (define-derived-mode vue-mode web-mode "VueJS"
   "I just want web-mode highlighting with .svelte files")
@@ -1221,57 +1100,64 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
 #+end_src
 
-*** Web Mode                                                          :fav:
+**** Web Mode                                                        :fav:
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
 #+begin_src elisp :tangle yes
-(defun customize-web-mode ()
-  "Customizations for web mode"
+(defun td/web-mode-conf ()
+  "Web mode config."
   (setq web-mode-markup-indent-offset tab-width
         web-mode-code-markup-indent-offset tab-width
         web-mode-style-padding tab-width
         web-mode-script-padding tab-width
         web-mode-block-padding tab-width
         web-mode-enable-auto-indentation nil
-        web-mode-enable-auto-pairing nil))
-
-(straight-use-package 'web-mode)
-(add-hook 'web-mode-hook #'customize-web-mode)
-
-(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+        web-mode-enable-auto-pairing nil)
+  (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode)))
+(add-to-list 'td/package-list 'web-mode)
+(add-to-list 'td/package-configs #'td/web-mode-conf)
 #+end_src
 
-*** YAML
+**** YAML
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
+
 #+begin_src elisp :tangle yes
-(use-package yaml-mode
-  :ensure t)
+(add-to-list 'td/package-list 'yaml-mode)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 "YAML mode config."
+                 (require 'yaml-mode)
+                 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))))
 #+end_src
 
-*** Yasnippet
+**** Yasnippet
 Snippets! They're helpful.
-#+begin_src elisp :tangle yes
-(use-package yasnippet
-  :ensure t
-  :config
-  (yas-reload-all)
-  :custom
-  (yas-snippet-dirs '("~/.config/emacs/yasnippets")))
 
-(use-package yasnippet-snippets
-  :ensure t)
+#+begin_src elisp :tangle yes
+(add-to-list 'td/package-list 'yasnippet)
+(add-to-list 'td/package-list 'yasnippet-snippets)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 (require 'yasnippet)
+                 (setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
+                 (yas-reload-all)))
 #+end_src
 
-* Package Init
+** Package Init
 Here we iterate the =package-selected-packages= and =td/package-configs= and hope for the best.
 #+begin_src elisp :tangle yes
+(setq package-selected-packages td/package-list)
 (defun td/package-not-installed (package)
   "Test if a `PACKAGE' is not installed"
   (not (package-installed-p package)))
-(when (seq-some #'td/package-not-installed 'package-selected-packages)
+(when (seq-some #'td/package-not-installed package-selected-packages)
+  (package-refresh-contents)
   (package-install-selected-packages t))
+(package-autoremove)
+(dolist (conf td/package-configs)
+  (funcall conf))
 #+end_src
-* About This Config
+** About This Config
 This literate configuration is a labour of love from a man who changes his mind and mixes things up /often/.
 
 I'm not sure it will ever be finished or perfect. At times, things may clunk. I will do my best to clunk them in another branch.
@@ -1297,3 +1183,79 @@ As I play with this config and refine my preferences I've lost the point in dele
 
 *** Licenses
 - For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
+
+*** Contents
+:PROPERTIES:
+:TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
+:END:
+:CONTENTS:
+- [[#current-mindset][Current Mindset]]
+- [[#licenses][Licenses]]
+- [[#contents][Contents]]
+- [[#emacs][Emacs]]
+- [[#performance-tweaks][Performance Tweaks]]
+- [[#autosaves--backups][Autosaves & Backups]]
+:END:
+
+*** Emacs
+Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well
+
+#+begin_src elisp :tangle yes
+;; Interface
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(blink-cursor-mode 1)
+(setq display-line-numbers-type 'relative)
+(global-visual-line-mode 1)
+(recentf-mode 1)
+(setq history-length 25)
+(save-place-mode 1)
+(global-auto-revert-mode 1)
+(fringe-mode '(4 . 0))
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message "")
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Spelling
+(setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd")
+(setq ispell-program-name "aspell")
+(setq ispell-dictionary "english")
+
+;; Browser
+(setq browse-url-generic-program "/usr/bin/firefox")
+#+end_src
+
+*** Performance Tweaks
+Give the garbage collector free-reign at start-up, then take it back to 8M. Use so-long-mode for editor-breaking minified css/js.
+#+begin_src elisp :tangle yes
+;; Minimize garbage collection during startup
+(setq gc-cons-threshold most-positive-fixnum)
+
+;; Lower threshold back to 8 MiB (default is 800kB)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (expt 2 23))))
+
+(setq read-process-output-max (* 1024 1024))
+
+;; Don't die when handling large, minified files
+(global-so-long-mode 1)
+
+;; For native compilation with Emacs 28+
+(setq comp-deferred-compilation t)
+#+end_src
+*** Autosaves & Backups
+I hate seeing project folders get all cluttered up
+
+#+begin_src elisp :tangle yes
+;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))
+      backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
+
+;; create the autosave dir if necessary, since emacs won't.
+(make-directory "~/.emacs.d/autosaves/" t)
+
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+#+end_src
+
