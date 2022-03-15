@@ -136,6 +136,8 @@ While I really admire and appreciate what straight is trying to do, my desire ha
 For now, I'm going to use package.el the un-abstracted way. If I need a git-only package, I will use some other means - Quelpa - as it is intended to have strong feature-parity with package.el.
 
 *** Bootstrapping
+Declare repositories, init package.el...but don't enable packages at startup.
+
 #+begin_src elisp :tangle yes
 (require 'package)
 (dolist (repo '(("elpa" . "https://elpa.gnu.org/packages/")
