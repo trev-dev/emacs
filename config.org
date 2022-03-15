@@ -133,10 +133,10 @@ In my early Emacs days, I used =use-package=. In my desire to keep learning and 
 
 While I really admire and appreciate what straight is trying to do, my desire has shifted to a lower-level emacs init while trying to stick to some newer, supported standards.
 
-For now, I'm going to use package.el the un-abstracted way. If I need a git-only package, I will use some other means - Quelpa - as it is intended to have strong feature-parity with package.el.
+For now, I'm going to use package.el the un-abstracted way. If I need a git-only package, I will use quelpa, as it is intended to have strong feature-parity with package.el. Quelpa should already be loaded by now in the configuration process as it was needed in [[file:init.el][init.el]].
 
 *** Bootstrapping
-Declare repositories, init package.el...but don't enable packages at startup.
+Set up repositories.
 
 #+begin_src elisp :tangle yes
 (require 'package)
@@ -144,29 +144,17 @@ Declare repositories, init package.el...but don't enable packages at startup.
                 ("melpa" . "https://melpa.org/packages/")
                 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
   (add-to-list 'package-archives repo))
-
-(setq package-enable-at-startup nil) ; Please don't start loading packages right away.
-(package-initialize)
 #+end_src
-
-Quelpa bootstrapping.
-
-#+begin_src elisp :tangle yes
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-    (eval-buffer)
-    (quelpa-self-upgrade)))
-(setq quelpa-update-melpa-p nil) ; Please don't attempt to replace package.el for melpa.
-(require 'quelpa)
-#+end_src
-
+ 
 My init strategy will be to explicitly add to the the =td/package-list= variable while adding my configs (as functions) to =td/package-configs=. At the end of this file both lists will be iterated to install missing packages & call the config functions.
 
 The idea here is I may be able to keep a tight lid on which packages are loaded and be able to choose whatever order I prefer to write this config in, aside from defining this variable and running the loops at the end.
 
 #+begin_src elisp :tangle yes
-(defvar td/package-list '(quelpa) "My explicit list of packages from melpa")
+;; Quelpa & org-tangle-config should have been loaded in `init.el'.
+(defvar td/package-list '(quelpa
+                          org-tangle-config)
+  "My maintained list of packages.")
 (defvar td/package-configs nil
   "A list of config functions to call after checking for/installing packages.")
 #+end_src
