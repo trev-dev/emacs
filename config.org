@@ -1284,19 +1284,26 @@ Snippets! They're helpful.
 #+end_src
 
 *** Install, Prune & Configure
-Here we iterate the =package-selected-packages= and =td/package-configs= and hope for the best.
+Here we implement =td/package-list= and =td/package-configs= to install missing packages, then forcibly set =package-selected-packages=.
+
+The goal here is to keep our package installations sanitizable. At any given point I can just =package-autoremove= packages that are not a part of my init while retaining the ones that are.
+
 #+begin_src elisp :tangle yes
-(setq package-selected-packages td/package-list)
 (defun td/package-not-installed (package)
   "Test if a `PACKAGE' is not installed"
   (not (package-installed-p package)))
-(when (seq-some #'td/package-not-installed package-selected-packages)
-  (package-refresh-contents)
-  (package-install-selected-packages t))
-(package-autoremove)
-(dolist (conf td/package-configs)
-  (funcall conf))
+(defun td/set-selected-packages ()
+  "Set `package-selected-packages' to `td/package-list'.
+Packages previously installed via `install-package' will become auto-removable."
+  (customize-save-variable 'package-selected-packages td/package-list))
+(when (seq-some #'td/package-not-installed td/package-list)
+      (package-refresh-contents)
+      (setq package-selected-packages td/package-list)
+      (package-install-selected-packages t))
+(seq-do #'funcall td/package-configs)
+(add-hook 'after-init-hook #'td/set-selected-packages)
 #+end_src
+
 ** About This Config
 This literate configuration is a labour of love from a man who changes his mind and mixes things up /often/.
 
