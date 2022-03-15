@@ -1,1 +1,1 @@
-((nil . ((projectile-project-name . "Emacs Config"))))
+((nil . ((td/project-custom-name . "Emacs Config"))))
