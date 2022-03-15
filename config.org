@@ -1,9 +1,133 @@
 * Emacs Configuration
 :PROPERTIES:
 #+STARTUP: overview
-#+TAGS: disabled(d) fav(f)
 :END:
 Herein lies my Emacs configuration. Use it well
+** Contents
+:PROPERTIES:
+:TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
+:END:
+:CONTENTS:
+- [[#general-settings][General Settings]]
+- [[#package-configuration][Package Configuration]]
+  - [[#bootstrapping][Bootstrapping]]
+  - [[#look--feel][Look & Feel]]
+    - [[#all-the-icons][All The Icons]]
+    - [[#dired][Dired]]
+    - [[#doom-themes][Doom Themes]]
+    - [[#font-setup][Font Setup]]
+    - [[#telephone-line][Telephone Line]]
+  - [[#utility-packages][Utility Packages]]
+    - [[#avy][Avy]]
+    - [[#completions][Completions]]
+    - [[#dashboard][Dashboard]]
+    - [[#diff-hl][Diff-hl]]
+    - [[#elfeed][Elfeed]]
+    - [[#expand-region][Expand Region]]
+    - [[#exec-path][Exec Path]]
+    - [[#goggles][Goggles]]
+    - [[#hydra][Hydra]]
+    - [[#magit][Magit]]
+    - [[#mu4e][Mu4e]]
+    - [[#ledger][Ledger]]
+    - [[#rg][RG]]
+    - [[#undo-tree][Undo-Tree]]
+    - [[#which-key][Which-key]]
+  - [[#syntax-support][Syntax Support]]
+    - [[#cssscss][CSS/SCSS]]
+    - [[#emmet][Emmet]]
+    - [[#eglot][Eglot]]
+    - [[#flymake][Flymake]]
+    - [[#golang][GoLang]]
+    - [[#markdown][Markdown]]
+    - [[#org][Org]]
+    - [[#php][PHP]]
+    - [[#prettier][Prettier]]
+    - [[#prog-mode][Prog Mode]]
+    - [[#python][Python]]
+    - [[#rainbow-delimiters][Rainbow Delimiters]]
+    - [[#rainbow-mode][Rainbow Mode]]
+    - [[#rust][Rust]]
+    - [[#shopify-mode][Shopify Mode]]
+    - [[#svelte][Svelte]]
+    - [[#treesitter][Treesitter]]
+    - [[#typescript--javascript][TypeScript & JavaScript]]
+    - [[#vuejs][VueJS]]
+    - [[#web-mode][Web Mode]]
+    - [[#yaml][YAML]]
+    - [[#yasnippet][Yasnippet]]
+  - [[#install-prune--configure][Install, Prune & Configure]]
+- [[#about-this-config][About This Config]]
+  - [[#installation][Installation]]
+  - [[#current-mindset][Current Mindset]]
+  - [[#licenses][Licenses]]
+:END:
+** General Settings
+Give the garbage collector free-reign at start-up, then take it back to 8M. Use so-long-mode for editor-breaking minified css/js.
+
+#+begin_src elisp :tangle yes
+;; Minimize garbage collection during startup
+(setq gc-cons-threshold most-positive-fixnum)
+
+;; Lower threshold back to 8 MiB (default is 800kB)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (expt 2 23))))
+
+(setq read-process-output-max (* 1024 1024))
+
+;; Don't die when handling large, minified files
+(global-so-long-mode 1)
+
+;; For native compilation with Emacs 28+
+(setq comp-deferred-compilation t)
+#+end_src
+
+Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well.
+
+#+begin_src elisp :tangle yes
+;; Interface
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(blink-cursor-mode 1)
+(setq display-line-numbers-type 'relative)
+(global-visual-line-mode 1)
+(recentf-mode 1)
+(setq history-length 25)
+(save-place-mode 1)
+(global-auto-revert-mode 1)
+(fringe-mode '(4 . 0))
+(setq inhibit-startup-screen t)
+(setq initial-scratch-message "")
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+Set up the dictionary and preferred browser.
+
+#+begin_src elisp :tangle yes
+;; Spelling
+(setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd")
+(setq ispell-program-name "aspell")
+(setq ispell-dictionary "english")
+
+;; Browser
+(setq browse-url-generic-program "/usr/bin/firefox")
+#+end_src
+
+I hate seeing project folders get all cluttered up. Let's move autosaves and backups somewhere else.
+
+#+begin_src elisp :tangle yes
+;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))
+      backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
+
+;; create the autosave dir if necessary, since emacs won't.
+(make-directory "~/.emacs.d/autosaves/" t)
+
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+#+end_src
+
 ** Package Configuration
 In my early Emacs days, I used =use-package=. In my desire to keep learning and move away from confusing (for a beginner) abstractions, I checked out =straight.el= which tries to replace package.el entirely with its own (albeit smaller) abstraction.
 
@@ -11,6 +135,7 @@ While I really admire and appreciate what straight is trying to do, my desire ha
 
 For now, I'm going to use package.el the un-abstracted way. If I need a git-only package, I will use some other means - Quelpa - as it is intended to have strong feature-parity with package.el.
 
+*** Bootstrapping
 #+begin_src elisp :tangle yes
 (require 'package)
 (dolist (repo '(("elpa" . "https://elpa.gnu.org/packages/")
@@ -393,7 +518,7 @@ Mini-buffer completions back-end.
 (add-to-list 'td/package-configs #'td/dashboard-config)
 #+end_src
 
-**** Diff-hl                                                         :fav:
+**** Diff-hl
 Show me the diffs in the fringe!
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'diff-hl)
@@ -473,7 +598,7 @@ A tool for making repetative chords less cumbersome
 (add-to-list 'td/package-configs #'td/hydra-config)
 #+end_src
 
-**** Magit                                                           :fav:
+**** Magit
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
 #+begin_src elisp :tangle yes
@@ -708,7 +833,7 @@ The free software documentation language of the Internet.
 (add-to-list 'td/package-configs #'td/markdown-conf)
 #+end_src
 
-**** Org                                                             :fav:
+**** Org
 Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is. The fancy font-size setup is stolen from [[https://github.com/daviwil/emacs-from-scratch][Emacs from Scratch]] by [[https://www.youtube.com/c/SystemCrafters][System Crafters]]. Check them out :)
 
 #+begin_src elisp :tangle yes
@@ -1058,7 +1183,7 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
 #+end_src
 
-**** Treesitter                                                      :fav:
+**** Treesitter
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
 #+begin_src elisp :tangle yes
@@ -1100,7 +1225,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
 #+end_src
 
-**** Web Mode                                                        :fav:
+**** Web Mode
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
 #+begin_src elisp :tangle yes
@@ -1143,7 +1268,7 @@ Snippets! They're helpful.
                  (yas-reload-all)))
 #+end_src
 
-** Package Init
+*** Install, Prune & Configure
 Here we iterate the =package-selected-packages= and =td/package-configs= and hope for the best.
 #+begin_src elisp :tangle yes
 (setq package-selected-packages td/package-list)
@@ -1183,79 +1308,3 @@ As I play with this config and refine my preferences I've lost the point in dele
 
 *** Licenses
 - For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
-
-*** Contents
-:PROPERTIES:
-:TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
-:END:
-:CONTENTS:
-- [[#current-mindset][Current Mindset]]
-- [[#licenses][Licenses]]
-- [[#contents][Contents]]
-- [[#emacs][Emacs]]
-- [[#performance-tweaks][Performance Tweaks]]
-- [[#autosaves--backups][Autosaves & Backups]]
-:END:
-
-*** Emacs
-Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well
-
-#+begin_src elisp :tangle yes
-;; Interface
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(blink-cursor-mode 1)
-(setq display-line-numbers-type 'relative)
-(global-visual-line-mode 1)
-(recentf-mode 1)
-(setq history-length 25)
-(save-place-mode 1)
-(global-auto-revert-mode 1)
-(fringe-mode '(4 . 0))
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message "")
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-;; Spelling
-(setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd")
-(setq ispell-program-name "aspell")
-(setq ispell-dictionary "english")
-
-;; Browser
-(setq browse-url-generic-program "/usr/bin/firefox")
-#+end_src
-
-*** Performance Tweaks
-Give the garbage collector free-reign at start-up, then take it back to 8M. Use so-long-mode for editor-breaking minified css/js.
-#+begin_src elisp :tangle yes
-;; Minimize garbage collection during startup
-(setq gc-cons-threshold most-positive-fixnum)
-
-;; Lower threshold back to 8 MiB (default is 800kB)
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold (expt 2 23))))
-
-(setq read-process-output-max (* 1024 1024))
-
-;; Don't die when handling large, minified files
-(global-so-long-mode 1)
-
-;; For native compilation with Emacs 28+
-(setq comp-deferred-compilation t)
-#+end_src
-*** Autosaves & Backups
-I hate seeing project folders get all cluttered up
-
-#+begin_src elisp :tangle yes
-;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))
-      backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
-
-;; create the autosave dir if necessary, since emacs won't.
-(make-directory "~/.emacs.d/autosaves/" t)
-
-(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
-#+end_src
-
