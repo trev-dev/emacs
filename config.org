@@ -1311,6 +1311,12 @@ I'm not sure it will ever be finished or perfect. At times, things may clunk. I 
 
 If you like this config the way you found it, make sure that you fork it or make note of which commit you preferred.
 
+If you like it enough to drop me a tip, feel free to do so:
+
+[[https://ko-fi.com/Y8Y34UWHH][https://ko-fi.com/img/githubbutton_sm.svg]]
+[[https://liberapay.com/trev.dev/donate][https://liberapay.com/assets/widgets/donate.svg]]
+BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
+
 *** Installation
 If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
 
