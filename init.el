@@ -14,11 +14,12 @@
 ;; Load config.el if it exists. If it does not, tangle the configuration file
 ;; and prompt the user to restart. By using this method, we remove any need
 ;; to (require 'org) so early in the configuration.
-(add-to-list 'load-path "~/.config/emacs/packages")
-(require 'compare-config)
+(add-to-list 'load-path "~/Projects/org-tangle-config")
+(require 'org-tangle-config)
 (org-tangle-config-before-load "~/.config/emacs/config.org")
 
-(provide 'emacs)
+;;; Use a custom variables file. Load these variables first.
 (setq custom-file (locate-user-emacs-file "custom-vars.el"))
 (load custom-file 'noerror 'nomessage)
+(provide 'emacs)
 ;;; init.el ends here
