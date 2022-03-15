@@ -16,8 +16,8 @@ Can be an integer to determine the exact padding."
   "A darker version of the Material Theme inspired by xrei"
 
   ;; name        default   256       16
-  ((bg         '("#212121" nil       nil))
-   (bg-alt     '("#3e3e3e" nil       nil))
+  ((bg         '("#131519" nil       nil))
+   (bg-alt     '("#3a404c" nil       nil))
    (base0      '("#171F24" "black"   "black"))
    (base1      '("#262626" "#262626" "brightblack"))
    (base2      '("#303030" "#303030" "brightblack"))
@@ -70,7 +70,7 @@ Can be an integer to determine the exact padding."
 
    ;; custom categories
    (modeline-bg     (doom-lighten bg 0.05))
-   (modeline-bg-alt bg-alt)
+   (modeline-bg-alt bg)
    (modeline-fg     base8)
    (modeline-fg-alt comments)
 
@@ -197,6 +197,7 @@ Can be an integer to determine the exact padding."
    ;;;; Eglot
    (eldoc-highlight-function-argument :weight 'bold :underline t)
    (eglot-highlight-symbol-face :weight 'bold :background base3)
+   (eldoc-box-border :background fg-alt)
    ))
 
 
