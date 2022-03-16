@@ -162,15 +162,14 @@ The idea here is I may be able to keep a tight lid on which packages are loaded 
 Some helpful functions.
 
 #+begin_src elisp :tangle yes
-(defun td/bind-many (conses &optional mode-map)
+(defun td/bind-many-keys (conses &optional mode-map)
   "Bind several keybinds using a list of `CONSES'.
 Binds will be global unless the optional `MODE-MAP' is specified."
   (dolist (combo conses)
-     (if mode-map
-         (lambda (combo)
-           (define-key mode-map (kbd (car combo)) (cdr combo)))
-       (lambda (combo)
-         (global-set-key (kbd (car combo)) (cdr combo))))))
+    (if (or (consp mode-map) (keymapp mode-map))
+        (define-key mode-map (kbd (car combo)) (cdr combo))
+      (if mode-map (warn "Optional %s `MODE-MAP' was invalid: %s" (type-of mode-map) mode-map))
+      (global-set-key (kbd (car combo)) (cdr combo)))))
 #+end_src
 
 *** Look & Feel
@@ -390,51 +389,46 @@ other better ways to reference things in Emacs.
 
   (require 'consult) ; No lazy load for you.
 
-  (td/bind-many '(("C-c h" . consult-history)
-                  ("C-c m" . consult-mode-command)
-                  ("C-c k" . consult-kmacro)
-                  ;; C-x bindings (ctl-x-map)
-                  ("C-x M-:" . consult-complex-command)
-                  ("C-x b" . consult-buffer)
-                  ("C-x 4 b" . consult-buffer-other-window)
-                  ("C-x 5 b" . consult-buffer-other-frame)
-                  ("C-x r b" . consult-bookmark)
-                  ;; Custom M-# bindings for fast register access
-                  ("M-#" . consult-register-load)
-                  ("M-'" . consult-register-store)
-                  ("C-M-#" . consult-register)
-                  ;; Other custom bindings
-                  ("M-y" . consult-yank-pop)
-                  ("<help> a" . consult-apropos)
-                  ;; M-g bindings (goto-map)
-                  ("M-g e" . consult-compile-error)
-                  ("M-g f" . consult-flymake) ; or flycheck?
-                  ("M-g g" . consult-goto-line)
-                  ("M-g M-g" . consult-goto-line)
-                  ("M-g o" . consult-outline)
-                  ("M-g m" . consult-mark)
-                  ("M-g k" . consult-global-mark)
-                  ("M-g i" . consult-imenu)
-                  ("M-g I" . consult-imenu-multi)
-                  ;; M-s bindings (search-map)
-                  ("M-s d" . consult-find)
-                  ("M-s D" . consult-locate)
-                  ("M-s g" . consult-grep)
-                  ("M-s G" . consult-git-grep)
-                  ("M-s r" . consult-ripgrep)
-                  ("M-s l" . consult-line)
-                  ("M-s L" . consult-line-multi)
-                  ("M-s m" . consult-multi-occur)
-                  ("M-s k" . consult-keep-lines)
-                  ("M-s u" . consult-focus-lines)
-                  ;; Isearch integration
-                  ("M-s e" . consult-isearch-history)
-                  :map isearch-mode-map
-                  ("M-e" . consult-isearch-history)
-                  ("M-s e" . consult-isearch-history)
-                  ("M-s l" . consult-line)
-                  ("M-s L" . consult-line-multi)
-                  ))
+  (td/bind-many-keys '(("C-c h" . consult-history)
+                       ("C-c m" . consult-mode-command)
+                       ("C-c k" . consult-kmacro)
+                       ;; C-x bindings (ctl-x-map)
+                       ("C-x M-:" . consult-complex-command)
+                       ("C-x b" . consult-buffer)
+                       ("C-x 4 b" . consult-buffer-other-window)
+                       ("C-x 5 b" . consult-buffer-other-frame)
+                       ("C-x r b" . consult-bookmark)
+                       ;; Custom M-# bindings for fast register access
+                       ("M-#" . consult-register-load)
+                       ("M-'" . consult-register-store)
+                       ("C-M-#" . consult-register)
+                       ;; Other custom bindings
+                       ("M-y" . consult-yank-pop)
+                       ("<help> a" . consult-apropos)
+                       ;; M-g bindings (goto-map)
+                       ("M-g e" . consult-compile-error)
+                       ("M-g f" . consult-flymake) ; or flycheck?
+                       ("M-g g" . consult-goto-line)
+                       ("M-g M-g" . consult-goto-line)
+                       ("M-g o" . consult-outline)
+                       ("M-g m" . consult-mark)
+                       ("M-g k" . consult-global-mark)
+                       ("M-g i" . consult-imenu)
+                       ("M-g I" . consult-imenu-multi)
+                       ;; M-s bindings (search-map)
+                       ("M-s d" . consult-find)
+                       ("M-s D" . consult-locate)
+                       ("M-s g" . consult-grep)
+                       ("M-s G" . consult-git-grep)
+                       ("M-s r" . consult-ripgrep)
+                       ("M-s l" . consult-line)
+                       ("M-s L" . consult-line-multi)
+                       ("M-s m" . consult-multi-occur)
+                       ("M-s k" . consult-keep-lines)
+                       ("M-s u" . consult-focus-lines)
+                       ;; Isearch integration
+                       ("M-s e" . consult-isearch-history)))
+  (define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
   (add-hook 'completion-list-mode #'consult-preview-at-point-mode)
   ;; Consult completion-at-point solution.
   (setq completion-in-region-function
@@ -1162,9 +1156,10 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
     (interactive "sOptional Args:")
     (rust--compile (concat "%s run " s) rust-cargo-bin))
 
-  (td/bind-many '(("C-c c r" . rust-run)
-                  ("C-c c a r" . td/rust-run-args))
-                'rust-mode-map))
+  (with-eval-after-load 'rust-mode
+    (td/bind-many-keys '(("C-c c r" . rust-run)
+                         ("C-c c a r" . td/rust-run-args))
+                       'rust-mode-map)))
 (add-to-list 'td/package-list 'rust-mode)
 (add-to-list 'td/package-configs #'td/rust-conf)
 #+end_src
