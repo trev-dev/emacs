@@ -352,12 +352,14 @@ Drop-down style completion-at-point utilities & fluff.
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-keyword)
   (setq corfu-cycle t
-        tab-always-indent 'complete
+        corfu-auto t
         corfu-preselect-first nil)
   (with-eval-after-load 'corfu
     (require 'kind-icon)
     (setq kind-icon-default-face 'corfu-default)
-    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+    (td/bind-many-keys '(("M-/" . dabbrev-completion)
+                         ("C-M-/" . dabbrev-expand))))
   (corfu-global-mode))
 (dolist (pkg '(corfu
                cape
