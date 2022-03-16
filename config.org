@@ -774,8 +774,7 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
 
   (defun td/eglot-hook ()
     "Functions to call on-eglot."
-    (eglot-ensure)
-    (eldoc-box-hover-mode))
+    (eglot-ensure))
 
   ;; Set-up programming modes to use Eglot
   (dolist (mode '(css-mode-hook
@@ -788,7 +787,6 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
     (add-hook mode #'td/eglot-hook)))
 
 (add-to-list 'td/package-list 'eglot)
-(add-to-list 'td/package-list 'eldoc-box)
 (add-to-list 'td/package-configs #'td/eglot-conf)
 #+end_src
 
