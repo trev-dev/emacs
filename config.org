@@ -551,7 +551,7 @@ RSS Reader :D
  'td/package-configs
  #'(lambda ()
      "Elfeed config."
-     (global-set-key (kbd "C-c e") 'elfeed)
+     (global-set-key (kbd "M-o e") 'elfeed)
      (with-eval-after-load 'elfeed
        (elfeed-org)
        (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))))
@@ -683,7 +683,7 @@ Mostly used in contexts configuration."
      (local-set-key (kbd "C-c C-o") 'org-mime-edit-mail-in-org-mode)
      (local-set-key (kbd "C-c C-h") 'org-mime-htmlize)))
 
-  (global-set-key (kbd "C-c m") 'mu4e))
+  (global-set-key (kbd "M-o m") 'mu4e))
 ; (add-to-list 'td/package-list 'org-contrib)
 (add-to-list 'td/package-list 'org-mime)
 (add-to-list 'td/package-list 'org-msg)
