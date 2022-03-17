@@ -714,7 +714,13 @@ Mostly want undo tree for better redo support for Evil
 
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'undo-tree)
-(add-to-list 'td/package-configs #'global-undo-tree-mode)
+(add-to-list 'td/package-configs
+             #'(lambda () "Undo tree config"
+                 (with-eval-after-load 'undo-tree
+                   (add-to-list
+                    'undo-tree-history-directory-alist
+                    '(".*" . "~/.emacs.d/undo-tree/")))
+                 (global-undo-tree-mode)))
 #+end_src
 
 **** Which-key
