@@ -341,31 +341,50 @@ Packages that extend and augment emacs in a general way
 **** Completions
 A combination of packages to enhance completions, centered around [[https://github.com/minad][Minad's]] work. There are a few packages to implement here. This section is a work in progress.
 
-***** Cape/Corfu/Kind-Icon
-Drop-down style completion-at-point utilities & fluff.
+***** Cape
+Add extensions for completion-at-point-functions.
+#+begin_src elisp :tangle yes
+(add-to-list 'td/package-list 'cape)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 "Cape completions at point extensions."
+                 (add-to-list 'completion-at-point-functions #'cape-file)
+                 (add-to-list 'completion-at-point-functions #'cape-tex)
+                 (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+                 (add-to-list 'completion-at-point-functions #'cape-keyword)))
+#+end_src
+
+***** Corfu
+Drop-down style completion-at-point in a child frame. Kind-Icon adds fluff.
 
 #+begin_src elisp :tangle yes
 (defun td/corfu-config ()
   "Configuration for corfu, cape & kind-icon."
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-tex)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
   (setq corfu-cycle t
         corfu-auto t
-        corfu-preselect-first nil)
+        corfu-preselect-first nil
+        tab-always-indent 'complete)
   (with-eval-after-load 'corfu
-    (require 'kind-icon)
-    (setq kind-icon-default-face 'corfu-default)
-    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
     (td/bind-many-keys '(("M-/" . dabbrev-completion)
                          ("C-M-/" . dabbrev-expand))))
   (corfu-global-mode))
-(dolist (pkg '(corfu
-               cape
-               kind-icon))
-  (add-to-list 'td/package-list pkg))
+(add-to-list 'td/package-list 'corfu)
 (add-to-list 'td/package-configs #'td/corfu-config)
+#+end_src
+
+****** COMMENT Kind Icons
+I like these, but they do tend to slow things down a bit.
+#+begin_src elisp :tangle yes
+(add-to-list 'td/package-list 'kind-icon)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 "Kind icon config for corfu"
+                 (require 'kind-icon)
+                 (with-eval-after-load 'corfu
+                   (setq kind-icon-default-face 'corfu-default
+                         kind-icon-use-icons nil)
+                   (add-to-list 'corfu-margin-formatters
+                                #'kind-icon-margin-formatter))))
 #+end_src
 
 ***** Consult
@@ -432,14 +451,6 @@ other better ways to reference things in Emacs.
                        ("M-s e" . consult-isearch-history)))
   (define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
   (add-hook 'completion-list-mode #'consult-preview-at-point-mode)
-  ;; Consult completion-at-point solution.
-  (setq completion-in-region-function
-        (lambda (&rest args)
-          (apply (if vertico-mode
-                     #'consult-completion-in-region
-                   #'completion--in-region)
-                 args)))
-  ;; Other customizations
   (consult-customize
    consult-theme
    :preview-key '(:debounce 0.2 any)
@@ -458,6 +469,22 @@ other better ways to reference things in Emacs.
             (car (project-roots project))))))
 (add-to-list 'td/package-list 'consult)
 (add-to-list 'td/package-configs #'td/consult-config)
+#+end_src
+
+****** COMMENT Consult for CAPF
+Consult may used for =completion-at-point= if desired. I am on the fence about whether or not to use consult over something like [[* Corfu][Corfu]].
+#+begin_src elisp :tangle yes
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 "Use Consult for CAPF"
+                 (with-eval-after-load 'consult
+                   (setq tab-always-indent 'complete)
+                   (setq completion-in-region-function
+                         (lambda (&rest args)
+                           (apply (if vertico-mode
+                                      #'consult-completion-in-region
+                                    #'completion--in-region)
+                                  args))))))
 #+end_src
 
 ***** Marginalia
