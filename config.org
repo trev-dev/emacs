@@ -505,8 +505,7 @@ A completion style that permits entering parts of completion names in any order.
   "Orderless configuration."
   (setq completion-styles '(orderless)
         completion-category-defaults nil
-        completion-category-overrides '((file
-                                         (styles . (partial-completion))))))
+        completion-category-overrides '((file (styles basic partial-completion)))))
 (add-to-list 'td/package-list 'orderless)
 (add-to-list 'td/package-configs #'td/orderless-conf)
 #+end_src
