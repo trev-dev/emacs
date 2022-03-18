@@ -1300,6 +1300,7 @@ Snippets! They're helpful.
 (add-to-list 'td/package-configs
              #'(lambda ()
                  (require 'yasnippet)
+                 (global-set-key (kbd "C-c ,") #'yas-expand)
                  (setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
                  (yas-reload-all)))
 #+end_src
