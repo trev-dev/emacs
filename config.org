@@ -793,22 +793,16 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
     (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
     (add-to-list 'eglot-server-programs '(shopify-mode
                                           . ("theme-check-language-server" "--stdio")))
-    (define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
-    (define-key eglot-mode-map (kbd "C-c h") 'eldoc)
-    (define-key eglot-mode-map (kbd "C-c r") 'xref-find-definitions))
-
-  ;; Floating eldoc for eglot
-  (setq x-gtk-resize-child-frames 'resize-mode)
-  (setq eldoc-box-offset '(16 36 16)
-        eldoc-box-cleanup-interval 2
-        eldoc-box-max-pixel-height 900
-        eldoc-box-max-pixel-width 1500)
-
-  (defun td/eglot-hook ()
-    "Functions to call on-eglot."
-    (eglot-ensure))
-
-  ;; Set-up programming modes to use Eglot
+    (td/bind-many-keys '(("C-c e r" . eglot-rename)
+                         ("C-c e d" . eglot-find-typeDefinition)
+                         ("C-c e D" . eglot-find-declaration)
+                         ("C-c e f" . eglot-format)
+                         ("C-c e F" . eglot-format-buffer)) eglot-mode-map)
+    (add-hook 'eglot-managed-mode-hook
+              #'(lambda ()
+                  "Make sure Eldoc will show us all of the feedback at point."
+                  (setq-local eldoc-documentation-strategy
+                              #'eldoc-documentation-compose))))
   (dolist (mode '(css-mode-hook
                   scss-mode-hook
                   php-mode-hook
@@ -816,7 +810,7 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
                   rjsx-mode-hook
                   typescript-mode-hook
                   svelte-mode-hook))
-    (add-hook mode #'td/eglot-hook)))
+    (add-hook mode #'eglot-ensure)))
 
 (add-to-list 'td/package-list 'eglot)
 (add-to-list 'td/package-configs #'td/eglot-conf)
