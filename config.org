@@ -797,7 +797,8 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
                          ("C-c e d" . eglot-find-typeDefinition)
                          ("C-c e D" . eglot-find-declaration)
                          ("C-c e f" . eglot-format)
-                         ("C-c e F" . eglot-format-buffer)) eglot-mode-map)
+                         ("C-c e F" . eglot-format-buffer)
+                         ("C-c e R" . eglot-reconnect)) eglot-mode-map)
     (add-hook 'eglot-managed-mode-hook
               #'(lambda ()
                   "Make sure Eldoc will show us all of the feedback at point."
