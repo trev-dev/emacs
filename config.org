@@ -642,7 +642,7 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
 (add-to-list 'td/package-list 'magit)
 (add-to-list 'td/package-configs
              #'(lambda () "Magit config."
-                 (global-set-key (kbd "C-c g") 'magit-status)))
+                 (global-set-key (kbd "M-o g") 'magit-status)))
 #+end_src
 
 **** Mu4e
