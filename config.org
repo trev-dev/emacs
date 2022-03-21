@@ -691,6 +691,8 @@ Mostly used in contexts configuration."
    '(:name "Flagged"
            :key ?f
            :query "flag:flagged"))
+  (autoload 'org-mime-edit-mail-in-org-mode "org-mime"
+    "Set up Autoload so I may edit mail in org mode right away." nil 'macro)
   (add-hook
    'message-mode-hook
    (lambda ()
