@@ -832,6 +832,7 @@ The built-in linting package.
 (setq flymake-note-bitmap '(small-right-triangle compilation-info)
       flymake-error-bitmap '(small-right-triangle compilation-error)
       flymake-warning-bitmap '(small-right-triangle compilation-warning))
+(add-hook 'emacs-lisp-mode-hook #'flymake-mode)
 #+end_src
 
 **** GoLang
