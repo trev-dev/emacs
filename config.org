@@ -346,12 +346,12 @@ Add extensions for completion-at-point-functions.
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'cape)
 (add-to-list 'td/package-configs
-             #'(lambda ()
-                 "Cape completions at point extensions."
+             #'(lambda () "Cape completions at point extensions."
                  (add-to-list 'completion-at-point-functions #'cape-file)
                  (add-to-list 'completion-at-point-functions #'cape-tex)
                  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-                 (add-to-list 'completion-at-point-functions #'cape-keyword)))
+                 (add-to-list 'completion-at-point-functions #'cape-keyword)
+                 (add-to-list 'completion-at-point-functions #'cape-ispell)))
 #+end_src
 
 ***** Corfu
@@ -361,9 +361,9 @@ Drop-down style completion-at-point in a child frame. Kind-Icon adds fluff.
 (defun td/corfu-config ()
   "Configuration for corfu, cape & kind-icon."
   (setq corfu-cycle t
-        corfu-auto t
+        corfu-auto nil ; use ESC TAB to start suggestions.
         corfu-preselect-first nil
-        tab-always-indent 'complete)
+        corfu-echo-documentation t)
   (with-eval-after-load 'corfu
     (td/bind-many-keys '(("M-/" . dabbrev-completion)
                          ("C-M-/" . dabbrev-expand))))
@@ -372,7 +372,7 @@ Drop-down style completion-at-point in a child frame. Kind-Icon adds fluff.
 (add-to-list 'td/package-configs #'td/corfu-config)
 #+end_src
 
-****** COMMENT Kind Icons
+****** Kind Icons
 I like these, but they do tend to slow things down a bit.
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'kind-icon)
@@ -382,7 +382,7 @@ I like these, but they do tend to slow things down a bit.
                  (require 'kind-icon)
                  (with-eval-after-load 'corfu
                    (setq kind-icon-default-face 'corfu-default
-                         kind-icon-use-icons nil)
+                         kind-icon-use-icons t)
                    (add-to-list 'corfu-margin-formatters
                                 #'kind-icon-margin-formatter))))
 #+end_src
@@ -459,32 +459,21 @@ other better ways to reference things in Emacs.
    consult--source-recent-file consult--source-project-recent-file
    consult--source-bookmark
    :preview-key (kbd "M-."))
-
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
   (setq consult-project-root-function
         (lambda ()
           (when-let (project (project-current))
-            (car (project-roots project))))))
+            (car (project-roots project))))
+        completion-in-region-function ; Where Corfu cannot happen.
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args))))
 (add-to-list 'td/package-list 'consult)
 (add-to-list 'td/package-configs #'td/consult-config)
-#+end_src
-
-****** COMMENT Consult for CAPF
-Consult may used for =completion-at-point= if desired. I am on the fence about whether or not to use consult over something like [[* Corfu][Corfu]].
-#+begin_src elisp :tangle yes
-(add-to-list 'td/package-configs
-             #'(lambda ()
-                 "Use Consult for CAPF"
-                 (with-eval-after-load 'consult
-                   (setq tab-always-indent 'complete)
-                   (setq completion-in-region-function
-                         (lambda (&rest args)
-                           (apply (if vertico-mode
-                                      #'consult-completion-in-region
-                                    #'completion--in-region)
-                                  args))))))
 #+end_src
 
 ***** Marginalia
