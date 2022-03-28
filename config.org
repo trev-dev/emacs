@@ -280,33 +280,6 @@ A simple, but nicer looking modeline
     (when (bound-and-true-p flymake-mode)
       (telephone-line-raw flymake-mode-line-format t)))
 
-  (defcustom td/project-custom-name nil
-    "A custom directory-local name for a project.el project."
-    :type 'string)
-
-  ;; Props to 404cn for coming up with the idea for this segment for project.el
-  ;; https://github.com/dbordak/telephone-line/issues/124#issuecomment-1013603600
-  (defun td/project-name ()
-    (format "%s:"
-            (if (stringp td/project-custom-name)
-                td/project-custom-name
-              (file-name-nondirectory
-               (directory-file-name (project-root (project-current)))))))
-
-  (telephone-line-defsegment my--project-segment ()
-    (propertize (td/project-name)
-                'face 'telephone-line-projectile
-                'display '(raise 0.0)))
-
-  (telephone-line-defsegment* telephone-line-project-segment ()
-    "A segment for project.el."
-    (if (and (buffer-file-name)
-             (project-current))
-        (list ""
-              (funcall (my--project-segment) 'telephone-line-unimportant)
-              (propertize (file-relative-name (buffer-file-name))))
-      (telephone-line-raw mode-line-buffer-identification t)))
-
   (setq telephone-line-lhs
         '((emacs   . (just-emacs))
           (accent  . (telephone-line-vc-segment
