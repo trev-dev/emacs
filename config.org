@@ -23,6 +23,7 @@ Herein lies my Emacs configuration. Use it well
     - [[#dashboard][Dashboard]]
     - [[#diff-hl][Diff-hl]]
     - [[#elfeed][Elfeed]]
+    - [[#evil][Evil]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#goggles][Goggles]]
@@ -269,6 +270,7 @@ A simple, but nicer looking modeline
 
   (setq telephone-line-faces
         '((emacs . (my-emacs . telephone-line-accent-inactive))
+          (evil  . telephone-line-modal-face)
           (accent . (telephone-line-accent-active
                      . telephone-line-accent-inactive))
           (nil . (mode-line . mode-line-inactive))))
@@ -281,7 +283,7 @@ A simple, but nicer looking modeline
       (telephone-line-raw flymake-mode-line-format t)))
 
   (setq telephone-line-lhs
-        '((emacs   . (just-emacs))
+        '((evil    . (telephone-line-evil-tag-segment))
           (accent  . (telephone-line-vc-segment
                       telephone-line-erc-modified-channels-segment
                       telephone-line-process-segment))
@@ -292,7 +294,7 @@ A simple, but nicer looking modeline
         '((nil     . (td/flymake-segment
                       telephone-line-misc-info-segment))
           (accent  . (telephone-line-major-mode-segment))
-          (emacs   . (telephone-line-airline-position-segment))))
+          (evil    . (telephone-line-airline-position-segment))))
 
   (telephone-line-mode 1))
 (add-to-list 'td/package-list 'telephone-line)
@@ -543,6 +545,32 @@ RSS Reader :D
      (with-eval-after-load 'elfeed
        (elfeed-org)
        (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))))
+#+end_src
+
+**** Evil
+Am I Evil? Yes I am.
+#+begin_src elisp :tangle yes
+(defun td/evil-config ()
+  "Configure evil for Emacs."
+  (setq evil-undo-system 'undo-tree
+        evil-visual-state-cursor 'hbar
+        evil-want-keybinding nil)
+  (global-evil-surround-mode 1)
+  (add-hook 'ledger-mode-hook #'evil-ledger-mode)
+  (add-hook 'prog-mode-hook #'evil-commentary-mode)
+  (with-eval-after-load 'evil
+    (evil-collection-init))
+  (evil-mode 1))
+
+(dolist (pkg '(evil
+               evil-ledger
+               evil-surround
+               evil-commentary
+               evil-matchit
+               evil-collection))
+  (add-to-list 'td/package-list pkg))
+
+(add-to-list 'td/package-configs #'td/evil-config)
 #+end_src
 
 **** Expand Region
