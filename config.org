@@ -2,7 +2,7 @@
 :PROPERTIES:
 #+STARTUP: overview
 :END:
-Herein lies my Emacs configuration. Use it well. Be sure to check out the [[* About This Config][about section]] for alternate ways to use this repository.
+Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#about-this-config][about section]] for alternate ways to use this repository.
 
 ** Contents
 :PROPERTIES:
