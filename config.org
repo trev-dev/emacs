@@ -381,7 +381,7 @@ I like these, but they do tend to slow things down a bit.
                                 #'kind-icon-margin-formatter))))
 #+end_src
 
-***** Consult
+***** COMMENT Consult
 I am currently giving consult a try as my completion-at-point solution, amongst many
 other better ways to reference things in Emacs.
 #+begin_src elisp :tangle yes
