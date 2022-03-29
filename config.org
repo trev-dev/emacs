@@ -1,8 +1,8 @@
-* Emacs Configuration
+* Emacs Configuration - Evil Edition
 :PROPERTIES:
 #+STARTUP: overview
 :END:
-Herein lies my Emacs configuration. Use it well
+Herein lies my /Evil/ Emacs configuration. Use it well
 ** Contents
 :PROPERTIES:
 :TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
