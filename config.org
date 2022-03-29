@@ -2,7 +2,8 @@
 :PROPERTIES:
 #+STARTUP: overview
 :END:
-Herein lies my Emacs configuration. Use it well
+Herein lies my Emacs configuration. Use it well. Be sure to check out the [[* About This Config][about section]] for alternate ways to use this repository.
+
 ** Contents
 :PROPERTIES:
 :TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
@@ -1370,10 +1371,14 @@ If you've decided to fork this repository and wish to use it as-is, here are the
 
 *Note*: Config us currently set up for Emacs 29. Be sure to disable the weird bits, like [[* Performance Tweaks][compilation deferral]].
 
-1. Clone this repository to =~/.config/emacs=
-2. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
-3. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
-4. Run emacs for the first time.
+1. Clone this repository to =~/.config/emacs=.
+2. Optionally checkout an alternate edition. Your branch choices are:
+   - *main* - A combination of what works best for me currently.
+   - *evil* - It's like branch main, but it's /evil/.
+   - *holy* - A pure approach to emacs using only supported internals wherever possible. This is my best attempt at "minimalism" with Emacs.
+3. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
+4. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+5. Run emacs for the first time.
 
 *** Current Mindset
 At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going poorly, but it's getting better over time.
