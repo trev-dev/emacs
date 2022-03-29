@@ -27,7 +27,6 @@ Herein lies my Emacs configuration. Use it well
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#goggles][Goggles]]
-    - [[#hydra][Hydra]]
     - [[#magit][Magit]]
     - [[#mu4e][Mu4e]]
     - [[#ledger][Ledger]]
@@ -596,32 +595,6 @@ Goggles is light volatile highlights, but cooler. This is very handy for spottin
              #'(lambda () "Goggles config"
                  (add-hook 'prog-mode-hook 'goggles-mode)
                  (add-hook 'text-mode-hook 'goggles-mode)))
-#+end_src
-
-**** Hydra
-A tool for making repetative chords less cumbersome
-#+begin_src elisp :tangle yes
-(defun td/hydra-config ()
-  "Hydra configuration"
-  (defhydra hydra-window (global-map "C-c o")
-    "Hydra Windmove"
-    ("e" windmove-right "Right")
-    ("a" windmove-left "Left")
-    ("p" windmove-up "Up")
-    ("n" windmove-down "Down")
-    ("o" other-window "Other"))
-
-  (defhydra hydra-split (global-map "C-c p")
-    "Hydra Split"
-    ("v" split-window-right "Vertically")
-    ("h" split-window-below "Horizontally")
-    ("d" delete-window "Delete")
-    ("=" enlarge-window "Enlarge")
-    ("-" shrink-window "Shrink")
-    ("b" balance-windows "Balance")
-    ("D" delete-other-windows "Delete Others")))
-(add-to-list 'td/package-list 'hydra)
-(add-to-list 'td/package-configs #'td/hydra-config)
 #+end_src
 
 **** Magit
