@@ -36,9 +36,9 @@ Herein lies my Emacs configuration. Use it well
   - [[#syntax-support][Syntax Support]]
     - [[#cssscss][CSS/SCSS]]
     - [[#emmet][Emmet]]
-    - [[#eglot][Eglot]]
-    - [[#flymake][Flymake]]
+    - [[#flycheck][Flycheck]]
     - [[#golang][GoLang]]
+    - [[#lsp-mode][LSP Mode]]
     - [[#markdown][Markdown]]
     - [[#org][Org]]
     - [[#php][PHP]]
@@ -275,11 +275,6 @@ A simple, but nicer looking modeline
 
   (telephone-line-defsegment just-emacs () "EMACS")
 
-  (telephone-line-defsegment td/flymake-segment ()
-    "Wraps `flymake-mode' mode-line information in a telephone-line segment."
-    (when (bound-and-true-p flymake-mode)
-      (telephone-line-raw flymake-mode-line-format t)))
-
   (setq telephone-line-lhs
         '((emacs   . (just-emacs))
           (accent  . (telephone-line-vc-segment
@@ -289,7 +284,7 @@ A simple, but nicer looking modeline
                       telephone-line-buffer-segment))))
 
   (setq telephone-line-rhs
-        '((nil     . (td/flymake-segment
+        '((nil     . (telephone-line-flycheck-segment
                       telephone-line-misc-info-segment))
           (accent  . (telephone-line-major-mode-segment))
           (emacs   . (telephone-line-airline-position-segment))))
@@ -314,6 +309,31 @@ Packages that extend and augment emacs in a general way
 **** Completions
 A combination of packages to enhance completions, centered around [[https://github.com/minad][Minad's]] work. There are a few packages to implement here. This section is a work in progress.
 
+***** COMMENT Company
+Completions at point/region.
+#+begin_src elisp :tangle yes
+(defun td/company-config ()
+  "Company mode configuration."
+  (defun td/company-prog-hook ()
+    "Completions for programming."
+    (setq-local company-backends
+                '(company-capf
+                  company-dabbrev-code
+                  company-keywords
+                  company-files
+                  company-yasnippet)
+                company-dabbrev-other-buffers t))
+  (setq company-backends '(company-capf
+                           company-ispell
+                           company-files)
+        company-files-exclusions '(".git/")
+        company-idle-delay 0)
+  (add-hook 'prog-mode-hook #'td/company-prog-hook)
+  (add-hook 'after-init-hook #'global-company-mode))
+(add-to-list 'td/package-list 'company)
+(add-to-list 'td/package-configs #'td/company-config)
+#+end_src
+
 ***** Cape
 Add extensions for completion-at-point-functions.
 #+begin_src elisp :tangle yes
@@ -334,7 +354,7 @@ Drop-down style completion-at-point in a child frame. Kind-Icon adds fluff.
 (defun td/corfu-config ()
   "Configuration for corfu, cape & kind-icon."
   (setq corfu-cycle t
-        corfu-auto nil ; use ESC TAB to start suggestions.
+        corfu-auto t
         corfu-preselect-first nil
         corfu-echo-documentation t)
   (with-eval-after-load 'corfu
@@ -401,7 +421,7 @@ other better ways to reference things in Emacs.
                        ("<help> a" . consult-apropos)
                        ;; M-g bindings (goto-map)
                        ("M-g e" . consult-compile-error)
-                       ("M-g f" . consult-flymake) ; or flycheck?
+                       ("M-g f" . consult-flycheck) ; or flymake?
                        ("M-g g" . consult-goto-line)
                        ("M-g M-g" . consult-goto-line)
                        ("M-g o" . consult-outline)
@@ -446,6 +466,7 @@ other better ways to reference things in Emacs.
                    #'completion--in-region)
                  args))))
 (add-to-list 'td/package-list 'consult)
+(add-to-list 'td/package-list 'consult-flycheck)
 (add-to-list 'td/package-configs #'td/consult-config)
 #+end_src
 
@@ -687,7 +708,6 @@ Knowing what resources you have at your disposal and learning how to budget are 
 (add-to-list 'td/package-list 'ledger-mode)
 (add-to-list 'td/package-configs
              #'(lambda ()
-                 (add-hook 'ledger-mode-hook #'flymake-mode)
                  (with-eval-after-load 'ledger-mode
                    (setq ledger-use-native-highlighting t))))
 #+end_src
@@ -747,67 +767,63 @@ We're getting into to the language specific stuff now. Much of this is specifica
 (add-to-list 'td/package-configs #'td/emmet-conf)
 #+end_src
 
-**** Eglot
-Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be leaner, faster and less intense.
+**** Flycheck
 #+begin_src elisp :tangle yes
-(defun td/eglot-conf ()
-  "Eglot configuration."
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
-    (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
-    (add-to-list 'eglot-server-programs '(shopify-mode
-                                          . ("theme-check-language-server" "--stdio")))
-    (td/bind-many-keys '(("C-c e r" . eglot-rename)
-                         ("C-c e d" . eglot-find-typeDefinition)
-                         ("C-c e D" . eglot-find-declaration)
-                         ("C-c e f" . eglot-format)
-                         ("C-c e F" . eglot-format-buffer)
-                         ("C-c e R" . eglot-reconnect)) eglot-mode-map)
-    (add-hook 'eglot-managed-mode-hook
-              #'(lambda ()
-                  "Make sure Eldoc will show us all of the feedback at point."
-                  (setq-local eldoc-documentation-strategy
-                              #'eldoc-documentation-compose))))
-  (dolist (mode '(css-mode-hook
-                  scss-mode-hook
-                  php-mode-hook
-                  js-mode-hook
-                  rjsx-mode-hook
-                  typescript-mode-hook
-                  svelte-mode-hook))
-    (add-hook mode #'eglot-ensure)))
+(defun td/flycheck-config ()
+  "Flycheck Configuration"
+  (dolist (mode '(ledger-mode-hook
+                  prog-mode-hook))
+    (add-hook mode #'flycheck-mode))
+  (global-set-key (kbd "C-c f") #'flycheck-mode)
+  (define-fringe-bitmap 'flycheck-fringe-bitmap-caret
+    (vector #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b10000000
+            #b11000000
+            #b11100000
+            #b11110000
+            #b11100000
+            #b11000000
+            #b10000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000
+            #b00000000))
+  (with-eval-after-load 'flycheck
+    (setq flycheck-checker-error-threshold 1000)
+    (flycheck-define-error-level
+     'error
+     :severity 100
+     :compilation-level 2
+     :overlay-category 'flycheck-error-overlay
+     :fringe-bitmap 'flycheck-fringe-bitmap-caret
+     :fringe-face 'flycheck-fringe-error
+     :error-list-face 'flycheck-error-list-error)
+    (flycheck-define-error-level
+     'warning
+     :severity 100
+     :compilation-level 1
+     :overlay-category 'flycheck-warning-overlay
+     :fringe-bitmap 'flycheck-fringe-bitmap-caret
+     :fringe-face 'flycheck-fringe-warning
+     :warning-list-face 'flycheck-warning-list-warning)
+    (flycheck-define-error-level
+     'info
+     :severity 100
+     :compilation-level 1
+     :overlay-category 'flycheck-info-overlay
+     :fringe-bitmap 'flycheck-fringe-bitmap-caret
+     :fringe-face 'flycheck-fringe-info
+     :info-list-face 'flycheck-info-list-info))
+  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode))
 
-(add-to-list 'td/package-list 'eglot)
-(add-to-list 'td/package-configs #'td/eglot-conf)
-#+end_src
-
-**** Flymake
-The built-in linting package.
-
-#+begin_src elisp :tangle yes
-(define-fringe-bitmap 'small-right-triangle
-  (vector #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b10000000
-          #b11000000
-          #b11100000
-          #b11110000
-          #b11100000
-          #b11000000
-          #b10000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000))
-
-(setq flymake-note-bitmap '(small-right-triangle compilation-info)
-      flymake-error-bitmap '(small-right-triangle compilation-error)
-      flymake-warning-bitmap '(small-right-triangle compilation-warning))
-(add-hook 'emacs-lisp-mode-hook #'flymake-mode)
+(add-to-list 'td/package-list 'flycheck)
+(add-to-list 'td/package-list 'flycheck-ledger)
+(add-to-list 'td/package-configs #'td/flycheck-config)
 #+end_src
 
 **** GoLang
@@ -817,6 +833,50 @@ The built-in linting package.
 (add-to-list 'td/package-configs
              #'(lambda ()
                  (add-to-list 'auto-mode-alist '("\\.go\\'". go-mode))))
+#+end_src
+
+**** LSP Mode
+#+begin_src elisp :tangle yes
+(defun td/lsp-mode-config ()
+  "LSP mode configurations"
+  (setq lsp-keymap-prefix "C-c l")
+  (dolist (mode '(css-mode-hook
+                  scss-mode-hook
+                  html-mode-hook
+                  js-mode-hook
+                  json-mode-hook
+                  python-mode-hook
+                  php-mode-hook
+                  rust-mode-hook
+                  scss-mode-hook
+                  svelte-mode-hook
+                  typescript-mode-hook
+                  vue-mode-hook
+                  yaml-mode-hook))
+    (add-hook mode #'(lambda () (lsp) (consult-lsp-marginalia-mode))))
+  (with-eval-after-load 'lsp-mode
+    (setq lsp-log-io nil
+          lsp-enable-folding nil
+          lsp-clients-typescript-server-args '("--stdio"
+                                               "--tsserver-log-file"
+                                               "/dev/stderr"))
+    (add-to-list
+     'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'")
+    (add-to-list 'lsp-language-id-configuration
+                 '(shopify-mode . "shopify"))
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection
+                                       "theme-check-language-server")
+                      :activation-fn (lsp-activate-on "shopify")
+                      :server-id 'theme-check)))
+  (setq lsp-ui-doc-show-with-cursor t)
+  (td/bind-many-keys '(("C-c l c d" . consult-lsp-diagnostics)
+                       ("C-c l c s" . consult-lsp-symbols)
+                       ("C-c l c S" . consult-lsp-file-symbols))))
+(add-to-list 'td/package-list 'lsp-mode)
+(add-to-list 'td/package-list 'lsp-ui)
+(add-to-list 'td/package-list 'consult-lsp)
+(add-to-list 'td/package-configs #'td/lsp-mode-config)
 #+end_src
 
 **** Markdown
