@@ -566,7 +566,6 @@ Am I Evil? Yes I am.
                evil-ledger
                evil-surround
                evil-commentary
-               evil-matchit
                evil-collection))
   (add-to-list 'td/package-list pkg))
 
