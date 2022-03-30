@@ -26,7 +26,6 @@ Herein lies my /Evil/ Emacs configuration. Use it well
     - [[#evil][Evil]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
-    - [[#goggles][Goggles]]
     - [[#magit][Magit]]
     - [[#mu4e][Mu4e]]
     - [[#ledger][Ledger]]
@@ -606,16 +605,6 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'exec-path-from-shell)
 (add-to-list 'td/package-configs #'exec-path-from-shell-initialize)
-#+end_src
-
-**** Goggles
-Goggles is light volatile highlights, but cooler. This is very handy for spotting buffer changes that are intentional, or perhaps unintentional.
-#+begin_src elisp :tangle yes
-(add-to-list 'td/package-list 'goggles)
-(add-to-list 'td/package-configs
-             #'(lambda () "Goggles config"
-                 (add-hook 'prog-mode-hook 'goggles-mode)
-                 (add-hook 'text-mode-hook 'goggles-mode)))
 #+end_src
 
 **** Magit
