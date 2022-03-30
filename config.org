@@ -760,6 +760,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 #+end_src
 
 **** Flycheck
+
 #+begin_src elisp :tangle yes
 (defun td/flycheck-config ()
   "Flycheck Configuration"
