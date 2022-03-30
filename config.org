@@ -94,7 +94,8 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (setq display-line-numbers-type 'relative
       inhibit-startup-screen t
       initial-scratch-message ""
-      history-length 25)
+      history-length 25
+      sentence-end-double-space nil)
 (global-visual-line-mode 1)
 (recentf-mode 1)
 (save-place-mode 1)
