@@ -308,9 +308,9 @@ Packages that extend and augment emacs in a general way
 #+end_src
 
 **** Completions
-A combination of packages to enhance completions, centered around [[https://github.com/minad][Minad's]] work. There are a few packages to implement here. This section is a work in progress.
+A combination of packages to enhance completions.
 
-***** COMMENT Company
+***** Company
 Completions at point/region.
 #+begin_src elisp :tangle yes
 (defun td/company-config ()
@@ -333,52 +333,6 @@ Completions at point/region.
   (add-hook 'after-init-hook #'global-company-mode))
 (add-to-list 'td/package-list 'company)
 (add-to-list 'td/package-configs #'td/company-config)
-#+end_src
-
-***** Cape
-Add extensions for completion-at-point-functions.
-#+begin_src elisp :tangle yes
-(add-to-list 'td/package-list 'cape)
-(add-to-list 'td/package-configs
-             #'(lambda () "Cape completions at point extensions."
-                 (add-to-list 'completion-at-point-functions #'cape-file)
-                 (add-to-list 'completion-at-point-functions #'cape-tex)
-                 (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-                 (add-to-list 'completion-at-point-functions #'cape-keyword)
-                 (add-to-list 'completion-at-point-functions #'cape-ispell)))
-#+end_src
-
-***** Corfu
-Drop-down style completion-at-point in a child frame. Kind-Icon adds fluff.
-
-#+begin_src elisp :tangle yes
-(defun td/corfu-config ()
-  "Configuration for corfu, cape & kind-icon."
-  (setq corfu-cycle t
-        corfu-auto t
-        corfu-preselect-first nil
-        corfu-echo-documentation t)
-  (with-eval-after-load 'corfu
-    (td/bind-many-keys '(("M-/" . dabbrev-completion)
-                         ("C-M-/" . dabbrev-expand))))
-  (corfu-global-mode))
-(add-to-list 'td/package-list 'corfu)
-(add-to-list 'td/package-configs #'td/corfu-config)
-#+end_src
-
-****** Kind Icons
-I like these, but they do tend to slow things down a bit.
-#+begin_src elisp :tangle yes
-(add-to-list 'td/package-list 'kind-icon)
-(add-to-list 'td/package-configs
-             #'(lambda ()
-                 "Kind icon config for corfu"
-                 (require 'kind-icon)
-                 (with-eval-after-load 'corfu
-                   (setq kind-icon-default-face 'corfu-default
-                         kind-icon-use-icons t)
-                   (add-to-list 'corfu-margin-formatters
-                                #'kind-icon-margin-formatter))))
 #+end_src
 
 ***** Consult
