@@ -100,6 +100,9 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (global-auto-revert-mode 1)
 (fringe-mode '(4 . 0))
 (defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Other
+(setq sentence-end-double-space nil) ; Messes with evil sentence motions.
 #+end_src
 
 Set up the dictionary and preferred browser.
