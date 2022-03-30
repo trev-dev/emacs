@@ -1326,11 +1326,13 @@ If you've decided to fork this repository and wish to use it as-is, here are the
 5. Run emacs for the first time.
 
 *** Current Mindset
-At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going poorly, but it's getting better over time.
+At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going well, and it's getting better over time.
 
-I have some configs here that are tagged as either :fav: or :disabled:
+Branch main is my preferred, hopefully not broken configuration. It's a mix of what feels like the best tools/packages for what I want to do.
 
-As I play with this config and refine my preferences I've lost the point in deleting/re-adding perfectly good configs that I may want to revist. If you see something you like, by all means, enable it. It /should/ work. Headings tagged with :disabled: are simply set to =:tangle no=.
+The *holy* branch is an experimental config geared toward staunch support for using supported internals only. It uses packages like Eglot, Corfu, Cape, etc.
+
+The /evil/ branch is very similar to the main branch, but it uses vim bindings. Every now and again I get the itch to keep it Vimmy. It never seems to last in Emacs, so the branch is kept separate for myself or anyone else who cares to use it.
 
 *** Licenses
 - For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
