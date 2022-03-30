@@ -26,7 +26,6 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[* Ab
     - [[#elfeed][Elfeed]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
-    - [[#goggles][Goggles]]
     - [[#hydra][Hydra]]
     - [[#magit][Magit]]
     - [[#mu4e][Mu4e]]
@@ -92,15 +91,15 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (blink-cursor-mode 1)
-(setq display-line-numbers-type 'relative)
+(setq display-line-numbers-type 'relative
+      inhibit-startup-screen t
+      initial-scratch-message ""
+      history-length 25)
 (global-visual-line-mode 1)
 (recentf-mode 1)
-(setq history-length 25)
 (save-place-mode 1)
 (global-auto-revert-mode 1)
 (fringe-mode '(4 . 0))
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message "")
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
@@ -537,16 +536,6 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 (add-to-list 'td/package-configs #'exec-path-from-shell-initialize)
 #+end_src
 
-**** Goggles
-Goggles is light volatile highlights, but cooler. This is very handy for spotting buffer changes that are intentional, or perhaps unintentional.
-#+begin_src elisp :tangle yes
-(add-to-list 'td/package-list 'goggles)
-(add-to-list 'td/package-configs
-             #'(lambda () "Goggles config"
-                 (add-hook 'prog-mode-hook 'goggles-mode)
-                 (add-hook 'text-mode-hook 'goggles-mode)))
-#+end_src
-
 **** Hydra
 A tool for making repetative chords less cumbersome
 #+begin_src elisp :tangle yes
@@ -723,6 +712,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 #+end_src
 
 **** Flycheck
+
 #+begin_src elisp :tangle yes
 (defun td/flycheck-config ()
   "Flycheck Configuration"
