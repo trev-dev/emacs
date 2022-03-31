@@ -814,7 +814,10 @@ We're getting into to the language specific stuff now. Much of this is specifica
           lsp-enable-folding nil
           lsp-clients-typescript-server-args '("--stdio"
                                                "--tsserver-log-file"
-                                               "/dev/stderr"))
+                                               "/dev/stderr")
+          lsp-auto-guess-root t
+          lsp-keep-workspace-alive nil
+          lsp-eldoc-enable-hover nil)
     (add-to-list
      'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'")
     (add-to-list 'lsp-language-id-configuration
