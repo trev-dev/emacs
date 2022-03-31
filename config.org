@@ -265,18 +265,11 @@ A simple, but nicer looking modeline
         telephone-line-secondary-right-separator
         'telephone-line-cubed-hollow-right)
 
-  (defface my-emacs
-    '((t (:background "#7455ac" :foreground "white" :weight bold)))
-    "A face for EMACS that isn't evil.")
-
   (setq telephone-line-faces
-        '((emacs . (my-emacs . telephone-line-accent-inactive))
-          (evil  . telephone-line-modal-face)
+        '((evil  . telephone-line-modal-face)
           (accent . (telephone-line-accent-active
                      . telephone-line-accent-inactive))
           (nil . (mode-line . mode-line-inactive))))
-
-  (telephone-line-defsegment just-emacs () "EMACS")
 
   (setq telephone-line-lhs
         '((evil    . (telephone-line-evil-tag-segment))
