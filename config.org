@@ -331,7 +331,7 @@ Packages that extend and augment emacs in a general way
 (defun td/avy-conf ()
   "Avy configuration"
   (with-eval-after-load 'avy
-    (global-set-key (kbd "C-;") 'avy-goto-char-2))
+    (global-set-key (kbd "C-;") 'avy-goto-char-timer))
   (avy-setup-default))
 (add-to-list 'td/package-list 'avy)
 (add-to-list 'td/package-configs #'td/avy-conf)
@@ -371,7 +371,7 @@ Drop-down style completion-at-point in a child frame. Kind-Icon adds fluff.
 (add-to-list 'td/package-configs #'td/corfu-config)
 #+end_src
 
-****** COMMENT Kind Icons
+****** Kind Icons
 I like these, but they do tend to slow things down a bit.
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'kind-icon)
@@ -381,7 +381,7 @@ I like these, but they do tend to slow things down a bit.
                  (require 'kind-icon)
                  (with-eval-after-load 'corfu
                    (setq kind-icon-default-face 'corfu-default
-                         kind-icon-use-icons nil)
+                         kind-icon-use-icons t)
                    (add-to-list 'corfu-margin-formatters
                                 #'kind-icon-margin-formatter))))
 #+end_src
@@ -640,7 +640,7 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
 (add-to-list 'td/package-list 'magit)
 (add-to-list 'td/package-configs
              #'(lambda () "Magit config."
-                 (global-set-key (kbd "C-c g") 'magit-status)))
+                 (global-set-key (kbd "M-o g") 'magit-status)))
 #+end_src
 
 **** Mu4e
