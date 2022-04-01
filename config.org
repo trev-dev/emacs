@@ -519,6 +519,18 @@ RSS Reader :D
 **** Evil
 Am I Evil? Yes I am.
 #+begin_src elisp :tangle yes
+(defun td/evil-bindings ()
+  "Create some extra evil bindings."
+  (evil-set-leader 'normal (kbd "\\"))
+  ;; General
+  (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
+  (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
+  (evil-define-key 'normal 'global (kbd "<leader>fb") 'list-buffers)
+  ;; LSP
+  (evil-define-key 'normal 'lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
+  ;; Magit
+  (evil-define-key 'normal 'global (kbd "gs") 'magit))
+
 (defun td/evil-config ()
   "Configure evil for Emacs."
   (setq evil-undo-system 'undo-tree
@@ -529,6 +541,7 @@ Am I Evil? Yes I am.
   (add-hook 'prog-mode-hook #'evil-commentary-mode)
   (with-eval-after-load 'evil
     (evil-collection-init))
+  (td/evil-bindings)
   (evil-mode 1))
 
 (dolist (pkg '(evil
