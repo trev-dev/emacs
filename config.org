@@ -825,7 +825,6 @@ We're getting into to the language specific stuff now. Much of this is specifica
                                        "theme-check-language-server")
                       :activation-fn (lsp-activate-on "shopify")
                       :server-id 'theme-check)))
-  (setq lsp-ui-doc-show-with-cursor t)
   (td/bind-many-keys '(("C-c l c d" . consult-lsp-diagnostics)
                        ("C-c l c s" . consult-lsp-symbols)
                        ("C-c l c S" . consult-lsp-file-symbols))))
