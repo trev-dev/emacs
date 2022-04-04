@@ -220,10 +220,10 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
 #+begin_src elisp :tangle yes
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "JetBrains Mono 10"))
+(add-to-list 'default-frame-alist '(font . "Source Code Pro Semibold 10"))
 #+end_src
 
-Ligatures, in a separate block so that they are easy to disable. These don't always work well across versions and updates.
+***** COMMENT Ligatures
 #+begin_src elisp :tangle yes
 (defun td/ligatures-conf ()
   "Ligature.el configuration."
