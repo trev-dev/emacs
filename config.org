@@ -216,7 +216,6 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark" as a standalone thing.
 
 **** Font Setup
-I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and I'm really enjoying it.
 
 #+begin_src elisp :tangle yes
 (set-language-environment "UTF-8")
