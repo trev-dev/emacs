@@ -302,7 +302,7 @@ Packages that extend and augment emacs in a general way
 (defun td/avy-conf ()
   "Avy configuration"
   (with-eval-after-load 'avy
-    (global-set-key (kbd "C-;") 'avy-goto-char-timer))
+    (global-set-key (kbd "C-.") 'avy-goto-char-timer))
   (avy-setup-default))
 (add-to-list 'td/package-list 'avy)
 (add-to-list 'td/package-configs #'td/avy-conf)
