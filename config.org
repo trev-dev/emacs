@@ -30,6 +30,7 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#magit][Magit]]
     - [[#mu4e][Mu4e]]
     - [[#ledger][Ledger]]
+    - [[#sensitive-mode][Sensitive Mode]]
     - [[#rg][RG]]
     - [[#undo-tree][Undo-Tree]]
     - [[#which-key][Which-key]]
@@ -663,6 +664,36 @@ Knowing what resources you have at your disposal and learning how to budget are 
              #'(lambda ()
                  (with-eval-after-load 'ledger-mode
                    (setq ledger-use-native-highlighting t))))
+#+end_src
+
+**** Sensitive Mode
+Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21.html][Anirudh Sasikumar]]. It has been adapted to accomodate undo-tree. This prevents emacs from generating unencrypted backups & autosave data from =.gpg= files.
+
+#+begin_src elisp :tangle yes
+(defun td/config-sensitive-mode ()
+  "Initialize sensitive-mode."
+  (define-minor-mode sensitive-mode
+    "A minor-mode for preventing auto-saves and back-ups for encrypted files."
+    nil
+    " Sensitive"
+    nil
+    (if (symbol-value sensitive-mode)
+        (progn
+          ;; disable backups
+          (set (make-local-variable 'backup-inhibited) t)
+          ;; disable auto-save
+          (if auto-save-default
+              (auto-save-mode -1))
+          ;; disable undo-tree history(?)
+          (when (bound-and-true-p undo-tree-mode)
+            (undo-tree-mode -1)))
+      (kill-local-variable 'backup-inhibited)
+      (if auto-save-default
+          (auto-save-mode 1))
+      (when (bound-and-true-p global-undo-tree-mode)
+        (undo-tree-mode 1)))))
+
+(add-to-list 'td/package-configs #'td/config-sensitive-mode)
 #+end_src
 
 **** RG
