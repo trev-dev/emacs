@@ -395,6 +395,10 @@ other better ways to reference things in Emacs.
                        ("M-s m" . consult-multi-occur)
                        ("M-s k" . consult-keep-lines)
                        ("M-s u" . consult-focus-lines)
+                       ;; LSP
+                       ("C-c l c d" . consult-lsp-diagnostics)
+                       ("C-c l c s" . consult-lsp-symbols)
+                       ("C-c l c S" . consult-lsp-file-symbols)
                        ;; Isearch integration
                        ("M-s e" . consult-isearch-history)))
   (define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
@@ -859,10 +863,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
                                        "theme-check-language-server")
                       :activation-fn (lsp-activate-on "shopify")
                       :server-id 'theme-check))
-    (lsp-enable-which-key-integration))
-  (td/bind-many-keys '(("C-c l c d" . consult-lsp-diagnostics)
-                       ("C-c l c s" . consult-lsp-symbols)
-                       ("C-c l c S" . consult-lsp-file-symbols))))
+    (lsp-enable-which-key-integration)))
 (add-to-list 'td/package-list 'lsp-mode)
 (add-to-list 'td/package-list 'lsp-ui)
 (add-to-list 'td/package-list 'consult-lsp)
