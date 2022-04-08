@@ -184,6 +184,10 @@ Can be an integer to determine the exact padding."
    (org-special-keyword :foreground cyan :height 0.85)
    (org-property-value :foreground fg-alt :height 0.85)
    (org-tag :foreground fg-alt :height 0.85)
+   (org-document-info-keyword :foreground red :height 0.85)
+   (org-document-info :foreground fg-alt :height 0.85)
+   (org-document-title :foreground yellow :height 0.85)
+
    ;;;; css
    (css-property :foreground orange)
    (css-proprietary-property :foreground magenta)
