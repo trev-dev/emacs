@@ -309,30 +309,52 @@ Packages that extend and augment emacs in a general way
 #+end_src
 
 **** Completions
-A combination of packages to enhance completions.
+A combination of packages to enhance completions, centered around [[https://github.com/minad][Minad's]] work. There are a few packages to implement here. This section is a work in progress.
 
-***** Company
-Completions at point/region.
+***** Cape
+Add extensions for completion-at-point-functions.
 #+begin_src elisp :tangle yes
-(defun td/company-config ()
-  "Company mode configuration."
-  (defun td/company-prog-hook ()
-    "Completions for programming."
-    (setq-local company-backends
-                '(company-capf
-                  company-dabbrev-code
-                  company-keywords
-                  company-files
-                  company-yasnippet)
-                company-dabbrev-other-buffers t))
-  (setq company-backends '(company-capf
-                           company-ispell
-                           company-files)
-        company-files-exclusions '(".git/"))
-  (add-hook 'prog-mode-hook #'td/company-prog-hook)
-  (add-hook 'after-init-hook #'global-company-mode))
-(add-to-list 'td/package-list 'company)
-(add-to-list 'td/package-configs #'td/company-config)
+(add-to-list 'td/package-list 'cape)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 "Cape completions at point extensions."
+                 (add-to-list 'completion-at-point-functions #'cape-file)
+                 (add-to-list 'completion-at-point-functions #'cape-tex)
+                 (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+                 (add-to-list 'completion-at-point-functions #'cape-keyword)))
+#+end_src
+
+***** Corfu
+Drop-down style completion-at-point in a child frame. Kind-Icon adds fluff.
+
+#+begin_src elisp :tangle yes
+(defun td/corfu-config ()
+  "Configuration for corfu, cape & kind-icon."
+  (setq corfu-cycle t
+        corfu-auto t
+        corfu-preselect-first nil
+        tab-always-indent 'complete)
+  (with-eval-after-load 'corfu
+    (td/bind-many-keys '(("M-/" . dabbrev-completion)
+                         ("C-M-/" . dabbrev-expand))))
+  (corfu-global-mode))
+(add-to-list 'td/package-list 'corfu)
+(add-to-list 'td/package-configs #'td/corfu-config)
+#+end_src
+
+****** Kind Icons
+I like these, but they do tend to slow things down a bit.
+#+begin_src elisp :tangle yes
+(add-to-list 'td/package-list 'kind-icon)
+(add-to-list 'td/package-configs
+             #'(lambda ()
+                 "Kind icon config for corfu"
+                 (require 'kind-icon)
+                 (with-eval-after-load 'corfu
+                   (setq kind-icon-default-face 'corfu-default
+                         kind-icon-use-icons t)
+                   (add-to-list 'corfu-margin-formatters
+                                #'kind-icon-margin-formatter))))
 #+end_src
 
 ***** Consult
@@ -395,10 +417,6 @@ other better ways to reference things in Emacs.
                        ("M-s m" . consult-multi-occur)
                        ("M-s k" . consult-keep-lines)
                        ("M-s u" . consult-focus-lines)
-                       ;; LSP
-                       ("C-c l c d" . consult-lsp-diagnostics)
-                       ("C-c l c s" . consult-lsp-symbols)
-                       ("C-c l c S" . consult-lsp-file-symbols)
                        ;; Isearch integration
                        ("M-s e" . consult-isearch-history)))
   (define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
@@ -411,6 +429,7 @@ other better ways to reference things in Emacs.
    consult--source-recent-file consult--source-project-recent-file
    consult--source-bookmark
    :preview-key (kbd "M-."))
+
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
@@ -418,12 +437,13 @@ other better ways to reference things in Emacs.
         (lambda ()
           (when-let (project (project-current))
             (car (project-roots project))))
-        completion-in-region-function ; Where Corfu cannot happen.
+        completion-in-region-function
         (lambda (&rest args)
-          (apply (if vertico-mode
+          (apply (if (and vertico-mode (not (display-graphic-p)))
                      #'consult-completion-in-region
                    #'completion--in-region)
                  args))))
+
 (add-to-list 'td/package-list 'consult)
 (add-to-list 'td/package-list 'consult-flycheck)
 (add-to-list 'td/package-configs #'td/consult-config)
