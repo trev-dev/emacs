@@ -1,9 +1,8 @@
 (defgroup td/org-mode nil
   "A custom group for trevdev's org mode customizations")
-(defcustom td/billable-rate 65
+(defcustom td/billable-rate 80
   "The billable rate for calculating 'td/custom-clocktable"
   :type `integer
-  :options '(50, 65, 75, 80)
   :group 'td/org-mode)
 
 (defun td/custom-clocktable-indent (level)
