@@ -545,6 +545,8 @@ Am I Evil? Yes I am.
 (defun td/evil-bindings ()
   "Create some extra evil bindings."
   (evil-set-leader 'normal (kbd "\\"))
+  ;; Avy
+  (evil-define-key 'normal 'global (kbd "<leader>s") 'avy-goto-char-timer)
   ;; General
   (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
