@@ -94,16 +94,15 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (setq display-line-numbers-type 'relative
       inhibit-startup-screen t
       initial-scratch-message ""
-      history-length 25)
+      history-length 25
+      sentence-end-double-space nil
+      visible-bell t)
 (global-visual-line-mode 1)
 (recentf-mode 1)
 (save-place-mode 1)
 (global-auto-revert-mode 1)
 (fringe-mode '(4 . 0))
 (defalias 'yes-or-no-p 'y-or-n-p)
-
-;; Other
-(setq sentence-end-double-space nil) ; Messes with evil sentence motions.
 #+end_src
 
 Set up the dictionary and preferred browser.
@@ -1395,3 +1394,4 @@ As I play with this config and refine my preferences I've lost the point in dele
 
 *** Licenses
 - For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
+  
