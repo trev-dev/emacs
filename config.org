@@ -591,7 +591,8 @@ A tool for making repetative chords less cumbersome
     ("a" org-up-element "Up one level")
     ("e" org-down-element "Down one level")
     ("p" org-backward-element "Move to previous")
-    ("n" org-forward-element "Move to next")))
+    ("n" org-forward-element "Move to next")
+    ("TAB" org-cycle "Cycle element")))
 
 (add-to-list 'td/package-list 'hydra)
 (add-to-list 'td/package-configs #'td/hydra-config)
