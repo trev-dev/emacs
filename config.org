@@ -730,7 +730,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 #+end_src
 
 **** Undo-Tree
-Mostly want undo tree for better redo support for Evil
+A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
 
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'undo-tree)
