@@ -550,8 +550,14 @@ Am I Evil? Yes I am.
   (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fb") 'consult-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>m") 'mu4e)
+  (evil-define-key 'normal 'global (kbd "<leader>e") 'elfeed)
   ;; LSP
   (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
+  ;; Org
+  (evil-define-key 'normal org-mode-map (kbd "<leader>ci") 'org-clock-in)
+  (evil-define-key 'normal org-mode-map (kbd "<leader>co") 'org-clock-out)
+  (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
   ;; Magit
   (evil-define-key 'normal 'global (kbd "gs") 'magit))
 
