@@ -551,7 +551,7 @@ Am I Evil? Yes I am.
   (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fb") 'consult-buffer)
   ;; LSP
-  (evil-define-key 'normal 'lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
+  (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
   ;; Magit
   (evil-define-key 'normal 'global (kbd "gs") 'magit))
 
