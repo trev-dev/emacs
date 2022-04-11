@@ -564,7 +564,11 @@ Am I Evil? Yes I am.
   (add-hook 'ledger-mode-hook #'evil-ledger-mode)
   (add-hook 'prog-mode-hook #'evil-commentary-mode)
   (with-eval-after-load 'evil
-    (evil-collection-init))
+    (require 'evil-org)
+    (require 'evil-org-agenda)
+    (evil-collection-init)
+    (evil-org-agenda-set-keys)
+    (add-hook 'org-mode-hook #'evil-org-mode))
   (td/evil-bindings)
   (evil-mode 1))
 
@@ -572,7 +576,8 @@ Am I Evil? Yes I am.
                evil-ledger
                evil-surround
                evil-commentary
-               evil-collection))
+               evil-collection
+               evil-org))
   (add-to-list 'td/package-list pkg))
 
 (add-to-list 'td/package-configs #'td/evil-config)
@@ -744,7 +749,11 @@ What the heck was that keybind again? If you can remember how it starts, which-k
 
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'which-key)
-(add-to-list 'td/package-configs #'which-key-mode)
+(add-to-list
+ 'td/package-configs #'(lambda ()
+                         (with-eval-after-load 'evil
+                           (setq which-key-show-operator-state-maps t)
+                           (which-key-mode))))
 #+end_src
 
 *** Syntax Support
