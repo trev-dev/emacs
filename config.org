@@ -31,7 +31,6 @@ Herein lies my /Evil/ Emacs configuration. Use it well
     - [[#ledger][Ledger]]
     - [[#sensitive-mode][Sensitive Mode]]
     - [[#rg][RG]]
-    - [[#undo-tree][Undo-Tree]]
     - [[#which-key][Which-key]]
   - [[#syntax-support][Syntax Support]]
     - [[#cssscss][CSS/SCSS]]
@@ -563,7 +562,7 @@ Am I Evil? Yes I am.
 
 (defun td/evil-config ()
   "Configure evil for Emacs."
-  (setq evil-undo-system 'undo-tree
+  (setq evil-undo-system 'undo-redo
         evil-visual-state-cursor 'hbar
         evil-want-keybinding nil)
   (global-evil-surround-mode 1)
@@ -734,20 +733,6 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'rg)
 (add-to-list 'td/package-configs #'rg-enable-default-bindings)
-#+end_src
-
-**** Undo-Tree
-A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
-
-#+begin_src elisp :tangle yes
-(add-to-list 'td/package-list 'undo-tree)
-(add-to-list 'td/package-configs
-             #'(lambda () "Undo tree config"
-                 (with-eval-after-load 'undo-tree
-                   (add-to-list
-                    'undo-tree-history-directory-alist
-                    '(".*" . "~/.emacs.d/undo-tree/")))
-                 (global-undo-tree-mode)))
 #+end_src
 
 **** Which-key
