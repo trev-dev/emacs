@@ -1317,15 +1317,11 @@ If you've decided to fork this repository and wish to use it as-is, here are the
 
 1. Clone this repository to =~/.config/emacs=.
 2. (Optional) Checkout a flavor branch. Your options are currently:
-   - Evil Branches
-     - =main= - My current working setup with evil bindings.
-     - =org-mode= - A slim config for using org-mode. This is intended as a simple branch for documenting, organizing my agenda & ideas as well as writing email. It looks a lot like =main= but without any of the programming stuff. In my opinion, org-mode is the only irreplacable feature of Emacs. This config is for keeping Emacs light and useful for what it does best for me, should I ever stray from Emacs for writing code.
-   - Holy Branches
-     - =emacs-keybinds= - Follows the standard config - but uses hydra instead of evil-mode to try and make things a bit more ergonomic.
-     - =saintly= - An experimental configuration that uses standard bindings & supported internals wherever possible. It's filled with alternative packages like Eglot, Cape/Corfu/Vertico, etc.
-3. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
-4. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
-5. Run emacs for the first time.
+   - =main= - My current working setup with evil bindings.
+   - =emacs-keybinds= - Follows the standard config - but uses hydra instead of evil-mode to try and make things a bit more ergonomic.
+   - =saintly= - An experimental configuration that uses standard bindings & supported internals wherever possible. It's filled with alternative packages like Eglot, Cape/Corfu/Vertico, etc.
+3. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+4. Run emacs for the first time.
 *** Current Mindset
 At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going poorly, but it's getting better over time.
 
