@@ -222,7 +222,7 @@ I recently discovered [[https://www.jetbrains.com/lp/mono/][JetBrains Mono]] and
 #+begin_src elisp :tangle yes
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "Source Code Pro Semibold 10"))
+(add-to-list 'default-frame-alist '(font . "Source Code Pro Semibold 11"))
 #+end_src
 
 ***** COMMENT Ligatures
