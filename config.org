@@ -275,52 +275,31 @@ Packages that extend and augment emacs in a general way
 #+end_src
 
 **** Completions
-A combination of packages to enhance completions, centered around [[https://github.com/minad][Minad's]] work. There are a few packages to implement here. This section is a work in progress.
+A combination of packages to enhance completions.
 
-***** Cape
-Add extensions for completion-at-point-functions.
+***** Company
+Completions at point/region.
 #+begin_src elisp :tangle yes
-(add-to-list 'td/package-list 'cape)
-(add-to-list 'td/package-configs
-             #'(lambda ()
-                 "Cape completions at point extensions."
-                 (add-to-list 'completion-at-point-functions #'cape-file)
-                 (add-to-list 'completion-at-point-functions #'cape-tex)
-                 (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-                 (add-to-list 'completion-at-point-functions #'cape-keyword)))
-#+end_src
-
-***** Corfu
-Drop-down style completion-at-point in a child frame. Kind-Icon adds fluff.
-
-#+begin_src elisp :tangle yes
-(defun td/corfu-config ()
-  "Configuration for corfu, cape & kind-icon."
-  (setq corfu-cycle t
-        corfu-auto t
-        corfu-preselect-first nil
-        tab-always-indent 'complete)
-  (with-eval-after-load 'corfu
-    (td/bind-many-keys '(("M-/" . dabbrev-completion)
-                         ("C-M-/" . dabbrev-expand))))
-  (corfu-global-mode))
-(add-to-list 'td/package-list 'corfu)
-(add-to-list 'td/package-configs #'td/corfu-config)
-#+end_src
-
-****** Kind Icons
-I like these, but they do tend to slow things down a bit.
-#+begin_src elisp :tangle yes
-(add-to-list 'td/package-list 'kind-icon)
-(add-to-list 'td/package-configs
-             #'(lambda ()
-                 "Kind icon config for corfu"
-                 (require 'kind-icon)
-                 (with-eval-after-load 'corfu
-                   (setq kind-icon-default-face 'corfu-default
-                         kind-icon-use-icons t)
-                   (add-to-list 'corfu-margin-formatters
-                                #'kind-icon-margin-formatter))))
+(defun td/company-config ()
+  "Company mode configuration."
+  (defun td/company-prog-hook ()
+    "Completions for programming."
+    (setq-local company-backends
+                '(company-capf
+                  company-dabbrev-code
+                  company-keywords
+                  company-files
+                  company-yasnippet)
+                company-dabbrev-other-buffers t))
+  (setq company-backends '(company-capf
+                           company-ispell
+                           company-files)
+        company-files-exclusions '(".git/")
+        company-idle-delay 0)
+  (add-hook 'prog-mode-hook #'td/company-prog-hook)
+  (add-hook 'after-init-hook #'global-company-mode))
+(add-to-list 'td/package-list 'company)
+(add-to-list 'td/package-configs #'td/company-config)
 #+end_src
 
 ***** Consult
@@ -402,13 +381,7 @@ other better ways to reference things in Emacs.
   (setq consult-project-root-function
         (lambda ()
           (when-let (project (project-current))
-            (car (project-roots project))))
-        completion-in-region-function
-        (lambda (&rest args)
-          (apply (if (and vertico-mode (not (display-graphic-p)))
-                     #'consult-completion-in-region
-                   #'completion--in-region)
-                 args))))
+            (car (project-roots project))))))
 
 (add-to-list 'td/package-list 'consult)
 (add-to-list 'td/package-list 'consult-flycheck)
@@ -1206,12 +1179,8 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
   "Tree sitter config."
   (require 'tree-sitter)
   (require 'tree-sitter-langs)
-
-  (defvar td/tree-sitter-modes '("php-mode" "typescript-mode" "yaml-mode"
-                                 "json-mode" "html-mode")
-    "A list of modes to apply tree-sitter to.")
-  (dolist (mode-string td/tree-sitter-modes)
-    (add-hook (intern (concat mode-string "-hook")) #'tree-sitter-hl-mode)))
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 (add-to-list 'td/package-list 'tree-sitter)
 (add-to-list 'td/package-list 'tree-sitter-langs)
 (add-to-list 'td/package-configs #'td/tree-sitter-conf)
