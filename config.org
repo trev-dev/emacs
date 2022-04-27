@@ -2,7 +2,8 @@
 :PROPERTIES:
 #+STARTUP: overview
 :END:
-Herein lies my Emacs configuration. Use it well.
+Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#about-this-config][about section]] for alternate ways to use this repository.
+
 ** Contents
 :PROPERTIES:
 :TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
@@ -23,14 +24,15 @@ Herein lies my Emacs configuration. Use it well.
     - [[#dashboard][Dashboard]]
     - [[#diff-hl][Diff-hl]]
     - [[#elfeed][Elfeed]]
-    - [[#evil][Evil]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
+    - [[#hydra][Hydra]]
     - [[#magit][Magit]]
     - [[#mu4e][Mu4e]]
     - [[#ledger][Ledger]]
     - [[#sensitive-mode][Sensitive Mode]]
     - [[#rg][RG]]
+    - [[#undo-tree][Undo-Tree]]
     - [[#which-key][Which-key]]
   - [[#syntax-support][Syntax Support]]
     - [[#cssscss][CSS/SCSS]]
@@ -215,11 +217,13 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark" as a standalone thing.
 
 **** Font Setup
+
 #+begin_src elisp :tangle yes
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 (add-to-list 'default-frame-alist '(font . "Source Code Pro Semibold 11"))
 #+end_src
+
 **** Telephone Line
 A simple, but nicer looking modeline
 #+begin_src elisp :tangle yes
@@ -237,14 +241,20 @@ A simple, but nicer looking modeline
         telephone-line-secondary-right-separator
         'telephone-line-cubed-hollow-right)
 
+  (defface my-emacs
+    '((t (:background "#7455ac" :foreground "white" :weight bold)))
+    "A face for EMACS that isn't evil.")
+
   (setq telephone-line-faces
-        '((evil  . telephone-line-modal-face)
+        '((emacs . (my-emacs . telephone-line-accent-inactive))
           (accent . (telephone-line-accent-active
                      . telephone-line-accent-inactive))
           (nil . (mode-line . mode-line-inactive))))
 
+  (telephone-line-defsegment just-emacs () "EMACS")
+
   (setq telephone-line-lhs
-        '((evil    . (telephone-line-evil-tag-segment))
+        '((emacs   . (just-emacs))
           (accent  . (telephone-line-vc-segment
                       telephone-line-erc-modified-channels-segment
                       telephone-line-process-segment))
@@ -255,7 +265,7 @@ A simple, but nicer looking modeline
         '((nil     . (telephone-line-flycheck-segment
                       telephone-line-misc-info-segment))
           (accent  . (telephone-line-major-mode-segment))
-          (evil    . (telephone-line-airline-position-segment))))
+          (emacs   . (telephone-line-airline-position-segment))))
 
   (telephone-line-mode 1))
 (add-to-list 'td/package-list 'telephone-line)
@@ -455,6 +465,7 @@ Mini-buffer completions back-end.
 (add-to-list 'td/package-list 'dashboard)
 (add-to-list 'td/package-configs #'td/dashboard-config)
 #+end_src
+
 **** Diff-hl
 Show me the diffs in the fringe!
 #+begin_src elisp :tangle yes
@@ -467,6 +478,7 @@ Show me the diffs in the fringe!
        (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
      (global-diff-hl-mode)))
 #+end_src
+
 **** Elfeed
 RSS Reader :D
 #+begin_src elisp :tangle yes
@@ -481,56 +493,7 @@ RSS Reader :D
        (elfeed-org)
        (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))))
 #+end_src
-**** Evil
-Am I Evil? Yes I am.
-#+begin_src elisp :tangle yes
-(defun td/evil-bindings ()
-  "Create some extra evil bindings."
-  (evil-set-leader 'normal (kbd "\\"))
-  ;; Avy
-  (evil-define-key 'normal 'global (kbd "<leader>s") 'avy-goto-char-timer)
-  ;; General
-  (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
-  (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
-  (evil-define-key 'normal 'global (kbd "<leader>fb") 'consult-buffer)
-  (evil-define-key 'normal 'global (kbd "<leader>m") 'mu4e)
-  (evil-define-key 'normal 'global (kbd "<leader>e") 'elfeed)
-  ;; LSP
-  (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
-  ;; Org
-  (evil-define-key 'normal org-mode-map (kbd "<leader>ci") 'org-clock-in)
-  (evil-define-key 'normal org-mode-map (kbd "<leader>co") 'org-clock-out)
-  (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
-  ;; Magit
-  (evil-define-key 'normal 'global (kbd "gs") 'magit))
 
-(defun td/evil-config ()
-  "Configure evil for Emacs."
-  (setq evil-undo-system 'undo-redo
-        evil-visual-state-cursor 'hbar
-        evil-want-keybinding nil)
-  (global-evil-surround-mode 1)
-  (add-hook 'ledger-mode-hook #'evil-ledger-mode)
-  (add-hook 'prog-mode-hook #'evil-commentary-mode)
-  (with-eval-after-load 'evil
-    (require 'evil-org)
-    (require 'evil-org-agenda)
-    (evil-collection-init)
-    (evil-org-agenda-set-keys)
-    (add-hook 'org-mode-hook #'evil-org-mode))
-  (td/evil-bindings)
-  (evil-mode 1))
-
-(dolist (pkg '(evil
-               evil-ledger
-               evil-surround
-               evil-commentary
-               evil-collection
-               evil-org))
-  (add-to-list 'td/package-list pkg))
-
-(add-to-list 'td/package-configs #'td/evil-config)
-#+end_src
 **** Expand Region
 It just makes selecting text between sexps easy.
 #+begin_src elisp :tangle yes
@@ -539,12 +502,50 @@ It just makes selecting text between sexps easy.
              #'(lambda () "Expand region config."
                  (global-set-key (kbd "C-=") 'er/expand-region)))
 #+end_src
+
 **** Exec Path
 It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'exec-path-from-shell)
 (add-to-list 'td/package-configs #'exec-path-from-shell-initialize)
 #+end_src
+
+**** Hydra
+A tool for making repetative chords less cumbersome
+#+begin_src elisp :tangle yes
+(defun td/hydra-config ()
+  "Hydra configuration"
+
+  (defhydra hydra-window (global-map "C-c o")
+    "Hydra Windmove"
+    ("e" windmove-right "Right")
+    ("a" windmove-left "Left")
+    ("p" windmove-up "Up")
+    ("n" windmove-down "Down")
+    ("o" other-window "Other"))
+
+  (defhydra hydra-split (global-map "C-c p")
+    "Hydra Split"
+    ("v" split-window-right "Vertically")
+    ("h" split-window-below "Horizontally")
+    ("d" delete-window "Delete")
+    ("=" enlarge-window "Enlarge")
+    ("-" shrink-window "Shrink")
+    ("b" balance-windows "Balance")
+    ("D" delete-other-windows "Delete Others"))
+
+  (defhydra org-nav-elements (org-mode-map "C-c n")
+    "Navigate Org Elements"
+    ("a" org-up-element "Up one level")
+    ("e" org-down-element "Down one level")
+    ("p" org-backward-element "Move to previous")
+    ("n" org-forward-element "Move to next")
+    ("TAB" org-cycle "Cycle element")))
+
+(add-to-list 'td/package-list 'hydra)
+(add-to-list 'td/package-configs #'td/hydra-config)
+#+end_src
+
 **** Magit
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
@@ -554,6 +555,7 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
              #'(lambda () "Magit config."
                  (global-set-key (kbd "M-o g") 'magit-status)))
 #+end_src
+
 **** Mu4e
 Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my
 context settings out of this source-controlled repository as to keep some more sensitive
@@ -626,6 +628,7 @@ Mostly used in contexts configuration."
 (add-to-list 'td/package-list 'org-msg)
 (add-to-list 'td/package-configs #'td/mu4e-config)
 #+end_src
+
 **** Ledger
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
@@ -636,6 +639,7 @@ Knowing what resources you have at your disposal and learning how to budget are 
                  (with-eval-after-load 'ledger-mode
                    (setq ledger-use-native-highlighting t))))
 #+end_src
+
 **** Sensitive Mode
 Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21.html][Anirudh Sasikumar]]. It has been adapted to accomodate undo-tree. This prevents emacs from generating unencrypted backups & autosave data from =.gpg= files.
 
@@ -665,31 +669,45 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 
 (add-to-list 'td/package-configs #'td/config-sensitive-mode)
 #+end_src
+
 **** RG
 
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'rg)
 (add-to-list 'td/package-configs #'rg-enable-default-bindings)
 #+end_src
+
+**** Undo-Tree
+A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
+
+#+begin_src elisp :tangle yes
+(add-to-list 'td/package-list 'undo-tree)
+(add-to-list 'td/package-configs
+             #'(lambda () "Undo tree config"
+                 (with-eval-after-load 'undo-tree
+                   (add-to-list
+                    'undo-tree-history-directory-alist
+                    '(".*" . "~/.emacs.d/undo-tree/")))
+                 (global-undo-tree-mode)))
+#+end_src
+
 **** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'which-key)
-(add-to-list
- 'td/package-configs #'(lambda ()
-                         (with-eval-after-load 'evil
-                           (setq which-key-show-operator-state-maps t)
-                           (which-key-mode))))
+(add-to-list 'td/package-configs #'which-key-mode)
 #+end_src
+
 *** Syntax Support
 We're getting into to the language specific stuff now. Much of this is specifically tailored for Shopify, TypeScript and JavaScript development. Many if not all of these features stay out of the way when you're not in the language mode. There's also a very tedious attempt to make all of these disjointed program modes listen to my gosh dang tab-width setting instead of doing their own thing as an insane default.
-
 **** CSS/SCSS
+
 #+begin_src elisp :tangle yes
 (add-hook 'css-mode-hook #'(lambda () (setq-local css-indent-offset 2
                                                   tab-width 2)))
 #+end_src
+
 **** Emmet
 ~.Emmet[data-love="true"]~
 
@@ -706,7 +724,9 @@ We're getting into to the language specific stuff now. Much of this is specifica
 (add-to-list 'td/package-list 'emmet-mode)
 (add-to-list 'td/package-configs #'td/emmet-conf)
 #+end_src
+
 **** Flycheck
+
 #+begin_src elisp :tangle yes
 (defun td/flycheck-config ()
   "Flycheck Configuration"
@@ -764,13 +784,16 @@ We're getting into to the language specific stuff now. Much of this is specifica
 (add-to-list 'td/package-list 'flycheck-ledger)
 (add-to-list 'td/package-configs #'td/flycheck-config)
 #+end_src
+
 **** GoLang
+
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'go-mode)
 (add-to-list 'td/package-configs
              #'(lambda ()
                  (add-to-list 'auto-mode-alist '("\\.go\\'". go-mode))))
 #+end_src
+
 **** LSP Mode
 #+begin_src elisp :tangle yes
 (defun td/lsp-mode-config ()
@@ -799,7 +822,6 @@ We're getting into to the language specific stuff now. Much of this is specifica
           lsp-auto-guess-root t
           lsp-keep-workspace-alive nil
           lsp-eldoc-enable-hover nil
-          lsp-ui-doc-include-signature t
           lsp-ui-doc-position 'at-point
           lsp-ui-doc-include-signature t)
     (add-to-list
@@ -817,6 +839,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 (add-to-list 'td/package-list 'consult-lsp)
 (add-to-list 'td/package-configs #'td/lsp-mode-config)
 #+end_src
+
 **** Markdown
 The free software documentation language of the Internet.
 
@@ -831,6 +854,7 @@ The free software documentation language of the Internet.
 (add-to-list 'td/package-list 'markdown-mode)
 (add-to-list 'td/package-configs #'td/markdown-conf)
 #+end_src
+
 **** Org
 Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is. The fancy font-size setup is stolen from [[https://github.com/daviwil/emacs-from-scratch][Emacs from Scratch]] by [[https://www.youtube.com/c/SystemCrafters][System Crafters]]. Check them out :)
 
@@ -1022,7 +1046,9 @@ Here's an example:
 |-------------------+-------+--------+----------+------------------------|
 | Totals            |       | 20.43h | $1327.95 |                        |
 #+END
+
 **** PHP
+
 #+begin_src elisp :tangle yes
 (define-derived-mode php-mode web-mode "PHP"
   "I just want web-mode highlighting with .svelte files")
@@ -1052,12 +1078,14 @@ Here's an example:
 (add-to-list 'auto-mode-alist '("\\.php\\'" . php-mode))
 (add-to-list 'auto-mode-alist '("\\.twig\\'" . php-mode))
 #+end_src
+
 **** Prettier
 An opinionated way to clean up my web-dev code quickly.
 
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'prettier-js)
 #+end_src
+
 **** Prog Mode
 A few settings that are useful in programming buffers
 
@@ -1108,12 +1136,14 @@ A few settings that are useful in programming buffers
 
 (add-hook 'prog-mode-hook 'td/prog-mode-settings)
 #+end_src
+
 **** Python
 <3 Python
 
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'pyvenv)
 #+end_src
+
 **** Rainbow Delimiters
 This comes in handier than you think it would. Especially with these (lisp '((config . files)))
 
@@ -1123,12 +1153,14 @@ This comes in handier than you think it would. Especially with these (lisp '((co
              #'(lambda ()
                  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)))
 #+end_src
+
 **** Rainbow Mode
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
 #+begin_src elisp :tangle yes
 (add-to-list 'td/package-list 'rainbow-mode)
 #+end_src
+
 **** Rust
 #+begin_src elisp :tangle yes
 (defun td/rust-conf ()
@@ -1144,6 +1176,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 (add-to-list 'td/package-list 'rust-mode)
 (add-to-list 'td/package-configs #'td/rust-conf)
 #+end_src
+
 **** Shopify Mode
 This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
 
@@ -1162,6 +1195,7 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
               electric-pair-text-pairs electric-pair-pairs))
 (add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
 #+end_src
+
 **** Svelte
 Fake-out a "svelte-mode" for the purposes of activating with the svelte-language-server. I'm extending web-mode because it highlights =.svelte= files well.
 
@@ -1171,6 +1205,7 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 (provide 'svelte-mode)
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
 #+end_src
+
 **** Treesitter
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
@@ -1185,6 +1220,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 (add-to-list 'td/package-list 'tree-sitter-langs)
 (add-to-list 'td/package-configs #'td/tree-sitter-conf)
 #+end_src
+
 **** TypeScript & JavaScript
 #+begin_src elisp :tangle yes
 (dolist (pkg '(typescript-mode
@@ -1199,6 +1235,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
                        typescript-indent-level 2
                        js2-strict-inconsistent-return-warning nil)))
 #+end_src
+
 **** VueJS
 #+begin_src elisp :tangle yes
 (define-derived-mode vue-mode web-mode "VueJS"
@@ -1206,6 +1243,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 (provide 'vue-mode)
 (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
 #+end_src
+
 **** Web Mode
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
@@ -1223,6 +1261,7 @@ There isn't a much better catch-all for web template syntax support than web-mod
 (add-to-list 'td/package-list 'web-mode)
 (add-to-list 'td/package-configs #'td/web-mode-conf)
 #+end_src
+
 **** YAML
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
 
@@ -1234,6 +1273,7 @@ YAML's a really nice way to configure software, containers and projects. I use i
                  (require 'yaml-mode)
                  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))))
 #+end_src
+
 **** Yasnippet
 Snippets! They're helpful.
 
@@ -1247,6 +1287,7 @@ Snippets! They're helpful.
                  (setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
                  (yas-reload-all)))
 #+end_src
+
 *** Install, Prune & Configure
 Here we implement =td/package-list= and =td/package-configs= to install missing packages, then forcibly set =package-selected-packages=.
 
@@ -1267,6 +1308,7 @@ Packages previously installed via `install-package' will become auto-removable."
 (seq-do #'funcall td/package-configs)
 (add-hook 'after-init-hook #'td/set-selected-packages)
 #+end_src
+
 ** About This Config
 This literate configuration is a labour of love from a man who changes his mind and mixes things up /often/.
 
@@ -1279,23 +1321,29 @@ If you like it enough to drop me a tip, feel free to do so:
 [[https://ko-fi.com/Y8Y34UWHH][https://ko-fi.com/img/githubbutton_sm.svg]]
 [[https://liberapay.com/trev.dev/donate][https://liberapay.com/assets/widgets/donate.svg]]
 BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
+
 *** Installation
 If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
 
 *Note*: Config us currently set up for Emacs 29. Be sure to disable the weird bits, like [[* Performance Tweaks][compilation deferral]].
 
 1. Clone this repository to =~/.config/emacs=.
-2. (Optional) Checkout a flavor branch. Your options are currently:
-   - =main= - My current working setup with evil bindings.
-   - =emacs-keybinds= - Follows the standard config - but uses hydra instead of evil-mode to try and make things a bit more ergonomic.
-   - =saintly= - An experimental configuration that uses standard bindings & supported internals wherever possible. It's filled with alternative packages like Eglot, Cape/Corfu/Vertico, etc.
-3. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
-4. Run emacs for the first time.
+2. Optionally checkout an alternate edition. Your branch choices are:
+   - *main* - A combination of what works best for me currently.
+   - *evil* - It's like branch main, but it's /evil/.
+   - *saintly* - A pure approach to emacs using only supported internals wherever possible. This is my best attempt at "minimalism" with Emacs.
+3. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
+4. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+5. Run emacs for the first time.
+
 *** Current Mindset
-At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going poorly, but it's getting better over time.
+At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going well, and it's getting better over time.
 
-I have some configs here that are tagged as either :fav: or :disabled:
+Branch main is my preferred, hopefully not broken configuration. It's a mix of what feels like the best tools/packages for what I want to do.
 
-As I play with this config and refine my preferences I've lost the point in deleting/re-adding perfectly good configs that I may want to revist. If you see something you like, by all means, enable it. It /should/ work. Headings tagged with :disabled: are simply set to =:tangle no=.
+The *saintly* branch is an experimental config geared toward staunch support for using supported internals only. It uses packages like Eglot, Corfu, Cape, etc.
+
+The /evil/ branch is very similar to the main branch, but it uses vim bindings. Every now and again I get the itch to keep it Vimmy. It never seems to last in Emacs, so the branch is kept separate for myself or anyone else who cares to use it.
+
 *** Licenses
 - For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
