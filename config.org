@@ -1279,23 +1279,29 @@ If you like it enough to drop me a tip, feel free to do so:
 [[https://ko-fi.com/Y8Y34UWHH][https://ko-fi.com/img/githubbutton_sm.svg]]
 [[https://liberapay.com/trev.dev/donate][https://liberapay.com/assets/widgets/donate.svg]]
 BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
+
 *** Installation
 If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
 
 *Note*: Config us currently set up for Emacs 29. Be sure to disable the weird bits, like [[* Performance Tweaks][compilation deferral]].
 
 1. Clone this repository to =~/.config/emacs=.
-2. (Optional) Checkout a flavor branch. Your options are currently:
-   - =main= - My current working setup with evil bindings.
-   - =emacs-keybinds= - Follows the standard config - but uses hydra instead of evil-mode to try and make things a bit more ergonomic.
-   - =saintly= - An experimental configuration that uses standard bindings & supported internals wherever possible. It's filled with alternative packages like Eglot, Cape/Corfu/Vertico, etc.
-3. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
-4. Run emacs for the first time.
+2. Optionally checkout an alternate edition. Your branch choices are:
+   - *main* - A combination of what works best for me currently.
+   - *evil* - It's like branch main, but it's /evil/.
+   - *saintly* - A pure approach to emacs using only supported internals wherever possible. This is my best attempt at "minimalism" with Emacs.
+3. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
+4. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+5. Run emacs for the first time.
+
 *** Current Mindset
-At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going poorly, but it's getting better over time.
+At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going well, and it's getting better over time.
 
-I have some configs here that are tagged as either :fav: or :disabled:
+Branch main is my preferred, hopefully not broken configuration. It's a mix of what feels like the best tools/packages for what I want to do.
 
-As I play with this config and refine my preferences I've lost the point in deleting/re-adding perfectly good configs that I may want to revist. If you see something you like, by all means, enable it. It /should/ work. Headings tagged with :disabled: are simply set to =:tangle no=.
+The *saintly* branch is an experimental config geared toward staunch support for using supported internals only. It uses packages like Eglot, Corfu, Cape, etc.
+
+The /evil/ branch is very similar to the main branch, but it uses vim bindings. Every now and again I get the itch to keep it Vimmy. It never seems to last in Emacs, so the branch is kept separate for myself or anyone else who cares to use it.
+
 *** Licenses
 - For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
