@@ -909,7 +909,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
                   typescript-mode-hook
                   vue-mode-hook
                   yaml-mode-hook))
-    (add-hook mode #'(lambda () (lsp) (consult-lsp-marginalia-mode))))
+    (add-hook mode #'lsp))
   (with-eval-after-load 'lsp-mode
     (setq lsp-log-io nil
           lsp-enable-folding nil
