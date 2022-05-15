@@ -337,7 +337,7 @@ other better ways to reference things in Emacs.
 
   (td/bind-many-keys '(("C-c h" . consult-history)
                        ("C-c m" . consult-mode-command)
-                       ("C-c k" . consult-kmacro)
+                       ; ("C-c k" . consult-kmacro)
                        ;; C-x bindings (ctl-x-map)
                        ("C-x M-:" . consult-complex-command)
                        ("C-x b" . consult-buffer)
