@@ -27,7 +27,6 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#hydra][Hydra]]
-    - [[#meow][Meow]]
     - [[#magit][Magit]]
     - [[#mu4e][Mu4e]]
     - [[#ledger][Ledger]]
@@ -547,7 +546,7 @@ A tool for making repetative chords less cumbersome
 (add-to-list 'td/package-configs #'td/hydra-config)
 #+end_src
 
-**** Meow
+**** COMMENT Meow
 #+begin_src elisp :tangle yes
 (defun td/meow-conf ()
   "Meow configuration."
