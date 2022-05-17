@@ -588,16 +588,20 @@ A tool for making repetative chords less cumbersome
 
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package magit
   :bind ("M-o g" . magit-status))
 #+END_SRC
 
 **** Org
 
-Customizations for what is one of the best features that emacs comes with. If we weren't so hung up on Markdown for developer docs, I'd use this mode for everything doc related. Yes, I can export an org file. If I want to track two files, that is. The fancy font-size setup is stolen from [[https://github.com/daviwil/emacs-from-scratch][Emacs from Scratch]] by [[https://www.youtube.com/c/SystemCrafters][System Crafters]]. Check them out :)
+The greatest part of using Emacs is org-mode. It handles my agenda, my todo list, helps me prioritize tasks, track time and invoice clients.
 
-#+BEGIN_SRC elisp :tangle yes
+***** Key Variables
+
+I am using tags to help sort contexts within my agenda. Some people use categories for that. I technically do that, too, but I also use separate files. Filenames are categories by default, so there is less to configure when you use separate files.
+
+#+BEGIN_SRC elisp
 (defvar td/tag-list
   '((:startgroup)
     ("@home" . ?H)
@@ -607,16 +611,54 @@ Customizations for what is one of the best features that emacs comes with. If we
     ("gurps" . ?g)
     ("idea" . ?i))
   "The tags for org headlines.")
+#+END_SRC
 
+Next are my TODO key words. They are meant to be used as such:
+
+- =TODO= A generic task or actionable thing that needs attention
+- =NEXT= A planned task, something I am setting my mind to until it is done. There should be very few of these types of tasks so that I am setting achievable goals
+- =WAIT= The task that is held up by some pre-requesite or external factor
+- =DONE= The task is completed
+- =PASS= The task has been "passed along" or "delegated" to someone else. Considered 'done', just not by myself
+- =CANC= The task has been cancelled or ended before completion
+  
+#+BEGIN_SRC elisp
 (defvar td/todo-keywords
-  '((sequence "TODO(t)" "WAIT(w@/!)" "|" "DONE(d!)" "CANC(k@)"))
+  '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "|" "DONE(d!)" "PASS(p@)" "CANC(k@)"))
   "A sequence of keywords for Org headlines.")
+#+END_SRC
 
+My org agenda commands. Currently a work in progress.
+
+#+BEGIN_SRC elisp
 (defvar td/org-agenda-commands
   '()
   "Custom commands for Org Agenda.")
+#+END_SRC
 
-(defun td/tweak-org-levels ()
+Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [[*Org mode extensions][extensions]] for how I extend org-mode. 
+
+#+BEGIN_SRC elisp
+(defvar td/capture-templates
+  '(("c" "Cookbook" entry (file "~/Org/cookbook.org")
+     "%(org-chef-get-recipe-from-url)"
+     :empty-lines 1)
+    ("m" "Manual Cookbook" entry (file "~/Org/cookbook.org")
+     (concat "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n"
+             "  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n"
+             "  :END:\n** Ingredients\n   %?\n** Directions\n\n"))))
+#+END_SRC
+
+I usually stick to monospace sized fonts with the exception of Org files. I like the first 3 levels to be slightly larger than the rest, and progressively smaller. This helps me create a sense of urgency at the lower-level headers and it also improves readability.
+
+***** Functions
+
+We use =td/org-scale-levels= to improve the readability of org-mode headers in order of the highest level sections to as low as 3 levels. For myself, anything deeper than 3 levels is just bold text.
+
+Later on, =td/org-hook= will be fired when org-mode is started and it contains complimentary settings/modes.
+
+#+BEGIN_SRC elisp
+(defun td/org-scale-levels ()
   "Enlarge org levels for more readability."
   (dolist (face '((org-level-1 . 1.2)
                   (org-level-2 . 1.1)
@@ -628,20 +670,17 @@ Customizations for what is one of the best features that emacs comes with. If we
                   (org-level-8 . 1.0)))
     (set-face-attribute (car face) nil :weight 'semi-bold :height (cdr face))))
 
-(defvar td/capture-templates
-      '(("c" "Cookbook" entry (file "~/Org/cookbook.org")
-         "%(org-chef-get-recipe-from-url)"
-         :empty-lines 1)
-        ("m" "Manual Cookbook" entry (file "~/Org/cookbook.org")
-         "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")))
-
 (defun td/org-hook ()
   "Do some stuff on org mode startup."
   (org-indent-mode)
   (yas-minor-mode)
   (org-clock-persistence-insinuate)
-  (td/tweak-org-levels))
+  (td/org-scale-levels))
+#+END_SRC
 
+***** Execution
+
+#+BEGIN_SRC elisp
 (use-package org
   :straight nil ; Already loaded in init.el for babel
   :init
@@ -672,9 +711,16 @@ Customizations for what is one of the best features that emacs comes with. If we
       org-capture-templates td/capture-templates))
 #+END_SRC
 
-***** Org mode extensions
+***** Extending Org Mode
 
-#+BEGIN_SRC elisp :tangle yes
+Extending org-mode with some interesting packages.
+
+- [[https://github.com/Chobbes/org-chef][org-chef]] is a must have if you enjoy cooking
+- ox-gfm is for Github Flavored Markdown
+- visual-fill-column is for narrowing org-mode into a reading-friendly column size.
+- org-alert lets me get notifications regarding agenda items.
+
+#+BEGIN_SRC elisp
 (use-package org-chef)
 (use-package ox-gfm)
 
@@ -696,7 +742,13 @@ Customizations for what is one of the best features that emacs comes with. If we
         org-alert-notify-cutoff 60
         org-alert-notification-title "Org Agenda")
   (org-alert-enable))
+#+END_SRC
 
+Org Make TOC gives me the ability to automagically update documentation files with a table of contents, which is really nice for README files that I don't feel like exporting every time I update them.
+
+I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update this config on save.
+
+#+BEGIN_SRC elisp
 (defvar td/org-auto-toc-files
   '("~/.config/emacs/config.org")
   "Files that should auto-toc on save.")
@@ -714,11 +766,132 @@ Customizations for what is one of the best features that emacs comes with. If we
   :hook (org-mode . td/set-auto-toc))
 #+END_SRC
 
-***** Custom Clock Table
-I decided to write a [[file:td-custom-clocktable.el?ts=2][custom clocktable formatter]]. I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting to certain subcontracts.
+***** TODO Custom Clock Table
 
-#+BEGIN_SRC elisp :tangle yes
-(load-file "~/.config/emacs/td-custom-clocktable.el")
+I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting billable hours and invoicing.
+
+Task:
+- [ ] Re-work this into its own package. It's big and worth sharing on its own.
+
+#+BEGIN_SRC elisp :tangle 
+(defcustom td/billable-rate 80
+  "The billable rate for calculating 'td/custom-clocktable"
+  :type `integer
+  :group 'org)
+
+(defun td/custom-clocktable-indent (level)
+  "Create an indent based on org LEVEL"
+  (if (= level 1) ""
+    (concat (make-string (1- level) ?—) " ")
+    ))
+
+(defun td/custom-clocktable-get-prop (key props)
+  "Get a specific value using a KEY from a list of PROPS"
+  (cdr (assoc key props)))
+
+(defun td/minutes-to-billable (minutes &optional rate)
+  "Get the amount in dollers that a number of MINUTES is worth"
+  (let* ((hours (/ (round (* (/ minutes 60.0) 100)) 100.0))
+         (amount (* hours (cond ((numberp rate) rate)
+                                ((numberp td/billable-rate) td/billable-rate)
+                                (0))))
+         (billable (/ (round (* amount 100)) 100.0)))
+    billable))
+
+(defun td/emph-str (string &optional emph)
+  "Emphasize a STRING if EMPH is set"
+  (if emph
+      (format "*%s*" string)
+    string))
+
+(defun td/custom-clocktable (ipos tables params)
+  "An attempt to clock my voltage time, my way"
+  (let* ((lang (or (plist-get params :lang) "en"))
+         (block (plist-get params :block))
+         (emph (plist-get params :emphasize))
+         (header (plist-get params :header))
+         (properties (or (plist-get params :properties) '()))
+         (comments-on (member "Comment" properties))
+         (formula (plist-get params :formula))
+         (rate (plist-get params :rate))
+         (has-formula (cond ((and formula (stringp formula))
+                             t)
+                            (formula (user-error "Invalid :formula param"))))
+         (effort-on (member "Effort" properties)))
+    (goto-char ipos)
+
+    (insert-before-markers
+     (or header
+         ;; Format the standard header.
+         (format "#+CAPTION: %s %s%s\n"
+                 (org-clock--translate "Clock summary at" lang)
+                 (format-time-string (org-time-stamp-format t t))
+                 (if block
+                     (let ((range-text
+                            (nth 2 (org-clock-special-range
+                                    block nil t
+                                    (plist-get params :wstart)
+                                    (plist-get params :mstart)))))
+                       (format ", for %s." range-text))
+                   "")))
+     "| Task " (if effort-on "| Est" "")
+     "| Time | Billable"
+     (if comments-on "| Comment" "") "\n")
+    (let '(total-time (apply #'+ (mapcar #'cadr tables)))
+      (when (and total-time (> total-time 0))
+        (pcase-dolist (`(, file-name , file-time , entries) tables)
+          (when (and file-time (> file-time 0))
+            (pcase-dolist (`(,level ,headline ,tgs ,ts ,time ,props) entries)
+              (insert-before-markers
+               (if (= level 1) "|-\n|" "|")
+               (td/custom-clocktable-indent level)
+               (concat (td/emph-str headline (and emph (= level 1))) "|")
+               (if-let* (effort-on
+                         (eft (td/custom-clocktable-get-prop "Effort" props))
+                         (formatted-eft (org-duration-from-minutes
+                                         (org-duration-to-minutes eft))))
+                   (concat (td/emph-str formatted-eft (and emph (= level 1)))
+                           "|")
+                 (if effort-on "|"
+                   ""))
+               (concat (td/emph-str
+                        (org-duration-from-minutes time)
+                        (and emph (= level 1))) "|")
+               (concat (td/emph-str
+                        (format "$%.2f" (td/minutes-to-billable time rate))
+                        (and emph (= level 1))) "|")
+               (if-let* (comments-on
+                         (comment
+                          (td/custom-clocktable-get-prop "Comment" props)))
+                   (concat comment "\n")
+                 "\n")))))
+        (let ((cols-adjust
+               (if (member "Effort" properties)
+                   2
+                 1)))
+          (insert-before-markers
+           (concat "|-\n| "
+                   (td/emph-str "Totals" emph)
+                   (make-string cols-adjust ?|))
+           (concat (td/emph-str
+                    (format "%s" (org-duration-from-minutes total-time)) emph)
+                   "|")
+           (concat (td/emph-str
+                    (format "$%.2f" (td/minutes-to-billable total-time rate))
+                    emph) "|" ))
+          (when has-formula
+            (insert "\n#+TBLFM: " formula)))))
+    (goto-char ipos)
+    (skip-chars-forward "^|")
+    (org-table-align)
+    (when has-formula (org-table-recalculate 'all))))
+
+(defun td/clocktable-format-toggle ()
+  (interactive)
+  (if (equal org-duration-format '((special . h:mm)))
+      (setq-local org-duration-format '(("h" . nil) (special . 2)))
+    (setq-local org-duration-format '((special . h:mm))))
+  (org-ctrl-c-ctrl-c))
 #+END_SRC
 
 Here's an example:
