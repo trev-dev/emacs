@@ -465,10 +465,10 @@ A tool for making repetative chords less cumbersome
   :config
   (defhydra hydra-window (global-map "C-c o")
     "Hydra Windmove"
-    ("e" windmove-right "Right")
-    ("a" windmove-left "Left")
-    ("p" windmove-up "Up")
-    ("n" windmove-down "Down")
+    ("l" windmove-right "Right")
+    ("h" windmove-left "Left")
+    ("k" windmove-up "Up")
+    ("j" windmove-down "Down")
     ("o" other-window "Other"))
 
   (defhydra hydra-split (global-map "C-c p")
@@ -483,10 +483,10 @@ A tool for making repetative chords less cumbersome
 
   (defhydra org-nav-elements (org-mode-map "C-c n")
     "Navigate Org Elements"
-    ("a" org-up-element "Up one level")
-    ("e" org-down-element "Down one level")
-    ("p" org-backward-element "Move to previous")
-    ("n" org-forward-element "Move to next")
+    ("h" org-up-element "Up one level")
+    ("l" org-down-element "Down one level")
+    ("k" org-backward-element "Move to previous")
+    ("j" org-forward-element "Move to next")
     ("TAB" org-cycle "Cycle element")))
 #+END_SRC
 
