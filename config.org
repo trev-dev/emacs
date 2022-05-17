@@ -26,6 +26,7 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#hydra][Hydra]]
+    - [[#meow][Meow]]
     - [[#magit][Magit]]
     - [[#org][Org]]
     - [[#mu4e][Mu4e]]
@@ -65,7 +66,7 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
 
 Some general performance based improvements. Reset GC after init as it is maxed out in [[file:early-init.el][early init]].
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (add-hook 'emacs-startup-hook
           (lambda ()
             (setq gc-cons-threshold (expt 2 23))))
@@ -81,7 +82,7 @@ Some general performance based improvements. Reset GC after init as it is maxed 
 
 Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 ;; Interface
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -103,7 +104,7 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 
 Set up the dictionary and preferred browser.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 ;; Spelling
 (setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd")
 (setq ispell-program-name "aspell")
@@ -115,7 +116,7 @@ Set up the dictionary and preferred browser.
 
 I hate seeing project folders get all cluttered up. Let's move autosaves and backups somewhere else.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 ;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))
       backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
@@ -130,14 +131,14 @@ I hate seeing project folders get all cluttered up. Let's move autosaves and bac
 *** Look & Feel
 **** All The Icons
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package all-the-icons
   :init (require 'all-the-icons))
 #+END_SRC
 
 **** Dired
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package all-the-icons-dired
   :after all-the-icons
   :config (setq all-the-icons-dired-monochrome nil)
@@ -151,7 +152,7 @@ I hate seeing project folders get all cluttered up. Let's move autosaves and bac
 
 Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package doom-themes
   :config
   (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
@@ -168,7 +169,7 @@ I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark
 
 **** Font Setup
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 (add-to-list 'default-frame-alist '(font . "Source Code Pro 11"))
@@ -178,7 +179,7 @@ I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark
 
 A simple, but nicer looking modeline
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package telephone-line
   :config
   (setq telephone-line-primary-left-separator
@@ -228,7 +229,7 @@ Packages that extend and augment emacs in a general way
 
 **** Avy
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package avy
   :bind ("C-." . avy-goto-char-timer)
   :config (avy-setup-default))
@@ -241,7 +242,7 @@ A combination of packages to enhance completions.
 
 Completions at point/region.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (defun td/company-prog-hook ()
   "Completions for programming."
   (setq-local company-backends
@@ -268,7 +269,7 @@ Completions at point/region.
 I am currently giving consult a try as my completion-at-point solution, amongst many
 other better ways to reference things in Emacs.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package consult
   :init
   (setq register-preview-delay 0
@@ -346,7 +347,7 @@ other better ways to reference things in Emacs.
 
 Better descriptions of symbols in the minibuffer.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package marginalia
   :init (marginalia-mode)
   :bind (:map minibuffer-local-map
@@ -357,7 +358,7 @@ Better descriptions of symbols in the minibuffer.
 
 A completion style that permits entering parts of completion names in any order.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package orderless
   :config
   (setq completion-styles '(orderless)
@@ -370,7 +371,7 @@ A completion style that permits entering parts of completion names in any order.
 
 Save history for Vertico to look at later.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 ;; Built into emacs 29
 (savehist-mode)
 #+END_SRC
@@ -379,7 +380,7 @@ Save history for Vertico to look at later.
 
 Mini-buffer completions back-end.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package vertico
   :after consult
   :config
@@ -391,7 +392,7 @@ Mini-buffer completions back-end.
 
 **** Dashboard
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package dashboard
   :config
   (setq dashboard-startup-banner 'logo
@@ -414,7 +415,7 @@ Mini-buffer completions back-end.
 
 Show me the diffs in the fringe!
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package diff-hl
   :config (global-diff-hl-mode)
   (with-eval-after-load 'magit
@@ -426,7 +427,7 @@ Show me the diffs in the fringe!
 
 RSS Reader :D
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package elfeed
   :bind ("M-o e" . elfeed))
 
@@ -441,7 +442,7 @@ RSS Reader :D
 
 It just makes selecting text between sexps easy.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 #+END_SRC
@@ -450,7 +451,7 @@ It just makes selecting text between sexps easy.
 
 It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package exec-path-from-shell
   :config (exec-path-from-shell-initialize))
 #+END_SRC
@@ -459,7 +460,7 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 
 A tool for making repetative chords less cumbersome
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package hydra
   :after org
   :config
@@ -490,9 +491,9 @@ A tool for making repetative chords less cumbersome
     ("TAB" org-cycle "Cycle element")))
 #+END_SRC
 
-**** COMMENT Meow
+**** Meow
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package meow
   :config
   (defun meow-setup ()
@@ -920,7 +921,7 @@ info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Co
 
 Also, If you need a good starting point with mu4e, I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]].
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (defun td/get-mail-signature(file)
   "Retrieve the signature file from the signatures directory.
   Mostly used in contexts configuration."
@@ -980,7 +981,7 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
 
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package ledger-mode
   :config
   (setq ledger-use-native-highlighting t))
@@ -990,7 +991,7 @@ Knowing what resources you have at your disposal and learning how to budget are 
 
 Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21.html][Anirudh Sasikumar]]. It has been adapted to accomodate undo-tree. This prevents emacs from generating unencrypted backups & autosave data from =.gpg= files.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (define-minor-mode sensitive-mode
   "A minor-mode for preventing auto-saves and back-ups for encrypted files."
   :global nil
@@ -1015,7 +1016,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 
 **** RG
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package rg
   :config (rg-enable-default-bindings))
 #+END_SRC
@@ -1024,7 +1025,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 
 A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package undo-tree
   :config
   (global-undo-tree-mode)
@@ -1036,7 +1037,7 @@ A great tool for turning back the clock on a buffer. Especially when git commits
 **** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package which-key
   :config (which-key-mode))
 #+END_SRC
@@ -1047,7 +1048,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 
 **** CSS/SCSS
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (add-hook 'css-mode-hook #'(lambda () (setq-local css-indent-offset 2
                                                   tab-width 2)))
 #+END_SRC
@@ -1056,7 +1057,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 
 ~.Emmet[data-love="true"]~
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package emmet-mode
   :config
   (setq emmet-expand-jsx-className t)
@@ -1065,7 +1066,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 
 **** Flycheck
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package flycheck
   :hook ((emacs-lisp-mode prog-mode ledger-mode) . flycheck-mode)
   :bind ("C-c f" . flycheck-mode)
@@ -1119,14 +1120,14 @@ We're getting into to the language specific stuff now. Much of this is specifica
 
 **** GoLang
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package go-mode
   :mode ("\\.go\\'"))
 #+END_SRC
 
 **** LSP Mode
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
   :commands lsp
@@ -1173,7 +1174,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 
 The free software documentation language of the Internet.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package markdown-mode
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
@@ -1182,7 +1183,7 @@ The free software documentation language of the Internet.
 
 **** PHP
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (define-derived-mode php-mode web-mode "PHP"
   "I just want web-mode highlighting with .svelte files")
 
@@ -1215,7 +1216,7 @@ The free software documentation language of the Internet.
 **** Prettier
 An opinionated way to clean up my web-dev code quickly.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package prettier-js)
 #+END_SRC
 
@@ -1223,7 +1224,7 @@ An opinionated way to clean up my web-dev code quickly.
 
 A few settings that are useful in programming buffers
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (defun td/toggle-indent-tabs-mode ()
   "Toggle `indent-tabs-mode'."
   (interactive)
@@ -1275,7 +1276,7 @@ A few settings that are useful in programming buffers
 
 <3 Python
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package pyvenv)
 #+END_SRC
 
@@ -1283,7 +1284,7 @@ A few settings that are useful in programming buffers
 
 This comes in handier than you think it would. Especially with these (lisp '((config . files)))
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package rainbow-delimiters
   :hook (prog-mod . rainbow-delimiters-mode))
 #+END_SRC
@@ -1292,13 +1293,13 @@ This comes in handier than you think it would. Especially with these (lisp '((co
 
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package rainbow-mode)
 #+END_SRC
 
 **** Rust
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (defun td/rust-run-args (s)
   (interactive "sOptional Args:")
   (rust--compile (concat "%s run " s) rust-cargo-bin))
@@ -1313,7 +1314,7 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 
 This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 ;; Derive liquid-mode from web-mode
 (define-derived-mode shopify-mode web-mode "Shopify"
   "Use web mode to highlight shopify liquid files")
@@ -1332,7 +1333,7 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
 
 Fake-out a "svelte-mode" for the purposes of activating with the svelte-language-server. I'm extending web-mode because it highlights =.svelte= files well.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (define-derived-mode svelte-mode web-mode "Svelte"
   "I just want web-mode highlighting with .svelte files")
 (provide 'svelte-mode)
@@ -1343,7 +1344,7 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package tree-sitter
   :hook (tree-sitter-after-on . tree-sitter-hl-mode)
   :config (global-tree-sitter-mode))
@@ -1354,7 +1355,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 
 **** TypeScript & JavaScript
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package typescript-mode
   :config (setq typescript-indent-level 2))
 
@@ -1368,7 +1369,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 
 **** VueJS
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (define-derived-mode vue-mode web-mode "VueJS"
   "I just want web-mode highlighting with .svelte files")
 (provide 'vue-mode)
@@ -1379,7 +1380,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package web-mode
   :mode "\\.html\\'"
   :config
@@ -1396,7 +1397,7 @@ There isn't a much better catch-all for web template syntax support than web-mod
 
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package yaml-mode :mode "\\.yml\\'")
 #+END_SRC
 
@@ -1404,7 +1405,7 @@ YAML's a really nice way to configure software, containers and projects. I use i
 
 Snippets! They're helpful.
 
-#+BEGIN_SRC elisp :tangle yes
+#+BEGIN_SRC elisp
 (use-package yasnippet
   :bind ("C-c ," . yas-expand)
   :config
