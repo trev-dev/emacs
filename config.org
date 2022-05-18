@@ -34,6 +34,7 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#sensitive-mode][Sensitive Mode]]
     - [[#rg][RG]]
     - [[#undo-tree][Undo-Tree]]
+    - [[#visual-fill-column][Visual Fill Column]]
     - [[#which-key][Which-key]]
   - [[#syntax-support][Syntax Support]]
     - [[#cssscss][CSS/SCSS]]
@@ -63,7 +64,6 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
   - [[#licenses][Licenses]]
 :END:
 ** General Settings
-
 Some general performance based improvements. Reset GC after init as it is maxed out in [[file:early-init.el][early init]].
 
 #+BEGIN_SRC elisp
@@ -149,7 +149,6 @@ I hate seeing project folders get all cluttered up. Let's move autosaves and bac
 #+END_SRC
 
 **** Doom Themes
-
 Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
 #+BEGIN_SRC elisp
@@ -164,7 +163,6 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 #+END_SRC
 
 ***** TODO Refactor Custom Theme
-
 I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark" as a standalone thing.
 
 **** Font Setup
@@ -176,7 +174,6 @@ I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark
 #+END_SRC
 
 **** Telephone Line
-
 A simple, but nicer looking modeline
 
 #+BEGIN_SRC elisp
@@ -224,7 +221,6 @@ A simple, but nicer looking modeline
 #+END_SRC
 
 *** Utility Packages
-
 Packages that extend and augment emacs in a general way
 
 **** Avy
@@ -239,7 +235,6 @@ Packages that extend and augment emacs in a general way
 A combination of packages to enhance completions.
 
 ***** Company
-
 Completions at point/region.
 
 #+BEGIN_SRC elisp
@@ -265,7 +260,6 @@ Completions at point/region.
 #+END_SRC
 
 ***** Consult
-
 I am currently giving consult a try as my completion-at-point solution, amongst many
 other better ways to reference things in Emacs.
 
@@ -344,7 +338,6 @@ other better ways to reference things in Emacs.
 #+END_SRC
 
 ***** Marginalia
-
 Better descriptions of symbols in the minibuffer.
 
 #+BEGIN_SRC elisp
@@ -355,7 +348,6 @@ Better descriptions of symbols in the minibuffer.
 #+END_SRC
 
 ***** Orderless
-
 A completion style that permits entering parts of completion names in any order.
 
 #+BEGIN_SRC elisp
@@ -368,7 +360,6 @@ A completion style that permits entering parts of completion names in any order.
 #+END_SRC
 
 ***** Savehist
-
 Save history for Vertico to look at later.
 
 #+BEGIN_SRC elisp
@@ -377,7 +368,6 @@ Save history for Vertico to look at later.
 #+END_SRC
 
 ***** Vertico
-
 Mini-buffer completions back-end.
 
 #+BEGIN_SRC elisp
@@ -424,7 +414,6 @@ Show me the diffs in the fringe!
 #+END_SRC
 
 **** Elfeed
-
 RSS Reader :D
 
 #+BEGIN_SRC elisp
@@ -439,7 +428,6 @@ RSS Reader :D
 #+END_SRC
 
 **** Expand Region
-
 It just makes selecting text between sexps easy.
 
 #+BEGIN_SRC elisp
@@ -448,7 +436,6 @@ It just makes selecting text between sexps easy.
 #+END_SRC
 
 **** Exec Path
-
 It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
 
 #+BEGIN_SRC elisp
@@ -457,7 +444,6 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 #+END_SRC
 
 **** Hydra
-
 A tool for making repetative chords less cumbersome
 
 #+BEGIN_SRC elisp
@@ -586,7 +572,6 @@ A tool for making repetative chords less cumbersome
 #+END_SRC
 
 **** Magit
-
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
 #+BEGIN_SRC elisp
@@ -595,11 +580,9 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
 #+END_SRC
 
 **** Org
-
 The greatest part of using Emacs is org-mode. It handles my agenda, my todo list, helps me prioritize tasks, track time and invoice clients.
 
 ***** Key Variables
-
 I am using tags to help sort contexts within my agenda. Some people use categories for that. I technically do that, too, but I also use separate files. Filenames are categories by default, so there is less to configure when you use separate files.
 
 #+BEGIN_SRC elisp
@@ -640,23 +623,13 @@ My org agenda commands. Currently a work in progress.
 Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [[*Org mode extensions][extensions]] for how I extend org-mode. 
 
 #+BEGIN_SRC elisp
-(defvar td/capture-templates
-  '(("c" "Cookbook" entry (file "~/Org/cookbook.org")
-     "%(org-chef-get-recipe-from-url)"
-     :empty-lines 1)
-    ("m" "Manual Cookbook" entry (file "~/Org/cookbook.org")
-     (concat "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n"
-             "  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n"
-             "  :END:\n** Ingredients\n   %?\n** Directions\n\n"))))
+(defvar td/capture-templates '() "Base org-capture-templates.")
 #+END_SRC
 
 I usually stick to monospace sized fonts with the exception of Org files. I like the first 3 levels to be slightly larger than the rest, and progressively smaller. This helps me create a sense of urgency at the lower-level headers and it also improves readability.
 
 ***** Functions
-
-We use =td/org-scale-levels= to improve the readability of org-mode headers in order of the highest level sections to as low as 3 levels. For myself, anything deeper than 3 levels is just bold text.
-
-Later on, =td/org-hook= will be fired when org-mode is started and it contains complimentary settings/modes.
+Some fairly self-explanatory utility functions.
 
 #+BEGIN_SRC elisp
 (defun td/org-scale-levels ()
@@ -677,6 +650,9 @@ Later on, =td/org-hook= will be fired when org-mode is started and it contains c
   (yas-minor-mode)
   (org-clock-persistence-insinuate)
   (td/org-scale-levels))
+
+(defun td/org-append-templates (templates)
+  (setq org-capture-templates (append org-capture-templates templates)))
 #+END_SRC
 
 ***** Apply Configuration
@@ -713,29 +689,12 @@ Later on, =td/org-hook= will be fired when org-mode is started and it contains c
 #+END_SRC
 
 ***** Extending Org Mode
-
 Extending org-mode with some interesting packages.
 
-- [[https://github.com/Chobbes/org-chef][org-chef]] is a must have if you enjoy cooking
-- ox-gfm is for Github Flavored Markdown
-- visual-fill-column is for narrowing org-mode into a reading-friendly column size.
-- org-alert lets me get notifications regarding agenda items.
+****** org-alert
+Libnotify alerts for Agenda alerts.
 
 #+BEGIN_SRC elisp
-(use-package org-chef)
-(use-package ox-gfm)
-
-(defun td/visual-fill-setup ()
-  "Center the column 100 characters wide."
-  (setq-local visual-fill-column-width 100
-              visual-fill-column-center-text nil)
-  (visual-fill-column-mode 1))
-
-(use-package visual-fill-column
-  :bind (:map org-mode-map
-              ("C-c v" . visual-fill-column-mode))
-  :hook (org-mode . td/visual-fill-setup))
-
 (use-package org-alert
   :config
   (setq alert-default-style 'libnotify
@@ -745,6 +704,30 @@ Extending org-mode with some interesting packages.
   (org-alert-enable))
 #+END_SRC
 
+****** org-chef
+[[https://github.com/Chobbes/org-chef][Org-chef]] is a must have if you enjoy cooking. You can just use =M-x org-chef-insert-recipe= in whatever cookbook file, or the capture templates.
+
+#+BEGIN_SRC elisp
+(use-package org-chef
+  :config
+  (td/org-append-templates
+   '(("c" "Cookbook" entry (file "~/Org/cookbook.org")
+      "%(org-chef-get-recipe-from-url)"
+      :empty-lines 1)
+     ("m" "Manual Cookbook" entry (file "~/Org/cookbook.org")
+      (concat "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n"
+              "  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n"
+              "  :END:\n** Ingredients\n   %?\n** Directions\n\n")))))
+#+END_SRC
+
+****** ox-gfm
+Get access to Github Flavored Markdown
+
+#+BEGIN_SRC elisp
+(use-package ox-gfm)
+#+END_SRC             
+
+****** org-make-toc
 Org Make TOC gives me the ability to automagically update documentation files with a table of contents, which is really nice for README files that I don't feel like exporting every time I update them.
 
 I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update this config on save.
@@ -767,8 +750,21 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
   :hook (org-mode . td/set-auto-toc))
 #+END_SRC
 
-***** TODO Custom Clock Table
+****** org-roam
+Use org-mode to build a "Zettlekasten" style second brain/knowledge repository.
 
+#+BEGIN_SRC elisp
+(use-package org-roam
+  :custom
+  (org-roam-directory "~/Org")
+  :bind (("C-c r t" . org-roam-buffer-toggle)
+         ("C-c r f" . org-roam-node-find)
+         ("C-c r i" . org-roam-insert))
+  :config
+  (org-roam-setup))
+#+END_SRC
+
+***** TODO Custom Clock Table
 I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting billable hours and invoicing.
 
 Task:
@@ -914,7 +910,6 @@ Here's an example:
 #+END
 
 **** Mu4e
-
 Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my
 context settings out of this source-controlled repository as to keep some more sensitive
 info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Contexts]] are well documented if you need a hand with them.
@@ -978,7 +973,6 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
 #+END_SRC
 
 **** Ledger
-
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
 #+BEGIN_SRC elisp
@@ -988,7 +982,6 @@ Knowing what resources you have at your disposal and learning how to budget are 
 #+END_SRC
 
 **** Sensitive Mode
-
 Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21.html][Anirudh Sasikumar]]. It has been adapted to accomodate undo-tree. This prevents emacs from generating unencrypted backups & autosave data from =.gpg= files.
 
 #+BEGIN_SRC elisp
@@ -1034,6 +1027,22 @@ A great tool for turning back the clock on a buffer. Especially when git commits
    '(".*" . "~/.emacs.d/undo-tree/")))
 #+END_SRC
 
+**** Visual Fill Column
+Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
+
+#+BEGIN_SRC elisp
+(defun td/visual-fill-setup ()
+  "Center the column 100 characters wide."
+  (setq-local visual-fill-column-width 100
+              visual-fill-column-center-text nil)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :bind (:map org-mode-map
+              ("C-c v" . visual-fill-column-mode))
+  :hook (org-mode . td/visual-fill-setup))
+#+END_SRC
+
 **** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
@@ -1043,7 +1052,6 @@ What the heck was that keybind again? If you can remember how it starts, which-k
 #+END_SRC
 
 *** Syntax Support
-
 We're getting into to the language specific stuff now. Much of this is specifically tailored for Shopify, TypeScript and JavaScript development. Many if not all of these features stay out of the way when you're not in the language mode. There's also a very tedious attempt to make all of these disjointed program modes listen to my gosh dang tab-width setting instead of doing their own thing as an insane default.
 
 **** CSS/SCSS
@@ -1054,8 +1062,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 #+END_SRC
 
 **** Emmet
-
-~.Emmet[data-love="true"]~
+ ~.Emmet[data-love="true"]~
 
 #+BEGIN_SRC elisp
 (use-package emmet-mode
@@ -1171,7 +1178,6 @@ We're getting into to the language specific stuff now. Much of this is specifica
 #+END_SRC
 
 **** Markdown
-
 The free software documentation language of the Internet.
 
 #+BEGIN_SRC elisp
@@ -1221,7 +1227,6 @@ An opinionated way to clean up my web-dev code quickly.
 #+END_SRC
 
 **** Prog Mode
-
 A few settings that are useful in programming buffers
 
 #+BEGIN_SRC elisp
@@ -1273,15 +1278,13 @@ A few settings that are useful in programming buffers
 #+END_SRC
 
 **** Python
-
-<3 Python
+ <3 Python
 
 #+BEGIN_SRC elisp
 (use-package pyvenv)
 #+END_SRC
 
 **** Rainbow Delimiters
-
 This comes in handier than you think it would. Especially with these (lisp '((config . files)))
 
 #+BEGIN_SRC elisp
@@ -1290,7 +1293,6 @@ This comes in handier than you think it would. Especially with these (lisp '((co
 #+END_SRC
 
 **** Rainbow Mode
-
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
 #+BEGIN_SRC elisp
@@ -1311,7 +1313,6 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 #+END_SRC
 
 **** Shopify Mode
-
 This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
 
 #+BEGIN_SRC elisp
@@ -1330,7 +1331,6 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
 #+END_SRC
 
 **** Svelte
-
 Fake-out a "svelte-mode" for the purposes of activating with the svelte-language-server. I'm extending web-mode because it highlights =.svelte= files well.
 
 #+BEGIN_SRC elisp
@@ -1341,7 +1341,6 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 #+END_SRC
 
 **** Treesitter
-
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
 #+BEGIN_SRC elisp
@@ -1377,7 +1376,6 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 #+END_SRC
 
 **** Web Mode
-
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
 #+BEGIN_SRC elisp
@@ -1394,7 +1392,6 @@ There isn't a much better catch-all for web template syntax support than web-mod
 #+END_SRC
 
 **** YAML
-
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
 
 #+BEGIN_SRC elisp
@@ -1402,7 +1399,6 @@ YAML's a really nice way to configure software, containers and projects. I use i
 #+END_SRC
 
 **** Yasnippet
-
 Snippets! They're helpful.
 
 #+BEGIN_SRC elisp
@@ -1417,7 +1413,6 @@ Snippets! They're helpful.
 #+END_SRC
 
 ** About This Config
-
 This literate configuration is a labour of love from a man who changes his mind and mixes things up /often/.
 
 I'm not sure it will ever be finished or perfect. At times, things may clunk. I will do my best to clunk them in another branch.
