@@ -679,7 +679,7 @@ Later on, =td/org-hook= will be fired when org-mode is started and it contains c
   (td/org-scale-levels))
 #+END_SRC
 
-***** Execution
+***** Apply Configuration
 
 #+BEGIN_SRC elisp
 (use-package org
