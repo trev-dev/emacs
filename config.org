@@ -997,8 +997,14 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
                                   (insert-file-contents contexts)
                                   (read (current-buffer)))))))
   (add-to-list 'mu4e-bookmarks
-               '(:name "Flagged" :key ?f :query "flag:flagged")))
-
+               '(:name "Flagged" :key ?f :query "flag:flagged"))
+  (add-to-list 'mu4e-bookmarks
+               '(
+                 :name "New Mail"
+                 :key ?n
+                 :query "flag:unread AND NOT maildir:/fastmail/Spam"
+                 )
+               ))
 
 (use-package org-msg
   :config
