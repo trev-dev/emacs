@@ -1464,6 +1464,7 @@ Snippets! They're helpful.
 
 #+BEGIN_SRC elisp
 (use-package yasnippet
+  :demand t
   :bind ("C-c ," . yas-expand)
   :config
   (setq yas-snippet-dirs '("~/.config/emacs/yasnippets")))
