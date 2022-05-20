@@ -23,6 +23,7 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#dashboard][Dashboard]]
     - [[#diff-hl][Diff-hl]]
     - [[#elfeed][Elfeed]]
+    - [[#ement][Ement]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#hydra][Hydra]]
@@ -425,6 +426,25 @@ RSS Reader :D
   :config
   (elfeed-org)
   (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))
+#+END_SRC
+
+**** Ement
+A Matrix client for Emacs.
+
+#+BEGIN_SRC elisp
+(defun td/matrix-connect ()
+  "Connect to Matrix via Ement & Pantalaimon."
+  (interactive)
+  (ement-connect
+   :user-id "@trevdev:matrix.org"
+   :uri-prefix "http://localhost:8009"))
+
+(use-package plz
+  :straight (:type git :host github :repo "alphapapa/plz.el"))
+
+(use-package ement
+  :requires plz
+  :straight (:type git :host github :repo "alphapapa/ement.el"))
 #+END_SRC
 
 **** Expand Region
