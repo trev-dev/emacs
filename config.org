@@ -42,6 +42,7 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#emmet][Emmet]]
     - [[#flycheck][Flycheck]]
     - [[#golang][GoLang]]
+    - [[#lua-mode][Lua Mode]]
     - [[#lsp-mode][LSP Mode]]
     - [[#markdown][Markdown]]
     - [[#php][PHP]]
@@ -1182,6 +1183,13 @@ We're getting into to the language specific stuff now. Much of this is specifica
 #+BEGIN_SRC elisp
 (use-package go-mode
   :mode ("\\.go\\'"))
+#+END_SRC
+
+**** Lua Mode
+
+#+BEGIN_SRC elisp
+(use-package lua-mode
+  :mode "\\.lua\\'")
 #+END_SRC
 
 **** LSP Mode
