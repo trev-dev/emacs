@@ -26,7 +26,7 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
-(use-package org)
+(use-package org :straight (:type built-in))
 
 
 ;;; Use a custom variables file. Load these variables first.
