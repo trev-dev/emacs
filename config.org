@@ -1198,7 +1198,7 @@ We're getting into to the language specific stuff now. Much of this is specifica
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
   :commands lsp
-  :hook ((css-mode
+  :hook (((css-mode
           scss-mode
           html-mode
           js-mode
@@ -1210,7 +1210,8 @@ We're getting into to the language specific stuff now. Much of this is specifica
           svelte-mode
           typescript-mode
           vue-mode
-          yaml-mode) . (lambda () (lsp) (lsp-enable-which-key-integration)))
+          yaml-mode) . lsp)
+          ((lsp-mode) . lsp-enable-which-key-integration))
   :config
   (setq lsp-log-io nil
         lsp-enable-folding nil
