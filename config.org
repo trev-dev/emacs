@@ -622,21 +622,40 @@ Next are my TODO key words. They are meant to be used as such:
 - =TODO= A generic task or actionable thing that needs attention
 - =NEXT= A planned task, something I am setting my mind to until it is done. There should be very few of these types of tasks so that I am setting achievable goals
 - =WAIT= The task that is held up by some pre-requesite or external factor
+- =LOW= The task is a "maybe/someday" task. I'd like to see it done, but it's not a priority right now.
 - =DONE= The task is completed
 - =PASS= The task has been "passed along" or "delegated" to someone else. Considered 'done', just not by myself
 - =CANC= The task has been cancelled or ended before completion
   
 #+BEGIN_SRC elisp
 (defvar td/todo-keywords
-  '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "|" "DONE(d!)" "PASS(p@)" "CANC(k@)"))
+  '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "LOW(l)"
+              "|" "DONE(d!)" "PASS(p@)" "CANC(k@)"))
   "A sequence of keywords for Org headlines.")
 #+END_SRC
 
-My org agenda commands. Currently a work in progress.
+My org agenda commands & stuck projects. Currently a work in progress! I am reading David Allen's "[[https://gettingthingsdone.com/][Getting Things Done]]." I am attempting to shape my agenda to suit that system.
 
 #+BEGIN_SRC elisp
 (defvar td/org-agenda-commands
-  '()
+  '(("d" "Dashboard: Get things done!"
+     ((agenda "" ((org-agenda-span 7)))
+      (tags-todo "+PRIORITY=\"A\""
+                 ((org-agenda-overriding-header "High Priority")))
+      (todo "NEXT"
+            ((org-agenda-overriding-header "Do Next")
+             (org-agenda-max-todos nil)))
+      (todo "WAIT"
+            ((org-agenda-overriding-header "Follow Up")))
+      (todo "TODO"
+            ((org-agenda-overriding-header "Unscheduled")))
+      )
+     )
+    ("l" "Backburner of low priority tasks"
+     ((todo "LOW"
+           ((org-agenda-overriding-header "Someday/Maybe"))))
+     )
+    )
   "Custom commands for Org Agenda.")
 #+END_SRC
 
@@ -699,7 +718,7 @@ Some fairly self-explanatory utility functions.
       org-agenda-block-separator "──────────"
       org-duration-format '(("h" . nil) (special . 2))
       org-clock-total-time-cell-format "%s"
-      org-agenda-files '("~/Org")
+      org-agenda-files '("~/Org/agenda")
       org-tag-alist td/tag-list
       org-todo-keywords td/todo-keywords
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
@@ -744,8 +763,15 @@ Libnotify alerts for Agenda alerts.
 Get access to Github Flavored Markdown
 
 #+BEGIN_SRC elisp
-(use-package ox-gfm)
+(use-package ox-gfm :after ox)
 #+END_SRC             
+
+****** ox-hugo
+I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
+
+#+BEGIN_SRC elisp
+(use-package ox-hugo :after ox)
+#+END_SRC
 
 ****** org-make-toc
 Org Make TOC gives me the ability to automagically update documentation files with a table of contents, which is really nice for README files that I don't feel like exporting every time I update them.
@@ -776,7 +802,7 @@ Use org-mode to build a "Zettlekasten" style second brain/knowledge repository.
 #+BEGIN_SRC elisp
 (use-package org-roam
   :custom
-  (org-roam-directory "~/Org")
+  (org-roam-directory "~/Org/roam")
   :bind (("C-c r t" . org-roam-buffer-toggle)
          ("C-c r f" . org-roam-node-find)
          ("C-c r i" . org-roam-insert))
@@ -790,7 +816,7 @@ I wanted a neat and tidy way to lay out the hours that I've worked, vs how much 
 Task:
 - [ ] Re-work this into its own package. It's big and worth sharing on its own.
 
-#+BEGIN_SRC elisp :tangle 
+#+BEGIN_SRC elisp
 (defcustom td/billable-rate 80
   "The billable rate for calculating 'td/custom-clocktable"
   :type `integer
