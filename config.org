@@ -27,7 +27,6 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#hydra][Hydra]]
-    - [[#meow][Meow]]
     - [[#magit][Magit]]
     - [[#org][Org]]
     - [[#mu4e][Mu4e]]
@@ -445,7 +444,9 @@ A Matrix client for Emacs.
 
 (use-package ement
   :requires plz
-  :straight (:type git :host github :repo "alphapapa/ement.el"))
+  :straight (:type git :host github :repo "alphapapa/ement.el")
+  :config
+  (setq print-circle t))
 #+END_SRC
 
 **** Expand Region
@@ -801,14 +802,46 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
 Use org-mode to build a "Zettlekasten" style second brain/knowledge repository.
 
 #+BEGIN_SRC elisp
+(defvar td/roam-capture-templates
+  '(("d" "default" plain "%?"
+  :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                     "#+TITLE: ${title}\n#+DATE: %U\n")
+  :unnarrowed t)))
+
+(defvar td/roam-capture-daily
+  '(("d" "default" entry "* %<%I:%M %p>: %?"
+     :target (file+head "%<%Y-%m-%d>.org"
+                        "#+TITLE: %<%a, %b %d %Y>\n"))))
+
 (use-package org-roam
   :custom
   (org-roam-directory "~/Org/roam")
   :bind (("C-c r t" . org-roam-buffer-toggle)
          ("C-c r f" . org-roam-node-find)
-         ("C-c r i" . org-roam-insert))
+         ("C-c r i" . org-roam-node-insert))
+  :bind-keymap
+  ("C-c r d" . org-roam-dailies-map)
   :config
+  (require 'org-roam-dailies)
+  (setq org-roam-capture-templates td/roam-capture-templates
+        org-roam-dailies-capture-templates td/roam-capture-daily)
   (org-roam-setup))
+#+END_SRC
+
+****** org-roam-ui
+
+#+BEGIN_SRC elisp
+(use-package org-roam-ui
+  :straight (:host github
+                   :repo "org-roam/org-roam-ui"
+                   :branch "main" :files ("*.el" "out"))
+  :after org-roam
+  :commands org-roam-ui-mode
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
 #+END_SRC
 
 ***** TODO Custom Clock Table
