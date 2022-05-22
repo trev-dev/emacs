@@ -147,7 +147,7 @@ I am using Quelpa for strange repositories that aren't in a package.el friendly 
 #+END_SRC
 
 **** Maintain selected packages
-I want to be able to properly maintain my selected packages so that ~package-autoremove~ works as intended.
+I want to be able to properly maintain my selected packages so that ~package-autoremove~ works as a maintenance function that I can run to remove forgotten packages I had tried out, or stopped using in this init.
 
 #+BEGIN_SRC elisp
 (defvar td/package-list '(quelpa))
