@@ -10,10 +10,12 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
 :END:
 :CONTENTS:
 - [[#general-settings][General Settings]]
+- [[#helper-functions][Helper Functions]]
+- [[#prog-mode][Prog Mode]]
 - [[#package-configuration][Package Configuration]]
   - [[#bootstrapping][Bootstrapping]]
     - [[#repositories][Repositories]]
-    - [[#maintain-selected-packages][Maintain selected packages]]
+    - [[#maintaining-selected-packages][Maintaining selected packages]]
     - [[#quelpa][Quelpa]]
   - [[#look--feel][Look & Feel]]
     - [[#all-the-icons][All The Icons]]
@@ -31,6 +33,7 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#hydra][Hydra]]
+    - [[#meow][Meow]]
     - [[#magit][Magit]]
     - [[#org][Org]]
     - [[#mu4e][Mu4e]]
@@ -50,7 +53,6 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#markdown][Markdown]]
     - [[#php][PHP]]
     - [[#prettier][Prettier]]
-    - [[#prog-mode][Prog Mode]]
     - [[#python][Python]]
     - [[#rainbow-delimiters][Rainbow Delimiters]]
     - [[#rainbow-mode][Rainbow Mode]]
@@ -63,6 +65,7 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
     - [[#web-mode][Web Mode]]
     - [[#yaml][YAML]]
     - [[#yasnippet][Yasnippet]]
+  - [[#install--configure-packages][Install & Configure Packages]]
 - [[#about-this-config][About This Config]]
   - [[#installation][Installation]]
   - [[#current-mindset][Current Mindset]]
@@ -131,6 +134,85 @@ I hate seeing project folders get all cluttered up. Let's move autosaves and bac
 
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 #+END_SRC
+** Helper Functions
+Functions that help me with configuration.
+
+#+BEGIN_SRC elisp
+(defun td/bind-keys (conses &optional mode-map)
+  "Bind several keybinds using a list of `CONSES'.
+Binds will be global unless the optional `MODE-MAP' is specified."
+  (dolist (combo conses)
+    (if (or (consp mode-map) (keymapp mode-map))
+        (define-key mode-map (kbd (car combo)) (cdr combo))
+      (if mode-map (warn "Optional %s `MODE-MAP' was invalid: %s" (type-of mode-map) mode-map))
+      (global-set-key (kbd (car combo)) (cdr combo)))))
+
+(defun td/add-hooks (modes func)
+  "Set several hooks from a list of `CONSES'.
+Adds '-hook' onto the end of the symbols for brevity."
+  (dolist (mode modes)
+    (add-hook (intern (concat (symbol-name mode) "-hook")) func)))
+
+(defun td/auto-mode (modes)
+  "Add the `MODES' to the `auto-mode-alist'."
+  (dolist (mode modes)
+    (add-to-list 'auto-mode-alist mode)))
+
+(defun td/filter-nil (seq)
+  "Filter out nil items from sequence `SEQ'."
+  (seq-filter #'(lambda (item) item) seq))
+#+END_SRC
+
+** Prog Mode
+A few settings that are useful in programming buffers
+
+#+BEGIN_SRC elisp
+(defun td/toggle-indent-tabs-mode ()
+  "Toggle `indent-tabs-mode'."
+  (interactive)
+  (setq-local indent-tabs-mode (not indent-tabs-mode)))
+
+(defun td/infer-indentation-style ()
+  ;; if our source file uses tabs, we use tabs, if spaces spaces, and if
+  ;; neither, we use the current indent-tabs-mode
+  (let ((space-count (how-many "^  "))
+        (tab-count (how-many "^\t")))
+    (if (> space-count tab-count)
+        (setq indent-tabs-mode nil))
+    (if (> tab-count space-count)
+        (setq indent-tabs-mode t))))
+
+(defun td/prog-mode-settings ()
+  (setq whitespace-style '(face tabs tab-mark trailing))
+  (setq whitespace-display-mappings '((tab-mark 9 [9474 9] [92 9])))
+  (custom-set-faces
+   '(whitespace-tab ((t (:foreground "#636363")))))
+  (setq-local fill-column 80)
+  (setq-local show-trailing-whitespace t)
+  (show-paren-mode t)
+  (hs-minor-mode)
+  (display-line-numbers-mode)
+  (display-fill-column-indicator-mode)
+  (electric-pair-local-mode)
+  (yas-minor-mode)
+  (td/infer-indentation-style)
+  (whitespace-mode))
+
+;; I want a way to tab over relative similar tab-to-tab-stop
+(setq indent-tabs-mode nil)
+(setq standard-indent 2)
+(setq backward-delete-char-untabify-method 'hungry)
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+(setq-default evil-shift-width 2)
+(setq-default electric-indent-inhibit t)
+
+(dolist (combo '(("C-c i" . td/toggle-indent-tabs-mode)
+                 ("C-i" . indent-relative)))
+  (define-key prog-mode-map (kbd (car combo)) (cdr combo)))
+
+(add-hook 'prog-mode-hook 'td/prog-mode-settings)
+#+END_SRC
 
 ** Package Configuration
 *** Bootstrapping
@@ -146,27 +228,51 @@ I am using Quelpa for strange repositories that aren't in a package.el friendly 
   (add-to-list 'package-archives repo))
 #+END_SRC
 
-**** Maintain selected packages
-I want to be able to properly maintain my selected packages so that ~package-autoremove~ works as a maintenance function that I can run to remove forgotten packages I had tried out, or stopped using in this init.
+**** Maintaining selected packages
+The goal is to keep my init lean and simple. I personally feel like ~use-package~ is overkill for my needs, but I want my init to be a little more terse.
+
+I also don't want to maintain my ~package-select-packages~ separate from my package configurations. Having to maintain packages in 2 places feels unweildy.
+
+To solve this problem I have written a "package queuing" system where configurations are added to a list and then processed after.
 
 #+BEGIN_SRC elisp
-(defvar td/package-list '(quelpa))
+(defmacro td/add-setup (pkg &rest conf)
+  "Add `PKG' symbol and `CONF' field to the package setup queue.
+If `PKG' is nil, it is assumed that the `CONF' is for something built-in."
+  (declare (indent 1))
+  (unless (boundp 'td/package-list)
+    (defvar td/package-list '() "The package configuration queue."))
+  `(add-to-list
+    'td/package-list
+    (cons ,pkg #'(lambda () ,@conf))))
 
-(defun td/select-package (pkg)
-  "Install, and add `PKG' to `td/package-list'."
-  (add-to-list 'td/package-list pkg)
-  (when (not (package-installed-p pkg))
-    (package-install pkg t)))
+(defun td/extract-package-names (pkg-list)
+  "Retrieve a list of package symbols from a `PKG-LIST'."
+  (td/filter-nil (mapcar #'car pkg-list)))
 
-(add-hook
- 'after-init-hook
- #'(lambda ()
-    (customize-save-variable 'package-selected-packages
-                             td/package-list)
-    (makunbound 'td/package-list)))
+(defun td/setup-packages ()
+  "Setup queued packages in `td/package-list'.
+  This is meant to be run once at the end of package configuration."
+  (when (boundp 'td/package-list)
+    (let ((packages (td/extract-package-names td/package-list)))
+      (when (seq-some #'(lambda (pkg) (not (package-installed-p pkg))) packages)
+        (setq package-selected-packages packages)
+        (package-refresh-contents)
+        (package-install-selected-packages)))
+    (dolist (conf td/package-list)
+      (let ((setup (cdr-safe conf)))
+        (when (functionp setup)
+          (funcall setup))))
+    (add-hook 'after-init-hook
+              #'(lambda ()
+                  (customize-save-variable
+                   'package-selected-packages
+                   (td/extract-package-names td/package-list))
+                  (makunbound 'td/package-list)))))
 #+END_SRC
 
 **** Quelpa
+For developing packages or installing obscure packages, I am using Quelpa. Quelpa is small and simple.
 
 #+BEGIN_SRC elisp
 (unless (package-installed-p 'quelpa)
@@ -177,42 +283,40 @@ I want to be able to properly maintain my selected packages so that ~package-aut
 (setq quelpa-update-melpa-p nil)
 
 (defmacro quelpa-get (pkg &rest method)
+  "Use quelpa to retrieve some external `PKG', pass on `METHOD' to quelpa.
+This should improve init by not looking for things we already have."
   `(unless (package-installed-p ',pkg)
-     (quelpa '(,pkg ,@method))
-     (add-to-list 'td/package-list ',pkg)))
+     (quelpa '(,pkg ,@method))))
+
+(td/add-setup 'quelpa)
 #+END_SRC
 
 *** Look & Feel
 **** All The Icons
 
 #+BEGIN_SRC elisp
-(td/select-package 'all-the-icons)
-
-(require 'all-the-icons)
+(td/add-setup 'all-the-icons
+  (require 'all-the-icons))
 #+END_SRC
 
 **** Dired
 
 #+BEGIN_SRC elisp
-(td/select-package 'all-the-icons-dired)
-
-(use-package all-the-icons-dired
-  :after all-the-icons
-  :config (setq all-the-icons-dired-monochrome nil)
-  :hook (dired-mode . (lambda ()
-                        (when (display-graphic-p)
-                          (all-the-icons-dired-mode))
-                        (dired-hide-details-mode))))
+(td/add-setup 'all-the-icons-dired
+  (with-eval-after-load 'all-the-icons
+    (setq all-the-icons-dired-monochrome nil)
+    (add-hook
+     'dired-mode-hook #'(lambda ()
+                          (when (display-graphic-p)
+                            (all-the-icons-dired-mode))
+                          (dired-hide-details-mode)))))
 #+END_SRC
 
 **** Doom Themes
 Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
 #+BEGIN_SRC elisp
-(td/select-package 'doom-themes)
-
-(use-package doom-themes
-  :config
+(td/add-setup 'doom-themes
   (add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t
@@ -236,9 +340,7 @@ I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark
 A simple, but nicer looking modeline
 
 #+BEGIN_SRC elisp
-(td/select-package 'telephone-line)
-(use-package telephone-line
-  :config
+(td/add-setup 'telephone-line
   (setq telephone-line-primary-left-separator
         'telephone-line-cubed-left
 
@@ -286,11 +388,9 @@ Packages that extend and augment emacs in a general way
 **** Avy
 
 #+BEGIN_SRC elisp
-(td/select-package 'avy)
-
-(use-package avy
-  :bind ("C-." . avy-goto-char-timer)
-  :config (avy-setup-default))
+(td/add-setup 'avy
+  (global-set-key (kbd "C-.") #'avy-goto-char-timer)
+  (avy-setup-default))
 #+END_SRC
 
 **** Completions
@@ -300,8 +400,6 @@ A combination of packages to enhance completions.
 Completions at point/region.
 
 #+BEGIN_SRC elisp
-(td/select-package 'company)
-
 (defun td/company-prog-hook ()
   "Completions for programming."
   (setq-local company-backends
@@ -309,18 +407,16 @@ Completions at point/region.
                 company-dabbrev-code
                 company-keywords
                 company-files
-                company-yasnippet)
-              company-dabbrev-other-buffers t))
+                company-yasnippet)))
 
-(use-package company
-  :hook ((prog-mode . td/company-prog-hook)
-         (after-init . global-company-mode))
-  :config
+(td/add-setup 'company
+  (add-hook 'after-init-hook #'global-company-mode)
+  (add-hook 'prog-mode-hook #'td/company-prog-hook)
   (setq company-backends '(company-capf
                            company-ispell
                            company-files)
         company-files-exclusions '(".git/")
-        company-idle-delay 0))
+        company-idle-delay 0.3))
 #+END_SRC
 
 ***** Consult
@@ -328,10 +424,8 @@ I am currently giving consult a try as my completion-at-point solution, amongst 
 other better ways to reference things in Emacs.
 
 #+BEGIN_SRC elisp
-(td/select-package 'consult)
-
-(use-package consult
-  :init
+(td/add-setup 'consult
+  (require 'consult)
   (setq register-preview-delay 0
         register-preview-function #'consult-register-format
         xref-show-xrefs-function #'consult-xref
@@ -342,50 +436,48 @@ other better ways to reference things in Emacs.
   ;; Optionally replace `completing-read-multiple' with an enhanced version.
   (advice-add #'completing-read-multiple
               :override #'consult-completing-read-multiple)
-  :bind (("C-c h" . consult-history)
-         ("C-c m" . consult-mode-command)
-         ;; ("C-c k" . consult-kmacro)
-         ;; C-x bindings (ctl-x-map)
-         ("C-x M-:" . consult-complex-command)
-         ("C-x b" . consult-buffer)
-         ("C-x 4 b" . consult-buffer-other-window)
-         ("C-x 5 b" . consult-buffer-other-frame)
-         ("C-x r b" . consult-bookmark)
-         ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)
-         ("C-M-#" . consult-register)
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)
-         ("<help> a" . consult-apropos)
-         ;; M-g bindings (goto-map)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flycheck) ; or flymake?
-         ("M-g g" . consult-goto-line)
-         ("M-g M-g" . consult-goto-line)
-         ("M-g o" . consult-outline)
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ;; M-s bindings (search-map)
-         ("M-s d" . consult-find)
-         ("M-s D" . consult-locate)
-         ("M-s g" . consult-grep)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s m" . consult-multi-occur)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history))
-  :hook
-  (completion-list-mode . consult-preview-at-point-mode)
-  :config
+
+  (td/bind-keys '(("C-c h" . consult-history)
+                  ("C-c m" . consult-mode-command)
+                  ;; ("C-c k" . consult-kmacro)
+                  ;; C-x bindings (ctl-x-map)
+                  ("C-x M-:" . consult-complex-command)
+                  ("C-x b" . consult-buffer)
+                  ("C-x 4 b" . consult-buffer-other-window)
+                  ("C-x 5 b" . consult-buffer-other-frame)
+                  ("C-x r b" . consult-bookmark)
+                  ;; Custom M-# bindings for fast register access
+                  ("M-#" . consult-register-load)
+                  ("M-'" . consult-register-store)
+                  ("C-M-#" . consult-register)
+                  ;; Other custom bindings
+                  ("M-y" . consult-yank-pop)
+                  ("<help> a" . consult-apropos)
+                  ;; M-g bindings (goto-map)
+                  ("M-g e" . consult-compile-error)
+                  ("M-g f" . consult-flycheck) ; or flymake?
+                  ("M-g g" . consult-goto-line)
+                  ("M-g M-g" . consult-goto-line)
+                  ("M-g o" . consult-outline)
+                  ("M-g m" . consult-mark)
+                  ("M-g k" . consult-global-mark)
+                  ("M-g i" . consult-imenu)
+                  ("M-g I" . consult-imenu-multi)
+                  ;; M-s bindings (search-map)
+                  ("M-s d" . consult-find)
+                  ("M-s D" . consult-locate)
+                  ("M-s g" . consult-grep)
+                  ("M-s G" . consult-git-grep)
+                  ("M-s r" . consult-ripgrep)
+                  ("M-s l" . consult-line)
+                  ("M-s L" . consult-line-multi)
+                  ("M-s m" . consult-multi-occur)
+                  ("M-s k" . consult-keep-lines)
+                  ("M-s u" . consult-focus-lines)
+                  ;; Isearch integration
+                  ("M-s e" . consult-isearch-history)))
+  (define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
+  (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
   (consult-customize
    consult-theme
    :preview-key '(:debounce 0.2 any)
@@ -400,31 +492,23 @@ other better ways to reference things in Emacs.
           (when-let (project (project-current))
             (car (project-roots project))))))
 
-(td/select-package 'consult-flycheck)
-
-(use-package consult-flycheck)
+(td/add-setup 'consult-flycheck)
 #+END_SRC
 
 ***** Marginalia
 Better descriptions of symbols in the minibuffer.
 
 #+BEGIN_SRC elisp
-(td/select-package 'marginalia)
-
-(use-package marginalia
-  :init (marginalia-mode)
-  :bind (:map minibuffer-local-map
-              ("M-A" . marginalia-cycle)))
+(td/add-setup 'marginalia
+  (marginalia-mode)
+  (define-key minibuffer-local-map (kbd "M-A") #'marginalia-cycle))
 #+END_SRC
 
 ***** Orderless
 A completion style that permits entering parts of completion names in any order.
 
 #+BEGIN_SRC elisp
-(td/select-package 'orderless)
-
-(use-package orderless
-  :config
+(td/add-setup 'orderless
   (setq completion-styles '(orderless)
         completion-category-defaults nil
         completion-category-overrides
@@ -443,24 +527,19 @@ Save history for Vertico to look at later.
 Mini-buffer completions back-end.
 
 #+BEGIN_SRC elisp
-(td/select-package 'vertico)
-
-(use-package vertico
-  :after consult
-  :config
-  (vertico-mode)
-  (setq enable-recursive-minibuffers t)
-  (advice-add #'completing-read-multiple :filter-args
-              #'consult-completing-read-multiple))
+(td/add-setup 'vertico
+  (with-eval-after-load 'consult
+    (vertico-mode)
+    (setq enable-recursive-minibuffers t)
+    (advice-add #'completing-read-multiple :filter-args
+                #'consult-completing-read-multiple)))
 #+END_SRC
 
 **** Dashboard
 
 #+BEGIN_SRC elisp
-(td/select-package 'dashboard)
+(td/add-setup 'dashboard
 
-(use-package dashboard
-  :config
   (setq dashboard-startup-banner 'logo
         dashboard-projects-backend 'project-el
         dashboard-items '((projects . 5)
@@ -482,10 +561,8 @@ Mini-buffer completions back-end.
 Show me the diffs in the fringe!
 
 #+BEGIN_SRC elisp
-(td/select-package 'diff-hl)
-
-(use-package diff-hl
-  :config (global-diff-hl-mode)
+(td/add-setup 'diff-hl
+  (global-diff-hl-mode)
   (with-eval-after-load 'magit
     (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
     (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)))
@@ -495,18 +572,13 @@ Show me the diffs in the fringe!
 RSS Reader :D
 
 #+BEGIN_SRC elisp
-(td/select-package 'elfeed)
+(td/add-setup 'elfeed
+  (global-set-key (kbd "M-o e ") #'elfeed))
 
-(use-package elfeed
-  :bind ("M-o e" . elfeed))
-
-(td/select-package 'elfeed-org)
-
-(use-package elfeed-org
-  :after (elfeed org)
-  :config
-  (elfeed-org)
-  (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))
+(td/add-setup 'elfeed-org
+  (with-eval-after-load 'elfeed
+    (elfeed-org)
+    (setq rmh-elfeed-org-files '("~/Org/elfeed.org"))))
 #+END_SRC
 
 **** Ement
@@ -523,12 +595,8 @@ A Matrix client for Emacs.
 (quelpa-get plz :fetcher github :repo "alphapapa/plz.el")
 (quelpa-get ement :fetcher github :repo "alphapapa/ement.el")
 
-(td/select-package 'plz)
-(td/select-package 'ement)
-
-(use-package ement
-  :requires plz
-  :config
+(td/add-setup 'plz)
+(td/add-setup 'ement
   (setq print-circle t))
 #+END_SRC
 
@@ -536,31 +604,23 @@ A Matrix client for Emacs.
 It just makes selecting text between sexps easy.
 
 #+BEGIN_SRC elisp
-(td/select-package 'expand-region)
-
-(use-package expand-region
-  :bind ("C-=" . er/expand-region))
+(td/add-setup 'expand-region
+  (global-set-key (kbd "C-=") #'er/expand-region))
 #+END_SRC
 
 **** Exec Path
 It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
 
 #+BEGIN_SRC elisp
-(td/select-package 'exec-path-from-shell)
-
-(use-package exec-path-from-shell
-  :config (exec-path-from-shell-initialize))
+(td/add-setup 'exec-path-from-shell
+  (exec-path-from-shell-initialize))
 #+END_SRC
 
 **** Hydra
 A tool for making repetative chords less cumbersome
 
 #+BEGIN_SRC elisp
-(td/select-package 'hydra)
-
-(use-package hydra
-  :after org
-  :config
+(td/add-setup 'hydra
   (defhydra hydra-window (global-map "C-c o")
     "Hydra Windmove"
     ("e" windmove-right "Right")
@@ -588,98 +648,96 @@ A tool for making repetative chords less cumbersome
     ("TAB" org-cycle "Cycle element")))
 #+END_SRC
 
-**** COMMENT Meow
+**** Meow
 
 #+BEGIN_SRC elisp
-(td/select-package 'meow)
+(defun meow-setup ()
+  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+  (meow-motion-overwrite-define-key
+   '("j" . meow-next)
+   '("k" . meow-prev)
+   '("<escape>" . ignore))
+  (meow-leader-define-key
+   ;; SPC j/k will run the original command in MOTION state.
+   '("j" . "H-j")
+   '("k" . "H-k")
+   ;; Use SPC (0-9) for digit arguments.
+   '("1" . meow-digit-argument)
+   '("2" . meow-digit-argument)
+   '("3" . meow-digit-argument)
+   '("4" . meow-digit-argument)
+   '("5" . meow-digit-argument)
+   '("6" . meow-digit-argument)
+   '("7" . meow-digit-argument)
+   '("8" . meow-digit-argument)
+   '("9" . meow-digit-argument)
+   '("0" . meow-digit-argument)
+   '("/" . meow-keypad-describe-key)
+   '("?" . meow-cheatsheet))
+  (meow-normal-define-key
+   '("0" . meow-expand-0)
+   '("9" . meow-expand-9)
+   '("8" . meow-expand-8)
+   '("7" . meow-expand-7)
+   '("6" . meow-expand-6)
+   '("5" . meow-expand-5)
+   '("4" . meow-expand-4)
+   '("3" . meow-expand-3)
+   '("2" . meow-expand-2)
+   '("1" . meow-expand-1)
+   '("-" . negative-argument)
+   '(";" . meow-reverse)
+   '("," . meow-inner-of-thing)
+   '("." . meow-bounds-of-thing)
+   '("[" . meow-beginning-of-thing)
+   '("]" . meow-end-of-thing)
+   '("a" . meow-append)
+   '("A" . meow-open-below)
+   '("b" . meow-back-word)
+   '("B" . meow-back-symbol)
+   '("c" . meow-change)
+   '("d" . meow-delete)
+   '("D" . meow-backward-delete)
+   '("e" . meow-next-word)
+   '("E" . meow-next-symbol)
+   '("f" . meow-find)
+   '("g" . meow-cancel-selection)
+   '("G" . meow-grab)
+   '("h" . meow-left)
+   '("H" . meow-left-expand)
+   '("i" . meow-insert)
+   '("I" . meow-open-above)
+   '("j" . meow-next)
+   '("J" . meow-next-expand)
+   '("k" . meow-prev)
+   '("K" . meow-prev-expand)
+   '("l" . meow-right)
+   '("L" . meow-right-expand)
+   '("m" . meow-join)
+   '("n" . meow-search)
+   '("o" . meow-block)
+   '("O" . meow-to-block)
+   '("p" . meow-yank)
+   '("q" . meow-quit)
+   '("Q" . meow-goto-line)
+   '("r" . meow-replace)
+   '("R" . meow-swap-grab)
+   '("s" . meow-kill)
+   '("t" . meow-till)
+   '("u" . meow-undo)
+   '("U" . meow-undo-in-selection)
+   '("v" . meow-visit)
+   '("w" . meow-mark-word)
+   '("W" . meow-mark-symbol)
+   '("x" . meow-line)
+   '("X" . meow-goto-line)
+   '("y" . meow-save)
+   '("Y" . meow-sync-grab)
+   '("z" . meow-pop-selection)
+   '("'" . repeat)
+   '("<escape>" . ignore)))
 
-(use-package meow
-  :config
-  (defun meow-setup ()
-    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-    (meow-motion-overwrite-define-key
-     '("j" . meow-next)
-     '("k" . meow-prev)
-     '("<escape>" . ignore))
-    (meow-leader-define-key
-     ;; SPC j/k will run the original command in MOTION state.
-     '("j" . "H-j")
-     '("k" . "H-k")
-     ;; Use SPC (0-9) for digit arguments.
-     '("1" . meow-digit-argument)
-     '("2" . meow-digit-argument)
-     '("3" . meow-digit-argument)
-     '("4" . meow-digit-argument)
-     '("5" . meow-digit-argument)
-     '("6" . meow-digit-argument)
-     '("7" . meow-digit-argument)
-     '("8" . meow-digit-argument)
-     '("9" . meow-digit-argument)
-     '("0" . meow-digit-argument)
-     '("/" . meow-keypad-describe-key)
-     '("?" . meow-cheatsheet))
-    (meow-normal-define-key
-     '("0" . meow-expand-0)
-     '("9" . meow-expand-9)
-     '("8" . meow-expand-8)
-     '("7" . meow-expand-7)
-     '("6" . meow-expand-6)
-     '("5" . meow-expand-5)
-     '("4" . meow-expand-4)
-     '("3" . meow-expand-3)
-     '("2" . meow-expand-2)
-     '("1" . meow-expand-1)
-     '("-" . negative-argument)
-     '(";" . meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
-     '("[" . meow-beginning-of-thing)
-     '("]" . meow-end-of-thing)
-     '("a" . meow-append)
-     '("A" . meow-open-below)
-     '("b" . meow-back-word)
-     '("B" . meow-back-symbol)
-     '("c" . meow-change)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
-     '("e" . meow-next-word)
-     '("E" . meow-next-symbol)
-     '("f" . meow-find)
-     '("g" . meow-cancel-selection)
-     '("G" . meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
-     '("i" . meow-insert)
-     '("I" . meow-open-above)
-     '("j" . meow-next)
-     '("J" . meow-next-expand)
-     '("k" . meow-prev)
-     '("K" . meow-prev-expand)
-     '("l" . meow-right)
-     '("L" . meow-right-expand)
-     '("m" . meow-join)
-     '("n" . meow-search)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
-     '("p" . meow-yank)
-     '("q" . meow-quit)
-     '("Q" . meow-goto-line)
-     '("r" . meow-replace)
-     '("R" . meow-swap-grab)
-     '("s" . meow-kill)
-     '("t" . meow-till)
-     '("u" . meow-undo)
-     '("U" . meow-undo-in-selection)
-     '("v" . meow-visit)
-     '("w" . meow-mark-word)
-     '("W" . meow-mark-symbol)
-     '("x" . meow-line)
-     '("X" . meow-goto-line)
-     '("y" . meow-save)
-     '("Y" . meow-sync-grab)
-     '("z" . meow-pop-selection)
-     '("'" . repeat)
-     '("<escape>" . ignore)))
+(td/add-setup 'meow
   (meow-setup)
   (meow-global-mode 1))
 #+END_SRC
@@ -688,10 +746,8 @@ A tool for making repetative chords less cumbersome
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
 #+BEGIN_SRC elisp
-(td/select-package 'magit)
-
-(use-package magit
-  :bind ("M-o g" . magit-status))
+(td/add-setup 'magit
+  (global-set-key (kbd "M-o g") #'magit-status))
 #+END_SRC
 
 **** Org
@@ -792,14 +848,12 @@ Some fairly self-explanatory utility functions.
 ***** Apply Configuration
 
 #+BEGIN_SRC elisp
-(use-package org
-  :hook (org-mode . td/org-hook)
-  :bind (("C-c a" . org-agenda)
-         :map org-mode-map
-         ("C-c t" . org-table-export))
-  :config
-  (require 'ox-md nil t)
-  (setq org-fontify-quote-and-verse-blocks t
+(add-hook 'org-mode-hook #'td/org-hook)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(define-key org-mode-map (kbd "C-c t") #'org-table-export)
+
+(require 'ox-md nil t)
+(setq org-fontify-quote-and-verse-blocks t
       org-directory "~/Org"
       org-archive-location "archives/%s_archive::"
       org-log-done 'time
@@ -817,7 +871,7 @@ Some fairly self-explanatory utility functions.
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
       org-timer-default-timer "25"
       org-agenda-custom-commands td/org-agenda-commands
-      org-capture-templates td/capture-templates))
+      org-capture-templates td/capture-templates)
 #+END_SRC
 
 ***** Extending Org Mode
@@ -827,10 +881,8 @@ Extending org-mode with some interesting packages.
 Libnotify alerts for Agenda alerts.
 
 #+BEGIN_SRC elisp
-(td/select-package 'org-alert)
-
-(use-package org-alert
-  :config
+(td/add-setup 'org-alert
+  (require 'org-alert)
   (setq alert-default-style 'libnotify
         org-alert-interval 7200
         org-alert-notify-cutoff 60
@@ -842,10 +894,7 @@ Libnotify alerts for Agenda alerts.
 [[https://github.com/Chobbes/org-chef][Org-chef]] is a must have if you enjoy cooking. You can just use =M-x org-chef-insert-recipe= in whatever cookbook file, or the capture templates.
 
 #+BEGIN_SRC elisp
-(td/select-package 'org-chef)
-
-(use-package org-chef
-  :config
+(td/add-setup 'org-chef
   (td/org-append-templates
    '(("c" "Cookbook" entry (file "~/Org/cookbook.org")
       "%(org-chef-get-recipe-from-url)"
@@ -860,18 +909,14 @@ Libnotify alerts for Agenda alerts.
 Get access to Github Flavored Markdown
 
 #+BEGIN_SRC elisp
-(td/select-package 'ox-gfm)
-
-(use-package ox-gfm :after ox)
+(td/add-setup 'ox-gfm)
 #+END_SRC             
 
 ****** ox-hugo
 I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
 
 #+BEGIN_SRC elisp
-(td/select-package 'ox-hugo)
-
-(use-package ox-hugo :after ox)
+(td/add-setup 'ox-hugo)
 #+END_SRC
 
 ****** org-make-toc
@@ -893,10 +938,8 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
         (org-make-toc-mode)
         (message "Org make TOC mode is on!"))))
 
-(td/select-package 'org-make-toc)
-
-(use-package org-make-toc
-  :hook (org-mode . td/set-auto-toc))
+(td/add-setup 'org-make-toc
+  (add-hook 'org-mode-hook #'td/set-auto-toc))
 #+END_SRC
 
 ****** org-roam
@@ -914,18 +957,16 @@ Use org-mode to build a "Zettlekasten" style second brain/knowledge repository.
      :target (file+head "%<%Y-%m-%d>.org"
                         "#+TITLE: %<%a, %b %d %Y>\n"))))
 
-(td/select-package 'org-roam)
-
-(use-package org-roam
-  :custom
-  (org-roam-directory "~/Org/roam")
-  :bind (("C-c r t" . org-roam-buffer-toggle)
-         ("C-c r f" . org-roam-node-find)
-         ("C-c r i" . org-roam-node-insert))
-  :bind-keymap
-  ("C-c r d" . org-roam-dailies-map)
-  :config
+(td/add-setup 'org-roam
   (require 'org-roam-dailies)
+  (setq org-roam-directory "~/Org/roam")
+  (td/bind-keys '(("C-c r t" . org-roam-buffer-toggle)
+                  ("C-c r f" . org-roam-node-find)
+                  ("C-c r i" . org-roam-node-insert)
+                  ("C-c r d i" . org-roam-dailies-capture-today)
+                  ("C-c r d t" . org-roam-dailies-goto-today)
+                  ("C-c r d y" . org-roam-dailies-goto-yesterday)
+                  ("C-c r d d" . org-roam-dailies-goto-date)))
   (setq org-roam-capture-templates td/roam-capture-templates
         org-roam-dailies-capture-templates td/roam-capture-daily)
   (org-roam-setup))
@@ -934,12 +975,7 @@ Use org-mode to build a "Zettlekasten" style second brain/knowledge repository.
 ****** org-roam-ui
 
 #+BEGIN_SRC elisp
-(td/select-package 'org-roam-ui)
-
-(use-package org-roam-ui
-  :after org-roam
-  :commands org-roam-ui-mode
-  :config
+(td/add-setup 'org-roam-ui
   (setq org-roam-ui-sync-theme t
         org-roam-ui-follow t
         org-roam-ui-update-on-save t
@@ -1099,6 +1135,8 @@ info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Co
 Also, If you need a good starting point with mu4e, I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]].
 
 #+BEGIN_SRC elisp
+(require 'mu4e)
+
 (defun td/get-mail-signature(file)
   "Retrieve the signature file from the signatures directory.
   Mostly used in contexts configuration."
@@ -1108,44 +1146,41 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
       (buffer-string))))
 
 (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
-(require 'mu4e)
 
-(use-package mu4e
-  :bind ("M-o m" . mu4e)
-  :config
-  (setq mu4e-maildir "~/.local/mail"
-        mu4e-change-filenames-when-moving t
-        mu4e-update-interval (* 10 60)
-        mu4e-get-mail-command "mbsync -a"
-        mail-user-agent 'mu4e-user-agent
-        mu4e-maildir-shortcuts '((:maildir "/fastmail/INBOX" :key ?p)
-                                 (:maildir "/fastmail/Business" :key ?b)
-                                 (:maildir "/voltage/INBOX" :key ?v))
-        message-send-mail-function 'smtpmail-send-it
-        mu4e-attachment-dir "~/Downloads"
-        mu4e-context-policy 'pick-first
-        mu4e-compose-format-flowed t
-        mu4e-compose-signature-auto-include nil
-        mml-secure-openpgp-encrypt-to-self t)
-  (setq mu4e-contexts (eval (let ((contexts "~/.config/emacs/mu4e-contexts.el"))
-                              (when (file-exists-p contexts)
-                                (with-temp-buffer
-                                  (insert-file-contents contexts)
-                                  (read (current-buffer)))))))
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Flagged" :key ?f :query "flag:flagged"))
-  (add-to-list 'mu4e-bookmarks
-               '(
-                 :name "New Mail"
-                 :key ?n
-                 :query "flag:unread AND NOT maildir:/fastmail/Spam"
-                 )
-               ))
+(global-set-key (kbd "M-o m") #'mu4e)
 
-(td/select-package 'org-msg)
+(setq mu4e-maildir "~/.local/mail"
+      mu4e-change-filenames-when-moving t
+      mu4e-update-interval (* 10 60)
+      mu4e-get-mail-command "mbsync -a"
+      mail-user-agent 'mu4e-user-agent
+      mu4e-maildir-shortcuts '((:maildir "/fastmail/INBOX" :key ?p)
+                               (:maildir "/fastmail/Business" :key ?b)
+                               (:maildir "/voltage/INBOX" :key ?v))
+      message-send-mail-function 'smtpmail-send-it
+      mu4e-attachment-dir "~/Downloads"
+      mu4e-context-policy 'pick-first
+      mu4e-compose-format-flowed t
+      mu4e-compose-signature-auto-include nil
+      mml-secure-openpgp-encrypt-to-self t)
 
-(use-package org-msg
-  :config
+(setq mu4e-contexts (eval (let ((contexts "~/.config/emacs/mu4e-contexts.el"))
+                            (when (file-exists-p contexts)
+                              (with-temp-buffer
+                                (insert-file-contents contexts)
+                                (read (current-buffer)))))))
+
+(add-to-list 'mu4e-bookmarks
+             '(:name "Flagged" :key ?f :query "flag:flagged"))
+(add-to-list 'mu4e-bookmarks
+             '(
+               :name "New Mail"
+               :key ?n
+               :query "flag:unread AND NOT maildir:/fastmail/Spam"
+               )
+             )
+
+(td/add-setup 'org-msg
   (setq org-msg-options "html-postamble:nil num:nil ^:{} toc:nil author:nil
          email:nil \\n:t"
         org-msg-startup "hidestars indent inlineimages"
@@ -1155,23 +1190,16 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
                                        (reply-to-html  . (text html))
                                        (reply-to-text  . (text)))))
 
-(td/select-package 'org-mime)
-
-(use-package org-mime
-  :commands org-mime-edit-mail-in-org-mode
-  :bind (:map message-mode-map
-              ("C-c C-o" . org-mime-edit-mail-in-org-mode)
-              ("C-c C-h" . org-mime-htmlize)))
+(td/add-setup 'org-mime
+  (td/bind-keys '(("C-c C-o" . org-mime-edit-mail-in-org-mode)
+                  ("C-c C-h" . org-mime-htmlize)) message-mode-map))
 #+END_SRC
 
 **** Ledger
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
 #+BEGIN_SRC elisp
-(td/select-package 'ledger-mode)
-
-(use-package ledger-mode
-  :config
+(td/add-setup 'ledger-mode
   (setq ledger-use-native-highlighting t))
 #+END_SRC
 
@@ -1204,10 +1232,8 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 **** RG
 
 #+BEGIN_SRC elisp
-(td/select-package 'rg)
-
-(use-package rg
-  :config (rg-enable-default-bindings))
+(td/add-setup 'rg
+  (rg-enable-default-bindings))
 #+END_SRC
 
 **** Undo-Tree
@@ -1215,10 +1241,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
 
 #+BEGIN_SRC elisp
-(td/select-package 'undo-tree)
-
-(use-package undo-tree
-  :config
+(td/add-setup 'undo-tree
   (global-undo-tree-mode)
   (add-to-list
    'undo-tree-history-directory-alist
@@ -1235,22 +1258,17 @@ Creates a fake "fill column" to wrap text around. Makes reading documents more v
               visual-fill-column-center-text nil)
   (visual-fill-column-mode 1))
 
-(td/select-package 'visual-fill-column)
-
-(use-package visual-fill-column
-  :bind (:map org-mode-map
-              ("C-c v" . visual-fill-column-mode))
-  :hook (org-mode . td/visual-fill-setup))
+(td/add-setup 'visual-fill-column
+  (define-key org-mode-map (kbd "C-c v") #'visual-fill-column-mode)
+  (add-hook 'org-mode-hook #'td/visual-fill-setup))
 #+END_SRC
 
 **** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
 #+BEGIN_SRC elisp
-(td/select-package 'which-key)
-
-(use-package which-key
-  :config (which-key-mode))
+(td/add-setup 'which-key
+  (which-key-mode))
 #+END_SRC
 
 *** Syntax Support
@@ -1267,114 +1285,102 @@ We're getting into to the language specific stuff now. Much of this is specifica
  ~.Emmet[data-love="true"]~
 
 #+BEGIN_SRC elisp
-(td/select-package 'emmet-mode)
-
-(use-package emmet-mode
-  :config
+(td/add-setup 'emmet-mode
   (setq emmet-expand-jsx-className t)
-  :hook (sgml-mode css-mode web-mode svelte-mode))
+  (td/add-hooks '(sgml-mode
+                  css-mode
+                  web-mode
+                  svelte-mode) #'emmet-mode))
 #+END_SRC
 
 **** Flycheck
 
 #+BEGIN_SRC elisp
-(td/select-package 'flycheck)
+(td/add-setup 'flycheck
+  (td/add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
+  (global-set-key (kbd "C-c f") #'flycheck-mode)
+  (with-eval-after-load 'flycheck
+    (define-fringe-bitmap 'flycheck-fringe-bitmap-caret
+      (vector #b00000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b10000000
+              #b11000000
+              #b11100000
+              #b11110000
+              #b11100000
+              #b11000000
+              #b10000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00000000
+              #b00000000))
+    (setq flycheck-checker-error-threshold 1000)
+    (flycheck-define-error-level
+        'error
+      :severity 100
+      :compilation-level 2
+      :overlay-category 'flycheck-error-overlay
+      :fringe-bitmap 'flycheck-fringe-bitmap-caret
+      :fringe-face 'flycheck-fringe-error
+      :error-list-face 'flycheck-error-list-error)
+    (flycheck-define-error-level
+        'warning
+      :severity 100
+      :compilation-level 1
+      :overlay-category 'flycheck-warning-overlay
+      :fringe-bitmap 'flycheck-fringe-bitmap-caret
+      :fringe-face 'flycheck-fringe-warning
+      :warning-list-face 'flycheck-warning-list-warning)
+    (flycheck-define-error-level
+        'info
+      :severity 100
+      :compilation-level 1
+      :overlay-category 'flycheck-info-overlay
+      :fringe-bitmap 'flycheck-fringe-bitmap-caret
+      :fringe-face 'flycheck-fringe-info
+      :info-list-face 'flycheck-info-list-info)))
 
-(use-package flycheck
-  :hook ((emacs-lisp-mode prog-mode ledger-mode) . flycheck-mode)
-  :bind ("C-c f" . flycheck-mode)
-  :config
-  (define-fringe-bitmap 'flycheck-fringe-bitmap-caret
-    (vector #b00000000
-            #b00000000
-            #b00000000
-            #b00000000
-            #b00000000
-            #b10000000
-            #b11000000
-            #b11100000
-            #b11110000
-            #b11100000
-            #b11000000
-            #b10000000
-            #b00000000
-            #b00000000
-            #b00000000
-            #b00000000
-            #b00000000))
-  (setq flycheck-checker-error-threshold 1000)
-  (flycheck-define-error-level
-      'error
-    :severity 100
-    :compilation-level 2
-    :overlay-category 'flycheck-error-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-error
-    :error-list-face 'flycheck-error-list-error)
-  (flycheck-define-error-level
-      'warning
-    :severity 100
-    :compilation-level 1
-    :overlay-category 'flycheck-warning-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-warning
-    :warning-list-face 'flycheck-warning-list-warning)
-  (flycheck-define-error-level
-      'info
-    :severity 100
-    :compilation-level 1
-    :overlay-category 'flycheck-info-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-info
-    :info-list-face 'flycheck-info-list-info))
-
-(td/select-package 'flycheck-ledger)
-
-(use-package flycheck-ledger)
+(td/add-setup 'flycheck-ledger)
 #+END_SRC
 
 **** GoLang
 
 #+BEGIN_SRC elisp
-(td/select-package 'go-mode)
-
-(use-package go-mode
-  :mode ("\\.go\\'"))
+(td/add-setup 'go-mode
+  (td/auto-mode '(("\\.go\\'" . go-mode))))
 #+END_SRC
 
 **** Lua Mode
 
 #+BEGIN_SRC elisp
-(td/select-package 'lua-mode)
-
-(use-package lua-mode
-  :mode "\\.lua\\'")
+(td/add-setup 'lua-mode
+  (td/auto-mode '(("\\.lua\\'" . #'lua-mode))))
 #+END_SRC
 
 **** LSP Mode
 
 #+BEGIN_SRC elisp
-(dolist (pkg '(lsp-mode lsp-ui consult-lsp))
-  (td/select-package pkg))
+(td/add-setup 'lsp-mode
+  (td/add-hooks '(css-mode
+                  scss-mode
+                  html-mode
+                  js-mode
+                  json-mode
+                  python-mode
+                  php-mode
+                  rust-mode
+                  scss-mode
+                  svelte-mode
+                  typescript-mode
+                  vue-mode
+                  yaml-mode) #'lsp)
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
-(use-package lsp-mode
-  :init (setq lsp-keymap-prefix "C-c l")
-  :commands lsp
-  :hook (((css-mode
-          scss-mode
-          html-mode
-          js-mode
-          json-mode
-          python-mode
-          php-mode
-          rust-mode
-          scss-mode
-          svelte-mode
-          typescript-mode
-          vue-mode
-          yaml-mode) . lsp)
-          ((lsp-mode) . lsp-enable-which-key-integration))
-  :config
+  (setq lsp-keymap-prefix "C-c l")
   (setq lsp-log-io nil
         lsp-enable-folding nil
         lsp-clients-typescript-server-args '("--stdio"
@@ -1384,32 +1390,29 @@ We're getting into to the language specific stuff now. Much of this is specifica
         lsp-keep-workspace-alive nil
         lsp-eldoc-enable-hover nil)
 
-  (add-to-list
-   'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'")
+  (with-eval-after-load 'lsp-mode
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection
+                                       "theme-check-language-server")
+                      :activation-fn (lsp-activate-on "shopify")
+                      :server-id 'theme-check))
+    (add-to-list
+     'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'")
+    (add-to-list 'lsp-language-id-configuration
+                 '(shopify-mode . "shopify"))))
 
-  (add-to-list 'lsp-language-id-configuration
-               '(shopify-mode . "shopify"))
-
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection
-                                     "theme-check-language-server")
-                    :activation-fn (lsp-activate-on "shopify")
-                    :server-id 'theme-check)))
-
-(use-package lsp-ui)
-(use-package consult-lsp)
+(td/add-setup 'lsp-ui)
+(td/add-setup 'consult-lsp)
 #+END_SRC
 
 **** Markdown
 The free software documentation language of the Internet.
 
 #+BEGIN_SRC elisp
-(td/select-package 'markdown-mode)
-
-(use-package markdown-mode
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode)))
+(td/add-setup 'markdown-mode
+  (td/auto-mode '(("README\\.md\\'" . gfm-mode)
+                  ("\\.md\\'" . markdown-mode)
+                  ("\\.markdown\\'" . markdown-mode))))
 #+END_SRC
 
 **** PHP
@@ -1440,96 +1443,38 @@ The free software documentation language of the Internet.
                 "Zend OPcache" "zip" "zlib" "wordpress"]))
 
 (provide 'php-mode)
-(add-to-list 'auto-mode-alist '("\\.php\\'" . php-mode))
-(add-to-list 'auto-mode-alist '("\\.twig\\'" . php-mode))
+
+(td/auto-mode '(("\\.php\\'" . php-mode)
+                ("\\.twig\\'" . php-mode)))
 #+END_SRC
 
 **** Prettier
 An opinionated way to clean up my web-dev code quickly.
 
 #+BEGIN_SRC elisp
-(td/select-package 'prettier-js)
-
-(use-package prettier-js)
-#+END_SRC
-
-**** Prog Mode
-A few settings that are useful in programming buffers
-
-#+BEGIN_SRC elisp
-(defun td/toggle-indent-tabs-mode ()
-  "Toggle `indent-tabs-mode'."
-  (interactive)
-  (setq-local indent-tabs-mode (not indent-tabs-mode)))
-
-(defun td/infer-indentation-style ()
-  ;; if our source file uses tabs, we use tabs, if spaces spaces, and if
-  ;; neither, we use the current indent-tabs-mode
-  (let ((space-count (how-many "^  "))
-        (tab-count (how-many "^\t")))
-    (if (> space-count tab-count)
-        (setq indent-tabs-mode nil))
-    (if (> tab-count space-count)
-        (setq indent-tabs-mode t))))
-
-(defun td/prog-mode-settings ()
-  (setq whitespace-style '(face tabs tab-mark trailing))
-  (setq whitespace-display-mappings '((tab-mark 9 [9474 9] [92 9])))
-  (custom-set-faces
-   '(whitespace-tab ((t (:foreground "#636363")))))
-  (setq-local fill-column 80)
-  (setq-local show-trailing-whitespace t)
-  (show-paren-mode t)
-  (hs-minor-mode)
-  (display-line-numbers-mode)
-  (display-fill-column-indicator-mode)
-  (electric-pair-local-mode)
-  (yas-minor-mode)
-  (td/infer-indentation-style)
-  (whitespace-mode))
-
-;; I want a way to tab over relative similar tab-to-tab-stop
-(setq indent-tabs-mode nil)
-(setq standard-indent 2)
-(setq backward-delete-char-untabify-method 'hungry)
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)
-(setq-default evil-shift-width 2)
-(setq-default electric-indent-inhibit t)
-
-(dolist (combo '(("C-c i" . td/toggle-indent-tabs-mode)
-                 ("C-i" . indent-relative)))
-  (define-key prog-mode-map (kbd (car combo)) (cdr combo)))
-
-(add-hook 'prog-mode-hook 'td/prog-mode-settings)
+(td/add-setup 'prettier-js)
 #+END_SRC
 
 **** Python
  <3 Python
 
 #+BEGIN_SRC elisp
-(td/select-package 'pyvenv)
-
-(use-package pyvenv)
+(td/add-setup 'pyvenv)
 #+END_SRC
 
 **** Rainbow Delimiters
 This comes in handier than you think it would. Especially with these (lisp '((config . files)))
 
 #+BEGIN_SRC elisp
-(td/select-package 'rainbow-delimiters)
-
-(use-package rainbow-delimiters
-  :hook (prog-mod . rainbow-delimiters-mode))
+(td/add-setup 'rainbow-delimiters
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 #+END_SRC
 
 **** Rainbow Mode
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
 #+BEGIN_SRC elisp
-(td/select-package 'rainbow-mode)
-
-(use-package rainbow-mode)
+(td/add-setup 'rainbow-mode)
 #+END_SRC
 
 **** Rust
@@ -1539,12 +1484,10 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
   (interactive "sOptional Args:")
   (rust--compile (concat "%s run " s) rust-cargo-bin))
 
-(td/select-package 'rust-mode)
-
-(use-package rust-mode
-  :bind (:map rust-mode-map
-              ("C-c c r" . rust-run)
-              ("C-c c a r" . td/rust-run-args)))
+(td/add-setup 'rust-mode
+  (with-eval-after-load 'rust-mode
+    (td/bind-keys '(("C-c c r" . rust-run)
+                    ("C-c c a r" . td/rust-run-args)) rust-mode-map)))
 #+END_SRC
 
 **** Shopify Mode
@@ -1579,33 +1522,23 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
 #+BEGIN_SRC elisp
-(td/select-package 'tree-sitter)
+  (td/add-setup 'tree-sitter
+    (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+    (global-tree-sitter-mode))
 
-(use-package tree-sitter
-  :hook (tree-sitter-after-on . tree-sitter-hl-mode)
-  :config (global-tree-sitter-mode))
-
-(td/select-package 'tree-sitter-langs)
-
-(use-package tree-sitter-langs
-  :after tree-sitter)
+  (td/add-setup 'tree-sitter-langs)
 #+END_SRC
 
 **** TypeScript & JavaScript
 
 #+BEGIN_SRC elisp
-(dolist (pkg '(typescript-mode js2-mode prettier-js))
-  (td/select-package pkg))
+(td/add-setup 'typescript-mode
+  (setq typescript-indent-level 2))
 
-(use-package typescript-mode
-  :config (setq typescript-indent-level 2))
-
-(use-package js2-mode
-  :mode "\\.js\\'"
-  :config (setq js-indent-level 2
-                js2-strict-inconsistent-return-warning nil))
-
-(use-package prettier-js)
+(td/add-setup 'js2-mode
+  (td/auto-mode '(("\\.js\\'" . js2-mode)))
+  (setq js-indent-level 2
+        js2-strict-inconsistent-return-warning nil))
 #+END_SRC
 
 **** VueJS
@@ -1621,11 +1554,8 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
 #+BEGIN_SRC elisp
-(td/select-package 'web-mode)
-
-(use-package web-mode
-  :mode "\\.html\\'"
-  :config
+(td/add-setup 'web-mode
+  (td/auto-mode '(("\\.html\\'" . web-mode)))
   (setq web-mode-markup-indent-offset tab-width
         web-mode-code-markup-indent-offset tab-width
         web-mode-style-padding tab-width
@@ -1639,26 +1569,28 @@ There isn't a much better catch-all for web template syntax support than web-mod
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
 
 #+BEGIN_SRC elisp
-(td/select-package 'yaml-mode)
-
-(use-package yaml-mode :mode "\\.yml\\'")
+(td/add-setup 'yaml-mode
+  (td/auto-mode '(("\\.yml\\'" . yaml-mode))))
 #+END_SRC
 
 **** Yasnippet
 Snippets! They're helpful.
 
 #+BEGIN_SRC elisp
-(dolist (pkg '(yasnippet yasnippet-snippets)) (td/select-package pkg))
+(td/add-setup 'yasnippet
+  (require 'yasnippet)
+  (global-set-key (kbd "C-c ,") #'yas-expand)
+  (setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
+  (yas-reload-all))
 
-(use-package yasnippet
-  :demand t
-  :bind ("C-c ," . yas-expand)
-  :config
-  (setq yas-snippet-dirs '("~/.config/emacs/yasnippets")))
+(td/add-setup 'yasnippet-snippets)
+#+END_SRC
 
-(use-package yasnippet-snippets
-  :after yasnippet
-  :config (yas-reload-all))
+*** Install & Configure Packages
+See [[* Bootstrapping][bootstrapping]].
+
+#+BEGIN_SRC elisp
+(td/setup-packages)
 #+END_SRC
 
 ** About This Config
