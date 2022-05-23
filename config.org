@@ -738,6 +738,7 @@ A tool for making repetative chords less cumbersome
    '("<escape>" . ignore)))
 
 (td/add-setup 'meow
+  (require 'meow)
   (meow-setup)
   (meow-global-mode 1))
 #+END_SRC
