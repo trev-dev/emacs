@@ -258,7 +258,7 @@ If `PKG' is nil, it is assumed that the `CONF' is for something built-in."
       (when (seq-some #'(lambda (pkg) (not (package-installed-p pkg))) packages)
         (setq package-selected-packages packages)
         (package-refresh-contents)
-        (package-install-selected-packages)))
+        (package-install-selected-packages t)))
     (dolist (conf td/package-list)
       (let ((setup (cdr-safe conf)))
         (when (functionp setup)
