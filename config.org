@@ -401,9 +401,7 @@ Completions at point/region.
   (setq-local company-backends
               '(company-capf
                 company-dabbrev-code
-                company-keywords
-                company-files
-                company-yasnippet)))
+                company-files)))
 
 (td/add-setup 'company
   (add-hook 'after-init-hook #'global-company-mode)
