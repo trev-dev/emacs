@@ -2,7 +2,7 @@
 :PROPERTIES:
 #+STARTUP: content
 :END:
-Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#about-this-config][about section]] for alternate ways to use this repository.
+Herein lies my Emacs configuration. Use it well.
 
 ** Contents
 :PROPERTIES:
@@ -68,7 +68,6 @@ Herein lies my Emacs configuration. Use it well. Be sure to check out the [[#abo
   - [[#install--configure-packages][Install & Configure Packages]]
 - [[#about-this-config][About This Config]]
   - [[#installation][Installation]]
-  - [[#current-mindset][Current Mindset]]
   - [[#licenses][Licenses]]
 :END:
 ** General Settings
@@ -216,7 +215,7 @@ A few settings that are useful in programming buffers
 
 ** Package Configuration
 *** Bootstrapping
-I am using Quelpa for strange repositories that aren't in a package.el friendly space. I am otherwise configuring packages with use-package.
+I am using the built-in =package.el= for my package needs. I am using Quelpa for developing/contributing upstream, or installing some obscure package from source.
 
 **** Repositories
 
@@ -272,7 +271,7 @@ If `PKG' is nil, it is assumed that the `CONF' is for something built-in."
 #+END_SRC
 
 **** Quelpa
-For developing packages or installing obscure packages, I am using Quelpa. Quelpa is small and simple.
+Bootstrap Quelpa if it is missing, then define a macro for a more intuitive way to install missing packages from remotes.
 
 #+BEGIN_SRC elisp
 (unless (package-installed-p 'quelpa)
@@ -324,9 +323,6 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
   (load-theme 'doom-material-dark-devel t)
   (doom-themes-org-config))
 #+END_SRC
-
-***** TODO Refactor Custom Theme
-I'd like to remove Doom Themes as an abstraction and release "Doom Material Dark" as a standalone thing.
 
 **** Font Setup
 
@@ -1613,22 +1609,9 @@ If you've decided to fork this repository and wish to use it as-is, here are the
 *Note*: Config us currently set up for Emacs 29. Be sure to disable the weird bits, like [[* Performance Tweaks][compilation deferral]].
 
 1. Clone this repository to =~/.config/emacs=.
-2. Optionally checkout an alternate edition. Your branch choices are:
-   - *main* - A combination of what works best for me currently.
-   - *evil* - It's like branch main, but it's /evil/.
-   - *saintly* - A pure approach to emacs using only supported internals wherever possible. This is my best attempt at "minimalism" with Emacs.
-3. Symlink =init.el= to your home directory: =ln -s ~/.emacs.el ~/.config/emacs/init.el=
-4. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
-5. Run emacs for the first time.
-
-*** Current Mindset
-At the moment I'm striving for a mix of powerful flexibility & style whilst keeping as much of the package bloat down as I can. I feel like this is going well, and it's getting better over time.
-
-Branch main is my preferred, hopefully not broken configuration. It's a mix of what feels like the best tools/packages for what I want to do.
-
-The *saintly* branch is an experimental config geared toward staunch support for using supported internals only. It uses packages like Eglot, Corfu, Cape, etc.
-
-The /evil/ branch is very similar to the main branch, but it uses vim bindings. Every now and again I get the itch to keep it Vimmy. It never seems to last in Emacs, so the branch is kept separate for myself or anyone else who cares to use it.
+2. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+3. Symlink =init.el=, =early-init.el= and =config.el= into your =~/.emacs.d/= directory.
+4. Run emacs for the first time.
 
 *** Licenses
 - For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
