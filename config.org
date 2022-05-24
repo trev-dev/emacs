@@ -904,14 +904,18 @@ Libnotify alerts for Agenda alerts.
 Get access to Github Flavored Markdown
 
 #+BEGIN_SRC elisp
-(td/add-setup 'ox-gfm)
+(td/add-setup 'ox-gfm
+  (with-eval-after-load 'ox
+    (require 'ox-gfm)))
 #+END_SRC             
 
 ****** ox-hugo
 I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
 
 #+BEGIN_SRC elisp
-(td/add-setup 'ox-hugo)
+(td/add-setup 'ox-hugo
+  (with-eval-after-load 'ox
+    (require 'ox-hugo)))
 #+END_SRC
 
 ****** org-make-toc
