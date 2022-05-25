@@ -825,24 +825,24 @@ I usually stick to monospace sized fonts with the exception of Org files. I like
 Some fairly self-explanatory utility functions.
 
 #+BEGIN_SRC elisp
-(defun td/org-scale-levels ()
+(defvar td/org-scale-levels-enable nil
+  "Whether or levels are scaled.")
+
+(defun td/org-scale-levels-toggle ()
   "Enlarge org levels for more readability."
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.0)
-                  (org-level-6 . 1.0)
-                  (org-level-7 . 1.0)
-                  (org-level-8 . 1.0)))
-    (set-face-attribute (car face) nil :weight 'semi-bold :height (cdr face))))
+  (interactive)
+  (let ((scaled (not td/org-scale-levels-enable)))
+    (dolist (face '((org-level-1 . (if scaled 1.2 1.0))
+                    (org-level-2 . (if scaled 1.1 1.0))
+                    (org-level-3 . (if scaled 1.05 1.0))))
+      (set-face-attribute (car face) nil :weight 'semi-bold :height (eval (cdr face))))
+    (setq td/org-scale-levels-enable scaled)))
 
 (defun td/org-hook ()
   "Do some stuff on org mode startup."
   (org-indent-mode)
   (yas-minor-mode)
-  (org-clock-persistence-insinuate)
-  (td/org-scale-levels))
+  (org-clock-persistence-insinuate))
 
 (defun td/org-append-templates (templates)
   (setq org-capture-templates (append org-capture-templates templates)))
