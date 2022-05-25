@@ -950,6 +950,7 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
 #+END_SRC
 
 ****** org-modern
+
 #+begin_src elisp
 (td/add-setup 'org-modern
   (setq org-pretty-entities t
