@@ -47,8 +47,8 @@ Herein lies my Emacs configuration. Use it well.
     - [[#emmet][Emmet]]
     - [[#flycheck][Flycheck]]
     - [[#golang][GoLang]]
-    - [[#lua-mode][Lua Mode]]
     - [[#lsp-mode][LSP Mode]]
+    - [[#lua-mode][Lua Mode]]
     - [[#markdown][Markdown]]
     - [[#php][PHP]]
     - [[#prettier][Prettier]]
@@ -1392,13 +1392,6 @@ We're getting into to the language specific stuff now. Much of this is specifica
   (td/auto-mode '(("\\.go\\'" . go-mode))))
 #+END_SRC
 
-**** Lua Mode
-
-#+BEGIN_SRC elisp
-(td/add-setup 'lua-mode
-  (td/auto-mode '(("\\.lua\\'" . #'lua-mode))))
-#+END_SRC
-
 **** LSP Mode
 
 #+BEGIN_SRC elisp
@@ -1441,6 +1434,13 @@ We're getting into to the language specific stuff now. Much of this is specifica
 
 (td/add-setup 'lsp-ui)
 (td/add-setup 'consult-lsp)
+#+END_SRC
+
+**** Lua Mode
+
+#+BEGIN_SRC elisp
+(td/add-setup 'lua-mode
+  (td/auto-mode '(("\\.lua\\'" . #'lua-mode))))
 #+END_SRC
 
 **** Markdown
