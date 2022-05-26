@@ -43,6 +43,7 @@ Herein lies my Emacs configuration. Use it well.
     - [[#visual-fill-column][Visual Fill Column]]
     - [[#which-key][Which-key]]
   - [[#syntax-support][Syntax Support]]
+    - [[#clojure][Clojure]]
     - [[#cssscss][CSS/SCSS]]
     - [[#emmet][Emmet]]
     - [[#flycheck][Flycheck]]
@@ -1311,6 +1312,16 @@ What the heck was that keybind again? If you can remember how it starts, which-k
 
 *** Syntax Support
 We're getting into to the language specific stuff now. Much of this is specifically tailored for Shopify, TypeScript and JavaScript development. Many if not all of these features stay out of the way when you're not in the language mode. There's also a very tedious attempt to make all of these disjointed program modes listen to my gosh dang tab-width setting instead of doing their own thing as an insane default.
+
+**** Clojure
+This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can automatically install and run the language server if I feel I need one.
+
+#+BEGIN_SRC elisp
+(td/add-setup 'clojure-mode
+  (td/auto-mode '(("\\.clj\\'" . clojure-mode))))
+
+(td/add-setup 'cider)
+#+END_SRC
 
 **** CSS/SCSS
 
