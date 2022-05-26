@@ -16,7 +16,7 @@ Can be an integer to determine the exact padding."
   "A darker version of the Material Theme inspired by xrei"
 
   ;; name        default   256       16
-  ((bg         '("#131519" nil       nil))
+  ((bg         '("#191919" nil       nil))
    (bg-alt     '("#3a404c" nil       nil))
    (base0      '("#171F24" "black"   "black"))
    (base1      '("#262626" "#262626" "brightblack"))
@@ -110,9 +110,9 @@ Can be an integer to determine the exact padding."
    (Man-overstrike :inherit 'bold :foreground magenta)
    (Man-underline :inherit 'underline :foreground blue)
    ;;;; org <built-in>
-   ((org-block &override) :background (doom-lighten bg 0.04))
+   ((org-block &override) :background (doom-darken bg-alt 0.4))
    ((org-block-background &override) :background (doom-lighten bg 0.04))
-   ((org-block-begin-line &override) :background bg :height 0.85)
+   ((org-block-begin-line &override) :background bg)
    ;;;; css-mode <built-in> / scss-mode
    (css-proprietary-property :foreground orange)
    (css-property             :foreground green)
@@ -202,6 +202,8 @@ Can be an integer to determine the exact padding."
    (eldoc-highlight-function-argument :weight 'bold :underline t)
    (eglot-highlight-symbol-face :weight 'bold :background base3)
    (eldoc-box-border :background fg-alt)
+   ;;;; Mu4e
+   (mu4e-highlight-face :foreground cyan :weight 'bold)
    ))
 
 
