@@ -1311,7 +1311,7 @@ What the heck was that keybind again? If you can remember how it starts, which-k
 #+END_SRC
 
 *** Syntax Support
-We're getting into to the language specific stuff now. Much of this is specifically tailored for Shopify, TypeScript and JavaScript development. Many if not all of these features stay out of the way when you're not in the language mode. There's also a very tedious attempt to make all of these disjointed program modes listen to my gosh dang tab-width setting instead of doing their own thing as an insane default.
+This section is for syntax highlighting and language specific tooling.
 
 **** Clojure
 This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can automatically install and run the language server if I feel I need one.
