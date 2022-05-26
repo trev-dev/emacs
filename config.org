@@ -840,9 +840,9 @@ Some fairly self-explanatory utility functions.
 
 (defun td/org-hook ()
   "Do some stuff on org mode startup."
+  (org-clock-persistence-insinuate)
   (org-indent-mode)
-  (yas-minor-mode)
-  (org-clock-persistence-insinuate))
+  (setq-local line-spacing 0.1))
 
 (defun td/org-append-templates (templates)
   (setq org-capture-templates (append org-capture-templates templates)))
