@@ -857,15 +857,16 @@ Some fairly self-explanatory utility functions.
 
 (require 'ox-md nil t)
 (setq org-fontify-quote-and-verse-blocks t
+      org-attach-auto-tag "attach"
       org-directory "~/Org"
       org-archive-location "archives/%s_archive::"
       org-log-done 'time
       org-log-into-drawer t
       org-enforce-todo-dependencies t
-      org-enforce-todo-checkbox-dependencies t
       org-src-preserve-indentation t
       org-clock-persist 'history
       org-agenda-block-separator "──────────"
+      org-agenda-tags-column -80
       org-duration-format '(("h" . nil) (special . 2))
       org-clock-total-time-cell-format "%s"
       org-agenda-files '("~/Org/agenda")
@@ -874,7 +875,11 @@ Some fairly self-explanatory utility functions.
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
       org-timer-default-timer "25"
       org-agenda-custom-commands td/org-agenda-commands
-      org-capture-templates td/capture-templates)
+      org-stuck-projects '("/PROJ-DONE" ("TODO" "NEXT") nil "- \\[ \\]")
+      org-capture-templates td/capture-templates
+      org-catch-invisible-edits 'show-and-error
+      org-special-ctrl-a/e t
+      org-insert-heading-respect-content t)
 #+END_SRC
 
 ***** Extending Org Mode
@@ -959,10 +964,13 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
   (global-org-modern-mode))
 #+end_src
 
-****** org-roam- (defvar td/roam-capture-templates
-  '(("d" "default" plain "%?"
+****** org-roam
+
+#+BEGIN_SRC elisp
+(defvar td/roam-capture-templates
+  '(("d" "default" plain "* ${title}\n%?"
   :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                     "#+TITLE: ${title}\n#+DATE: %U\n")
+                     "#+TITLE: ${title}\n#+DATE: %U\n#+FILETAGS:\n\n")
   :unnarrowed t)))
 
 (defvar td/roam-capture-daily
@@ -970,20 +978,31 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
      :target (file+head "%<%Y-%m-%d>.org"
                         "#+TITLE: %<%a, %b %d %Y>\n"))))
 
+(defvar td/roam-display-template
+  (concat "${title:*} "
+          (propertize "${tags:28}" 'face 'org-tag)))
+
 (td/add-setup 'org-roam
   (require 'org-roam-dailies)
   (setq org-roam-directory "~/Org/roam")
   (td/bind-keys '(("C-c r t" . org-roam-buffer-toggle)
                   ("C-c r f" . org-roam-node-find)
                   ("C-c r i" . org-roam-node-insert)
+                  ("C-c r c" . org-roam-capture)
                   ("C-c r d i" . org-roam-dailies-capture-today)
                   ("C-c r d t" . org-roam-dailies-goto-today)
                   ("C-c r d y" . org-roam-dailies-goto-yesterday)
                   ("C-c r d d" . org-roam-dailies-goto-date)))
   (setq org-roam-capture-templates td/roam-capture-templates
-        org-roam-dailies-capture-templates td/roam-capture-daily)
+        org-roam-dailies-capture-templates td/roam-capture-daily
+        org-roam-node-display-template td/roam-display-template
+        org-roam-db-node-include-function
+        (lambda ()
+          (not (member "attach" (org-get-tags)))))
   (org-roam-setup))
 #+END_SRC
+
+****** 
 
 ****** org-roam-ui
 
