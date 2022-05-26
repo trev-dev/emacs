@@ -1222,6 +1222,9 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
                                        (reply-to-html  . (text html))
                                        (reply-to-text  . (text)))))
 
+(autoload 'org-mime-edit-mail-in-org-mode "org-mime"
+  "Edit a message in org-mode")
+
 (td/add-setup 'org-mime
   (td/bind-keys '(("C-c C-o" . org-mime-edit-mail-in-org-mode)
                   ("C-c C-h" . org-mime-htmlize)) message-mode-map))
