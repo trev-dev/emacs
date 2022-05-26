@@ -29,7 +29,6 @@ Herein lies my Emacs configuration. Use it well.
     - [[#dashboard][Dashboard]]
     - [[#diff-hl][Diff-hl]]
     - [[#elfeed][Elfeed]]
-    - [[#ement][Ement]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#hydra][Hydra]]
@@ -582,7 +581,7 @@ RSS Reader :D
     (setq rmh-elfeed-org-files '("~/Org/elfeed.org"))))
 #+END_SRC
 
-**** Ement
+**** COMMENT Ement
 A Matrix client for Emacs.
 
 #+BEGIN_SRC elisp
@@ -954,15 +953,19 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
   (add-hook 'org-mode-hook #'td/set-auto-toc))
 #+END_SRC
 
-****** org-modern
+****** COMMENT org-modern
 
 #+begin_src elisp
 (td/add-setup 'org-modern
   (setq org-pretty-entities t
         org-ellipsis "…"
-        org-agenda-current-time-string "⭠ now ────────────────────────────")
+        org-agenda-current-time-string "⭠ now ────────────────────────────"
+        org-hide-emphasis-markers t
+        org-auto-align-tags nil
+        org-tags-column 0
+        org-auto-align-tags nil)
   (global-org-modern-mode))
-#+end_src
+  #+end_src
 
 ****** org-roam
 
