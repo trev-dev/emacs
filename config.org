@@ -968,6 +968,31 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
   (global-org-modern-mode))
   #+end_src
 
+****** org-present
+A tiny package for presenting with org-mode.
+
+#+BEGIN_SRC elisp
+(td/add-setup 'org-present
+  (setq org-present-text-scale 4)
+  (with-eval-after-load 'org-present
+    (add-hook 'org-present-mode-hook
+              #'(lambda ()
+                  (org-present-big)
+                  (td/org-scale-levels-toggle t)
+                  (org-display-inline-images)
+                  (blink-cursor-mode -1)
+                  (org-present-hide-cursor)
+                  (org-present-read-only)))
+    (add-hook 'org-present-mode-quit-hook
+              #'(lambda()
+                  (org-present-small)
+                  (org-remove-inline-images)
+                  (org-present-show-cursor)
+                  (blink-cursor-mode 1)
+                  (td/org-scale-levels-toggle)
+                  (org-present-read-write)))))
+#+END_SRC
+
 ****** org-roam
 
 #+BEGIN_SRC elisp
