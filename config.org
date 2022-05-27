@@ -828,10 +828,10 @@ Some fairly self-explanatory utility functions.
 (defvar td/org-scale-levels-enable nil
   "Whether or levels are scaled.")
 
-(defun td/org-scale-levels-toggle ()
+(defun td/org-scale-levels-toggle (&optional enable)
   "Enlarge org levels for more readability."
   (interactive)
-  (let ((scaled (not td/org-scale-levels-enable)))
+  (let ((scaled (or enable (not td/org-scale-levels-enable))))
     (dolist (face '((org-level-1 . (if scaled 1.2 1.0))
                     (org-level-2 . (if scaled 1.1 1.0))
                     (org-level-3 . (if scaled 1.05 1.0))))
