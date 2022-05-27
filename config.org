@@ -972,9 +972,9 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
 
 #+BEGIN_SRC elisp
 (defvar td/roam-capture-templates
-  '(("d" "default" plain "* ${title}\n%?"
+  '(("d" "default" plain "%?"
   :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                     "#+TITLE: ${title}\n#+DATE: %U\n#+FILETAGS:\n\n")
+                     "#+TITLE: ${title}\n#+DATE: %U\n")
   :unnarrowed t)))
 
 (defvar td/roam-capture-daily
@@ -1003,10 +1003,13 @@ I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update th
         org-roam-db-node-include-function
         (lambda ()
           (not (member "attach" (org-get-tags)))))
+  (add-to-list 'display-buffer-alist '("\\*org-roam\\*"
+                                       (display-buffer-in-direction)
+                                       (direction . right)
+                                       (window-width . 0.33)
+                                       (window-height . fit-window-to-buffer)))
   (org-roam-setup))
 #+END_SRC
-
-****** 
 
 ****** org-roam-ui
 
