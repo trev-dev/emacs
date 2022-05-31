@@ -880,6 +880,12 @@ Some fairly self-explanatory utility functions.
       org-catch-invisible-edits 'show-and-error
       org-special-ctrl-a/e t
       org-insert-heading-respect-content t)
+
+(add-to-list 'display-buffer-alist '("\\*Org Agenda*\\*"
+                                       (display-buffer-in-direction)
+                                       (direction . right)
+                                       (window-width . 0.50)
+                                       (window-height . fit-window-to-buffer)))
 #+END_SRC
 
 ***** Extending Org Mode
