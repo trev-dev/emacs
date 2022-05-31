@@ -593,6 +593,10 @@ A Matrix client for Emacs.
    :user-id "@trevdev:matrix.org"
    :uri-prefix "http://localhost:8009"))
 
+;; Dependency for ement that is missing from Melpa
+(unless (package-installed-p 'taxy)
+  (package-install 'taxy t))
+
 (quelpa-get plz :fetcher github :repo "alphapapa/plz.el")
 (quelpa-get ement :fetcher github :repo "alphapapa/ement.el")
 
