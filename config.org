@@ -904,13 +904,14 @@ Libnotify alerts for Agenda alerts.
 #+BEGIN_SRC elisp
 (td/add-setup 'org-chef
   (td/org-append-templates
-   '(("c" "Cookbook" entry (file "~/Org/cookbook.org")
+   '(("c" "Cookbook" entry (file "~/Projects/os-cookbook/src/cookbook.org")
       "%(org-chef-get-recipe-from-url)"
       :empty-lines 1)
-     ("m" "Manual Cookbook" entry (file "~/Org/cookbook.org")
-      (concat "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n"
+     ("m" "Manual Cookbook" entry
+      (file "~/Projects/os-cookbook/src/cookbook.org")
+      (eval (concat "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n"
               "  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n"
-              "  :END:\n** Ingredients\n   %?\n** Directions\n\n")))))
+              "  :END:\n** Ingredients\n   %?\n** Directions\n\n"))))))
 #+END_SRC
 
 ****** ox-gfm
