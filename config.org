@@ -32,7 +32,6 @@ Herein lies my Emacs configuration. Use it well.
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#hydra][Hydra]]
-    - [[#meow][Meow]]
     - [[#magit][Magit]]
     - [[#org][Org]]
     - [[#mu4e][Mu4e]]
@@ -46,9 +45,7 @@ Herein lies my Emacs configuration. Use it well.
     - [[#clojure][Clojure]]
     - [[#cssscss][CSS/SCSS]]
     - [[#emmet][Emmet]]
-    - [[#flycheck][Flycheck]]
     - [[#golang][GoLang]]
-    - [[#lsp-mode][LSP Mode]]
     - [[#lua-mode][Lua Mode]]
     - [[#markdown][Markdown]]
     - [[#php][PHP]]
@@ -368,8 +365,10 @@ A simple, but nicer looking modeline
   (telephone-line-defsegment meow-emacs ()
     (alist-get (meow--current-state) td/custom-meow-states))
 
+  (telephone-line-defsegment just-emacs () "EMACS")
+
   (setq telephone-line-lhs
-        '((emacs   . (meow-emacs))
+        '((emacs   . (just-emacs))
           (accent  . (telephone-line-vc-segment
                       telephone-line-erc-modified-channels-segment
                       telephone-line-process-segment))
@@ -600,6 +599,49 @@ A Matrix client for Emacs.
   (setq print-circle t))
 #+END_SRC
 
+**** COMMENT Evil
+
+#+BEGIN_SRC elisp
+(defun td/evil-bind-keys ()
+  "Create some extra evil bindings."
+  (evil-set-leader 'normal (kbd "\\"))
+  ;; Avy
+  (evil-define-key 'normal 'global (kbd "<leader>s") 'avy-goto-char-timer)
+  ;; General
+  (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
+  (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
+  (evil-define-key 'normal 'global (kbd "<leader>fb") 'consult-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>m") 'mu4e)
+  (evil-define-key 'normal 'global (kbd "<leader>e") 'elfeed)
+  ;; LSP
+  (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
+  ;; Org
+  (evil-define-key 'normal org-mode-map (kbd "<leader>ci") 'org-clock-in)
+  (evil-define-key 'normal org-mode-map (kbd "<leader>co") 'org-clock-out)
+  (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
+  ;; Magit
+  (evil-define-key 'normal 'global (kbd "gs") 'magit))
+
+(td/add-setup 'evil
+  (require 'evil)
+  (setq evil-undo-system 'undo-tree
+        evil-visual-state-cursor 'hbar)
+  (td/evil-bind-keys)
+  (evil-mode 1))
+
+(td/add-setup 'evil-surround
+  (with-eval-after-load 'evil
+    (global-evil-surround-mode 1)))
+
+(td/add-setup 'evil-commentary
+  (with-eval-after-load 'evil
+    (add-hook 'prog-mode-hook #'evil-commentary-mode)))
+
+(td/add-setup 'evil-goggles
+  (with-eval-after-load 'evil
+    (evil-goggles-mode)))
+#+END_SRC
+
 **** Expand Region
 It just makes selecting text between sexps easy.
 
@@ -648,7 +690,7 @@ A tool for making repetative chords less cumbersome
     ("TAB" org-cycle "Cycle element")))
 #+END_SRC
 
-**** Meow
+**** COMMENT Meow
 
 #+BEGIN_SRC elisp
 (defun meow-setup ()
@@ -794,14 +836,18 @@ My org agenda commands & stuck projects. Currently a work in progress! I am read
   '(("d" "Dashboard: Get things done!"
      ((agenda "" ((org-agenda-span 7)))
       (tags-todo "+PRIORITY=\"A\""
-                 ((org-agenda-overriding-header "High Priority")))
+                 ((org-agenda-overriding-header "High Priority")
+                  (org-agenda-skip-function
+                   '(org-agenda-skip-entry-if 'todo '("WAIT")))))
       (todo "NEXT"
             ((org-agenda-overriding-header "Do Next")
              (org-agenda-max-todos nil)))
       (todo "WAIT"
             ((org-agenda-overriding-header "Follow Up")))
       (todo "TODO"
-            ((org-agenda-overriding-header "Other Actionables")))
+            ((org-agenda-overriding-header "Other Actionables")
+             (org-agenda-skip-function
+              '(org-agenda-skip-entry-if 'scheduled 'deadline))))
       )
      )
     ("l" "Backburner of low priority tasks"
@@ -1271,6 +1317,7 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
             :url "https://repo.or.cz/org-contacts.git")
 
 (td/add-setup 'org-contacts
+  (require 'org-contacts)
   (setq org-contacts-files '("~/Org/contacts.org")))
 #+END_SRC
 
@@ -1382,7 +1429,7 @@ This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can
                   svelte-mode) #'emmet-mode))
 #+END_SRC
 
-**** Flycheck
+**** COMMENT Flycheck
 
 #+BEGIN_SRC elisp
 (td/add-setup 'flycheck
@@ -1443,7 +1490,7 @@ This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can
   (td/auto-mode '(("\\.go\\'" . go-mode))))
 #+END_SRC
 
-**** LSP Mode
+**** COMMENT LSP Mode
 
 #+BEGIN_SRC elisp
 (td/add-setup 'lsp-mode
@@ -1483,7 +1530,6 @@ This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can
     (add-to-list 'lsp-language-id-configuration
                  '(shopify-mode . "shopify"))))
 
-(td/add-setup 'lsp-ui)
 (td/add-setup 'consult-lsp)
 #+END_SRC
 
@@ -1507,9 +1553,6 @@ The free software documentation language of the Internet.
 **** PHP
 
 #+BEGIN_SRC elisp
-(define-derived-mode php-mode web-mode "PHP"
-  "I just want web-mode highlighting with .svelte files")
-
 (defun td/get-intelephense-key ()
   "Get my intelephense license key."
   (with-temp-buffer
@@ -1531,10 +1574,7 @@ The free software documentation language of the Internet.
                 "tokenizer" "wddx" "xml" "xmlreader" "xmlrpc" "xmlwriter"
                 "Zend OPcache" "zip" "zlib" "wordpress"]))
 
-(provide 'php-mode)
-
-(td/auto-mode '(("\\.php\\'" . php-mode)
-                ("\\.twig\\'" . php-mode)))
+(td/add-setup 'php-mode)
 #+END_SRC
 
 **** Prettier

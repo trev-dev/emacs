@@ -98,6 +98,7 @@ Can be an integer to determine the exact padding."
      :weight 'normal :italic nil :underline nil :strike-through nil)
    (completions-first-difference :foreground yellow)
    (icomplete-first-match :foreground green :underline t :weight 'ultrabold)
+   (whitespace-tab :background bg)
 
    ;;;; doom-modeline
    (doom-modeline-buffer-path       :foreground green :weight 'bold)
