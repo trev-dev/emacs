@@ -20,9 +20,10 @@ Herein lies my Emacs configuration. Use it well.
   - [[#look--feel][Look & Feel]]
     - [[#all-the-icons][All The Icons]]
     - [[#dired][Dired]]
+    - [[#diminish][Diminish]]
     - [[#doom-themes][Doom Themes]]
     - [[#font-setup][Font Setup]]
-    - [[#telephone-line][Telephone Line]]
+    - [[#modeline][Modeline]]
   - [[#utility-packages][Utility Packages]]
     - [[#avy][Avy]]
     - [[#completions][Completions]]
@@ -307,6 +308,27 @@ This should improve init by not looking for things we already have."
                             (all-the-icons-dired-mode))
                           (dired-hide-details-mode)))))
 #+END_SRC
+**** Diminish
+Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" text output from the =minor-mode-alist=. Due to how lazy-loading works, we want to make sure we have diminish early on.
+
+#+BEGIN_SRC elisp
+(unless (package-installed-p 'diminish)
+  (package-refresh-contents)
+  (package-install 'diminish))
+
+(dolist (mode '(("company" 'company-mode)
+                ("hideshow" 'hs-minor-mode)
+                ("undo-tree" 'undo-tree-mode)
+                ("whitespace" 'whitespace-mode)
+                ("yasnippet" 'yas-minor-mode)
+                ("which-key" 'which-key-mode)
+                ("org-indent" 'org-indent-mode)
+                ("simple" 'visual-line-mode)
+                ("eldoc" 'eldoc-mode)
+                ("tree-sitter" 'tree-sitter-mode "TS")))
+  (eval-after-load (car mode)
+    `(diminish ,(cadr mode) ,(caddr mode))))
+#+END_SRC
 
 **** Doom Themes
 Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
@@ -328,8 +350,97 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 (set-default-coding-systems 'utf-8)
 (add-to-list 'default-frame-alist '(font . "Source Code Pro 11"))
 #+END_SRC
+**** Modeline
 
-**** Telephone Line
+#+BEGIN_SRC elisp
+(defun tdm/vc ()
+  (when-let (vc vc-mode)
+    (concat (format " %s " (all-the-icons-octicon "git-branch"
+                                                 :face 'all-the-icons-green
+                                                 :v-adjust 0.01))
+            (format "%s " (propertize (substring vc-mode 5) 'face 'success)))))
+
+(defun tdm/client-icon()
+  (when (not (eq (format-mode-line mode-line-client) ""))
+    (concat " " (all-the-icons-alltheicon "terminal-alt"
+                              :face 'all-the-icons-purple
+                              :v-adjust 0.01) " ")))
+
+(defcustom td/custom-project-name nil
+  "A custom directory-local name for a project.el project"
+  :type 'string)
+
+(defun tdm/project()
+  "Display the current project name, or path."
+  (when (project-current)
+    (propertize (concat (if (stringp td/custom-project-name)
+                            td/custom-project-name
+                          (file-name-nondirectory
+                           (directory-file-name
+                            (project-root (project-current))))) ":")
+                'face 'success
+                'display '(raise 0.0)
+                'help-echo "Switch project"
+                'mouse-face '(:box 1)
+                'local-map (make-mode-line-mouse-map
+                            'mouse-1 #'project-switch-project))))
+
+(defvar tdm/left (list " "
+                       '(:eval (all-the-icons-icon-for-buffer))
+                       "  "
+                       '(:eval (tdm/project))
+                       "%b "
+                       '(:eval (when buffer-read-only
+                                 (all-the-icons-octicon "lock"
+                                                        :face 'error
+                                                        :height 0.85
+                                                        :v-adjust 0.15)))
+                       '(:eval (when (and (buffer-modified-p) buffer-read-only)
+                                 " "))
+                       '(:eval (when (buffer-modified-p)
+                                 (all-the-icons-octicon "pencil"
+                                                        :face 'warning
+                                                        :height 0.85
+                                                        :v-adjust 0.15)))
+                       '(:eval (concat (tdm/client-icon)))
+                       '(:eval (tdm/vc)))
+  "The cluster of left-hand side mode-line constructs.")
+
+(defun tdm/middle-gap (len)
+  "Create gap that is offset by some `LEN' of right-hand mode-line constructs."
+  (propertize
+   " " 'display
+   `((space :align-to (- (+ right right-fringe right-margin)
+                         ,(+ 0 len))))))
+
+(defvar tdm/right (list '(:eval mode-line-misc-info)
+                        mode-line-modes)
+  "The cluster of right-hand side cluster of mode-line constructs.")
+
+(setq-default mode-line-format (list tdm/left
+                                     '(:eval (tdm/middle-gap
+                                              (length
+                                               (format-mode-line tdm/right))))
+                                     tdm/right))
+
+#+END_SRC
+
+***** COMMENT Defaults
+
+#+BEGIN_SRC elisp
+;;;; Reference to defaults
+("%e" mode-line-front-space
+ (:propertize
+  ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
+  display
+  (min-width
+   (5.0)))
+ mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
+ (vc-mode vc-mode)
+ "  " mode-line-modes mode-line-misc-info mode-line-end-spaces)
+#+END_SRC
+
+**** COMMENT Telephone Line
 A simple, but nicer looking modeline
 
 #+BEGIN_SRC elisp
@@ -376,7 +487,7 @@ A simple, but nicer looking modeline
                       telephone-line-buffer-segment))))
 
   (setq telephone-line-rhs
-        '((nil     . (telephone-line-flycheck-segment
+        '((nil     . (telephone-line-flymake-segment
                       telephone-line-misc-info-segment))
           (accent  . (telephone-line-major-mode-segment))
           (emacs   . (telephone-line-airline-position-segment))))
@@ -452,7 +563,7 @@ other better ways to reference things in Emacs.
                   ("<help> a" . consult-apropos)
                   ;; M-g bindings (goto-map)
                   ("M-g e" . consult-compile-error)
-                  ("M-g f" . consult-flycheck) ; or flymake?
+                  ("M-g f" . consult-flymake) ; or flycheck?
                   ("M-g g" . consult-goto-line)
                   ("M-g M-g" . consult-goto-line)
                   ("M-g o" . consult-outline)
