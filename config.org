@@ -395,14 +395,14 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
                                  (all-the-icons-octicon "lock"
                                                         :face 'error
                                                         :height 0.85
-                                                        :v-adjust 0.15)))
+                                                        :v-adjust 0.10)))
                        '(:eval (when (and (buffer-modified-p) buffer-read-only)
                                  " "))
                        '(:eval (when (buffer-modified-p)
                                  (all-the-icons-octicon "pencil"
                                                         :face 'warning
                                                         :height 0.85
-                                                        :v-adjust 0.15)))
+                                                        :v-adjust 0.10)))
                        '(:eval (concat (tdm/client-icon)))
                        '(:eval (tdm/vc)))
   "The cluster of left-hand side mode-line constructs.")
