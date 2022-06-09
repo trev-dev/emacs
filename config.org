@@ -418,11 +418,14 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
                         mode-line-modes)
   "The cluster of right-hand side cluster of mode-line constructs.")
 
-(setq-default mode-line-format (list tdm/left
-                                     '(:eval (tdm/middle-gap
-                                              (length
-                                               (format-mode-line tdm/right))))
-                                     tdm/right))
+(with-eval-after-load 'all-the-icons
+  (setq-default mode-line-format
+                (list tdm/left
+                      '(:eval (tdm/middle-gap
+                               (length
+                                (format-mode-line tdm/right))))
+                      tdm/right)))
+
 
 #+END_SRC
 
