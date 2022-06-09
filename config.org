@@ -44,7 +44,9 @@ Herein lies my Emacs configuration. Use it well.
   - [[#syntax-support][Syntax Support]]
     - [[#clojure][Clojure]]
     - [[#cssscss][CSS/SCSS]]
+    - [[#eglot][Eglot]]
     - [[#emmet][Emmet]]
+    - [[#flymake][Flymake]]
     - [[#golang][GoLang]]
     - [[#lua-mode][Lua Mode]]
     - [[#markdown][Markdown]]
@@ -1527,6 +1529,36 @@ This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can
                                                   tab-width 2)))
 #+END_SRC
 
+**** Eglot
+Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be leaner, faster and less intense.
+#+BEGIN_SRC elisp
+(td/add-setup 'eglot
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
+    (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
+    (add-to-list 'eglot-server-programs '(shopify-mode
+                                          . ("theme-check-language-server" "--stdio")))
+    (td/bind-keys '(("C-c e r" . eglot-rename)
+                    ("C-c e d" . eglot-find-typeDefinition)
+                    ("C-c e D" . eglot-find-declaration)
+                    ("C-c e f" . eglot-format)
+                    ("C-c e F" . eglot-format-buffer)
+                    ("C-c e R" . eglot-reconnect)) eglot-mode-map)
+    (add-hook 'eglot-managed-mode-hook
+              #'(lambda ()
+                  "Make sure Eldoc will show us all of the feedback at point."
+                  (setq-local eldoc-documentation-strategy
+                              #'eldoc-documentation-compose)))
+
+    )
+  (td/add-hooks '(css-mode
+                  html-mode
+                  js-mode
+                  python-mode
+                  php-mode
+                  svelte-mode
+                  typescript-mode) #'eglot-ensure))
+#+END_SRC
 **** Emmet
  ~.Emmet[data-love="true"]~
 
@@ -1591,6 +1623,34 @@ This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can
       :info-list-face 'flycheck-info-list-info)))
 
 (td/add-setup 'flycheck-ledger)
+#+END_SRC
+
+**** Flymake
+The built-in linting package.
+
+#+BEGIN_SRC elisp
+(define-fringe-bitmap 'small-right-triangle
+  (vector #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b10000000
+          #b11000000
+          #b11100000
+          #b11110000
+          #b11100000
+          #b11000000
+          #b10000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000
+          #b00000000))
+
+(setq flymake-note-bitmap '(small-right-triangle compilation-info)
+      flymake-error-bitmap '(small-right-triangle compilation-error)
+      flymake-warning-bitmap '(small-right-triangle compilation-warning))
 #+END_SRC
 
 **** GoLang
