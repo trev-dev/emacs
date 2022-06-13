@@ -1148,7 +1148,6 @@ A tiny package for presenting with org-mode.
 
 #+BEGIN_SRC elisp
 (td/add-setup 'org-present
-  (setq org-present-text-scale 4)
   (with-eval-after-load 'org-present
     (add-hook 'org-present-mode-hook
               #'(lambda ()
