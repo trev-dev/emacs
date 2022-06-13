@@ -1445,6 +1445,16 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
   (setq org-contacts-files '("~/Org/contacts.org")))
 #+END_SRC
 
+I'd like to get alerts, so let's use =mu4e-alert= for that.
+
+#+BEGIN_SRC elisp
+(td/add-setup 'mu4e-alert
+  (mu4e-alert-set-default-style 'libnotify)
+  (add-hook 'after-init-hook #'(lambda nil
+                                 (mu4e-alert-enable-notifications)
+                                 (mu4e-alert-enable-mode-line-display))))
+#+END_SRC
+
 **** Ledger
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
