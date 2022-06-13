@@ -37,6 +37,7 @@ Herein lies my Emacs configuration. Use it well.
     - [[#org][Org]]
     - [[#mu4e][Mu4e]]
     - [[#ledger][Ledger]]
+    - [[#password-store][Password Store]]
     - [[#sensitive-mode][Sensitive Mode]]
     - [[#rg][RG]]
     - [[#undo-tree][Undo-Tree]]
@@ -44,6 +45,7 @@ Herein lies my Emacs configuration. Use it well.
     - [[#which-key][Which-key]]
   - [[#syntax-support][Syntax Support]]
     - [[#clojure][Clojure]]
+    - [[#crontab-mode][Crontab Mode]]
     - [[#cssscss][CSS/SCSS]]
     - [[#eglot][Eglot]]
     - [[#emmet][Emmet]]
@@ -1451,6 +1453,16 @@ Knowing what resources you have at your disposal and learning how to budget are 
   (setq ledger-use-native-highlighting t))
 #+END_SRC
 
+**** Password Store
+
+#+BEGIN_SRC elisp
+(td/add-setup 'password-store
+  (td/bind-keys '(("C-c p c" . password-store-copy)
+                  ("C-c p f" . password-store-copy-field)
+                  ("C-c p i" . password-store-insert)
+                  ("C-c p g" . password-store-generate))))
+#+END_SRC
+
 **** Sensitive Mode
 Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21.html][Anirudh Sasikumar]]. It has been adapted to accomodate undo-tree. This prevents emacs from generating unencrypted backups & autosave data from =.gpg= files.
 
@@ -1530,6 +1542,12 @@ This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can
   (td/auto-mode '(("\\.clj\\'" . clojure-mode))))
 
 (td/add-setup 'cider)
+#+END_SRC
+
+**** Crontab Mode
+
+#+BEGIN_SRC elisp
+(td/add-setup 'crontab-mode)
 #+END_SRC
 
 **** CSS/SCSS
