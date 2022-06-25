@@ -38,8 +38,8 @@ Herein lies my Emacs configuration. Use it well.
     - [[#hydra][Hydra]]
     - [[#magit][Magit]]
     - [[#org][Org]]
-    - [[#mu4e][Mu4e]]
     - [[#ledger][Ledger]]
+    - [[#notmuch][Notmuch]]
     - [[#password-store][Password Store]]
     - [[#sensitive-mode][Sensitive Mode]]
     - [[#rg][RG]]
@@ -56,12 +56,14 @@ Herein lies my Emacs configuration. Use it well.
     - [[#golang][GoLang]]
     - [[#lua-mode][Lua Mode]]
     - [[#markdown][Markdown]]
+    - [[#paredit][Paredit]]
     - [[#php][PHP]]
     - [[#prettier][Prettier]]
     - [[#python][Python]]
     - [[#rainbow-delimiters][Rainbow Delimiters]]
     - [[#rainbow-mode][Rainbow Mode]]
     - [[#rust][Rust]]
+    - [[#scheme][Scheme]]
     - [[#shopify-mode][Shopify Mode]]
     - [[#svelte][Svelte]]
     - [[#treesitter][Treesitter]]
@@ -1775,6 +1777,16 @@ The free software documentation language of the Internet.
                   ("\\.markdown\\'" . markdown-mode))))
 #+END_SRC
 
+**** Paredit
+
+#+BEGIN_SRC elisp
+(td/add-setup 'paredit
+  (td/add-hooks '(lisp-mode
+                  scheme-mode
+                  clojure-mode
+                  emacs-lisp-mode) #'enable-paredit-mode))
+#+END_SRC
+
 **** PHP
 
 #+BEGIN_SRC elisp
@@ -1842,6 +1854,14 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
   (with-eval-after-load 'rust-mode
     (td/bind-keys '(("C-c c r" . rust-run)
                     ("C-c c a r" . td/rust-run-args)) rust-mode-map)))
+#+END_SRC
+
+**** Scheme
+There are many dialects of Scheme. I am choosing to organize mine in this subcategory.
+
+Guile: GNU Ubiquitous Intelligent Language for Extensions
+#+BEGIN_SRC elisp
+(td/add-setup 'geiser-guile)
 #+END_SRC
 
 **** Shopify Mode
