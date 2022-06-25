@@ -31,6 +31,8 @@ Herein lies my Emacs configuration. Use it well.
     - [[#dashboard][Dashboard]]
     - [[#diff-hl][Diff-hl]]
     - [[#elfeed][Elfeed]]
+    - [[#ement][Ement]]
+    - [[#erc][ERC]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#hydra][Hydra]]
@@ -700,7 +702,7 @@ RSS Reader :D
     (setq rmh-elfeed-org-files '("~/Org/elfeed.org"))))
 #+END_SRC
 
-**** COMMENT Ement
+**** Ement
 A Matrix client for Emacs.
 
 #+BEGIN_SRC elisp
@@ -721,6 +723,20 @@ A Matrix client for Emacs.
 (td/add-setup 'plz)
 (td/add-setup 'ement
   (setq print-circle t))
+#+END_SRC
+
+**** ERC
+
+#+BEGIN_SRC elisp
+(setq erc-autojoin-channels-alist
+      '(("Libera.Chat" "#emacs" "#guix" "#systemcrafters")))
+(global-set-key (kbd "M-o i")
+                #'(lambda () (interactive)
+                    (erc-tls :server "irc.libera.chat"
+                             :port 7000
+                             :nick "trevdev"
+                             :password (password-store-get
+                                        "Biz/libera.chat"))))
 #+END_SRC
 
 **** COMMENT Evil
