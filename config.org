@@ -366,7 +366,7 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 #+BEGIN_SRC elisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "Source Code Pro 11"))
+(add-to-list 'default-frame-alist '(font . "SauceCodePro Nerd Font 12"))
 #+END_SRC
 **** Modeline
 
