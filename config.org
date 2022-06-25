@@ -687,6 +687,7 @@ Show me the diffs in the fringe!
 
 #+BEGIN_SRC elisp
 (td/add-setup 'diff-hl
+  (setq diff-hl-show-staged-changes nil)
   (global-diff-hl-mode)
   (with-eval-after-load 'magit
     (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
