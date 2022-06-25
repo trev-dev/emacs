@@ -323,6 +323,8 @@ Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" 
   (package-refresh-contents)
   (package-install 'diminish))
 
+(td/add-setup 'diminish)
+
 (dolist (mode '(("company" 'company-mode)
                 ("hideshow" 'hs-minor-mode)
                 ("undo-tree" 'undo-tree-mode)
