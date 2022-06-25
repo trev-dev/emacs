@@ -22,6 +22,7 @@ Herein lies my Emacs configuration. Use it well.
     - [[#dired][Dired]]
     - [[#diminish][Diminish]]
     - [[#doom-themes][Doom Themes]]
+    - [[#emojify][Emojify]]
     - [[#font-setup][Font Setup]]
     - [[#modeline][Modeline]]
   - [[#utility-packages][Utility Packages]]
@@ -345,6 +346,13 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
         doom-themes-padded-modeline 1)
   (load-theme 'doom-material-dark-devel t)
   (doom-themes-org-config))
+#+END_SRC
+
+**** Emojify
+
+#+BEGIN_SRC elisp
+(td/add-setup 'emojify
+  (add-hook 'after-init-hook #'global-emojify-mode))
 #+END_SRC
 
 **** Font Setup
