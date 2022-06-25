@@ -28,6 +28,7 @@ Herein lies my Emacs configuration. Use it well.
   - [[#utility-packages][Utility Packages]]
     - [[#avy][Avy]]
     - [[#completions][Completions]]
+    - [[#dashboard][Dashboard]]
     - [[#diff-hl][Diff-hl]]
     - [[#dirvish][Dirvish]]
     - [[#elfeed][Elfeed]]
@@ -654,7 +655,7 @@ Mini-buffer completions back-end.
     (setq enable-recursive-minibuffers t)))
 #+END_SRC
 
-**** COMMENT Dashboard
+**** Dashboard
 
 #+BEGIN_SRC elisp
 (td/add-setup 'dashboard
