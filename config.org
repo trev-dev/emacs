@@ -1522,11 +1522,13 @@ Now, to configure Notmuch:
                                       :sort-order newest-first)
                                (:name "personal"
                                       :query "not tag:work"
+                                      :count-query "not tag:work and tag:unread"
                                       :key "p"
                                       :sort-order newest-first
                                       :search-type tree)
                                (:name "work"
                                       :query "tag:work"
+                                      :count-query "tag:work and tag:unread"
                                       :key "w"
                                       :sort-order newest-first
                                       :search-type tree)
