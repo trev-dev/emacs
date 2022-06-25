@@ -30,7 +30,6 @@ Herein lies my Emacs configuration. Use it well.
     - [[#completions][Completions]]
     - [[#dashboard][Dashboard]]
     - [[#diff-hl][Diff-hl]]
-    - [[#dirvish][Dirvish]]
     - [[#elfeed][Elfeed]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
@@ -686,15 +685,6 @@ Show me the diffs in the fringe!
   (with-eval-after-load 'magit
     (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
     (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)))
-#+END_SRC
-
-**** Dirvish
-Makes Dired much nicer!
-
-#+BEGIN_SRC elisp
-(td/add-setup 'dirvish
-  (global-set-key (kbd "C-c d") #'dirvish)
-  (dirvish-override-dired-mode 1))
 #+END_SRC
 
 **** Elfeed
