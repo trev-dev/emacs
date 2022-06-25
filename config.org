@@ -1394,7 +1394,7 @@ Here's an example:
 | Totals            |       | 20.43h | $1327.95 |                        |
 #+END
 
-**** Mu4e
+**** COMMENT Mu4e
 Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my
 context settings out of this source-controlled repository as to keep some more sensitive
 info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Contexts]] are well documented if you need a hand with them.
@@ -1423,6 +1423,7 @@ Also, If you need a good starting point with mu4e, I strongly suggest checking o
       mail-user-agent 'mu4e-user-agent
       mu4e-maildir-shortcuts '((:maildir "/fastmail/INBOX" :key ?p)
                                (:maildir "/fastmail/Business" :key ?b)
+                               (:maildir "/fastmail/Tango" :key ?t)
                                (:maildir "/voltage/INBOX" :key ?v))
       message-send-mail-function 'smtpmail-send-it
       mu4e-attachment-dir "~/Downloads"
@@ -1488,6 +1489,90 @@ Knowing what resources you have at your disposal and learning how to budget are 
 #+BEGIN_SRC elisp
 (td/add-setup 'ledger-mode
   (setq ledger-use-native-highlighting t))
+#+END_SRC
+
+**** Notmuch
+Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
+
+First, some general mail configs:
+#+BEGIN_SRC elisp
+(setq send-mail-function 'sendmail-send-it
+      sendmail-program "/home/trevdev/.guix-profile/bin/msmtp"
+      mail-specify-envelope-from t
+      mail-envelope-from 'header
+      message-sendmail-envelope-from 'header
+      message-signature-directory "~/.local/mail/signatures"
+      message-signature-file "default")
+#+END_SRC
+
+Now, to configure Notmuch:
+#+BEGIN_SRC elisp
+(td/add-setup 'notmuch)
+
+(setq notmuch-fcc-dirs "fastmail/Sent"
+      notmuch-saved-searches '(
+                               (:name "todo"
+                                      :query "tag:todo"
+                                      :key "t"
+                                      :sort-order newest-first)
+                               (:name "flagged"
+                                      :query "tag:flagged"
+                                      :key "f"
+                                      :sort-order newest-first)
+                               (:name "personal"
+                                      :query "not tag:work"
+                                      :key "p"
+                                      :sort-order newest-first
+                                      :search-type tree)
+                               (:name "work"
+                                      :query "tag:work"
+                                      :key "w"
+                                      :sort-order newest-first
+                                      :search-type tree)
+                               (:name "drafts"
+                                      :query "tag:draft"
+                                      :key "d"
+                                      :sort-order newest-first)
+                               (:name "sent"
+                                      :query "tag:sent"
+                                      :key "s"
+                                      :sort-order newest-first)
+                               (:name "all mail"
+                                      :query "*"
+                                      :key "a"
+                                      :sort-order newest-first
+                                      :search-type tree))
+      notmuch-archive-tags '("+archive" "-inbox")
+      notmuch-tagging-keys '(("a" notmuch-archive-tags "Archive")
+                             ("u" notmuch-show-mark-read-tags "Mark read")
+                             ("f" ("+flagged") "Flag")
+                             ("s" ("+spam" "-inbox") "Mark as spam")
+                             ("d" ("+deleted" "-inbox") "Delete"))
+      notmuch-show-logo nil
+      notmuch-mua-user-agent-function 'notmuch-user-agent-full
+      notmuch-hello-thousands-separator ","
+      notmuch-multipart/alternative-discouraged '("text/plain"
+                                                  "multipart/related"))
+(global-set-key (kbd "M-o m") #'notmuch)
+#+END_SRC
+
+Some extras for mime and contacts:
+#+BEGIN_SRC elisp
+(autoload 'org-mime-edit-mail-in-org-mode "org-mime"
+  "Edit a message in org-mode")
+
+(td/add-setup 'org-mime
+  (td/bind-keys '(("C-c C-o" . org-mime-edit-mail-in-org-mode)
+                  ("C-c C-h" . org-mime-htmlize)) message-mode-map))
+
+(quelpa-get org-contacts
+            :fetcher git
+            :url "https://repo.or.cz/org-contacts.git")
+
+(td/add-setup 'org-contacts
+  (require 'org-contacts)
+  (setq org-contacts-files '("~/Org/contacts.org")))
+
 #+END_SRC
 
 **** Password Store
