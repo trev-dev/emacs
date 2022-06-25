@@ -1538,10 +1538,12 @@ Now, to configure Notmuch:
                                       :sort-order newest-first)
                                (:name "sent"
                                       :query "tag:sent"
+                                      :count-query "tag:nil"
                                       :key "s"
                                       :sort-order newest-first)
                                (:name "all mail"
                                       :query "*"
+                                      :count-query "tag:nil"
                                       :key "a"
                                       :sort-order newest-first
                                       :search-type tree))
