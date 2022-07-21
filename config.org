@@ -312,7 +312,7 @@ Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" 
     (diminish 'meow-beacon-mode (propertize " 🐾" 'face 'warning))))
 #+END_SRC
 
-**** Doom Themes
+**** COMMENT Doom Themes
 Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
 #+BEGIN_SRC elisp
@@ -322,14 +322,17 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
         doom-themes-enable-italic t
         doom-themes-padded-modeline 1)
   (load-theme 'doom-material-dark-devel t)
+  (enable-theme 'doom-material-dark-devel)
   (doom-themes-org-config))
 #+END_SRC
 
-**** Emojify
+**** Custom Theme
+I've written my own theme called "tangonov".
 
 #+BEGIN_SRC elisp
-(td/add-setup 'emojify
-  (add-hook 'after-init-hook #'global-emojify-mode))
+(add-to-list 'custom-theme-load-path "~/Projects/tangonov-theme/")
+(load-theme 'tangonov t)
+(enable-theme 'tangonov)
 #+END_SRC
 
 **** Font Setup
@@ -362,37 +365,60 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 (defun tdm/project()
   "Display the current project name, or path."
   (when (project-current)
-    (propertize (concat (if (stringp td/custom-project-name)
-                            td/custom-project-name
-                          (file-name-nondirectory
-                           (directory-file-name
-                            (project-root (project-current))))) ":")
+    (propertize (if (stringp td/custom-project-name)
+                    td/custom-project-name
+                  (file-name-nondirectory
+                  (directory-file-name
+                    (project-root (project-current)))))
                 'face 'success
-                'display '(raise 0.0)
                 'help-echo "Switch project"
                 'mouse-face '(:box 1)
                 'local-map (make-mode-line-mouse-map
                             'mouse-1 #'project-switch-project))))
 
-(defvar tdm/left (list " "
-                       '(:eval (all-the-icons-icon-for-buffer))
-                       "  "
+(defun tdm/modal-face (str base)
+  (propertize str 'face
+              `(:inherit ,base :weight bold :height 0.9)))
+
+(defvar td/custom-meow-states `((normal . ,(tdm/modal-face
+                                            "<N>" '(:foreground "#FFCA41")))
+                                (motion . ,(tdm/modal-face
+                                            "<M>" '(:foreground "#82AAFF")))
+                                (keypad . ,(tdm/modal-face
+                                            "<K>" '(:foreground "#89DDFF")))
+                                (insert . ,(tdm/modal-face
+                                            "<I>" '(:foreground "#C792EA")))
+                                (beacon . ,(tdm/modal-face
+                                            "<B>" '(:foreground "#FF7B85")))))
+
+(defvar tdm/meow-state
+  '(:eval (when (featurep 'meow)
+            (concat (alist-get (meow--current-state) td/custom-meow-states)
+                    " "))))
+
+(defvar tdm/god-state
+  '(:eval (when (featurep 'god-mode)
+            (format "%s " (if god-local-mode
+                              (tdm/modal-face "<G>" 'all-the-icons-lyellow)
+                            (tdm/modal-face "---" 'all-the-icons-lpurple))))))
+
+(defun tdm/status-flag (on face)
+  "Produce a status flag based on some `PRED'icate test and give it a `FACE'."
+  (format "%s" (if on
+                   (propertize "▰" 'face `(:inherit ',face :weight 'bold))
+                 "-")))
+
+(defvar tdm/left (list " " tdm/god-state tdm/meow-state
                        '(:eval (tdm/project))
-                       "%b "
-                       '(:eval (when buffer-read-only
-                                 (all-the-icons-octicon "lock"
-                                                        :face 'error
-                                                        :height 0.85
-                                                        :v-adjust 0.10)))
-                       '(:eval (when (and (buffer-modified-p) buffer-read-only)
-                                 " "))
-                       '(:eval (when (buffer-modified-p)
-                                 (all-the-icons-octicon "pencil"
-                                                        :face 'warning
-                                                        :height 0.85
-                                                        :v-adjust 0.10)))
-                       '(:eval (concat (tdm/client-icon)))
-                       '(:eval (tdm/vc)))
+                       '(:eval (tdm/vc))
+                       "%b (%I) "
+                       '(:eval (tdm/status-flag buffer-read-only 'error))
+                       '(:eval (tdm/status-flag (buffer-modified-p) 'warning))
+                       '(:eval (if (not (eq
+                                      (format-mode-line mode-line-client)
+                                      ""))
+                                   (tdm/status-flag t '(:foreground "#C792EA"))
+                                 "")))
   "The cluster of left-hand side mode-line constructs.")
 
 (defun tdm/middle-gap (len)
@@ -402,8 +428,68 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
    `((space :align-to (- (+ right right-fringe right-margin)
                          ,(+ 0 len))))))
 
-(defvar tdm/right (list '(:eval mode-line-misc-info)
-                        mode-line-modes)
+(defun tdm/eglot ()
+  "It's the same eglot indicator, but with the server name removed.
+I wanted and indicator that took up less space on the modeline."
+  (when (and (featurep 'eglot) eglot--managed-mode)
+    (pcase-let* ((server (eglot-current-server))
+                 (nick (and server (eglot-project-nickname server)))
+                 (pending (and server (hash-table-count
+                                       (jsonrpc--request-continuations server))))
+                 (`(,_id ,doing ,done-p ,_detail) (and server (eglot--spinner server)))
+                 (last-error (and server (jsonrpc-last-error server))))
+      (append
+       `(,(propertize
+           eglot-menu-string
+           'face 'eglot-mode-line
+           'mouse-face 'mode-line-highlight
+           'help-echo
+           "Eglot: Emacs LSP client\nmouse-1: Display minor mode menu"
+           'keymap (let ((map (make-sparse-keymap)))
+                     (define-key map [mode-line down-mouse-1] eglot-menu)
+                     map)))
+       (when nick
+         `(":"
+           ,(propertize
+             "on"
+             'face 'eglot-mode-line
+             'mouse-face 'mode-line-highlight
+             'help-echo
+             (format "Project '%s'\nmouse-1: LSP server control menu" nick)
+             'keymap (let ((map (make-sparse-keymap)))
+                       (define-key map
+                                   [mode-line down-mouse-1] eglot-server-menu)
+                       map))
+           ,@(when last-error
+               `("/" ,(eglot--mode-line-props
+                       "error" 'compilation-mode-line-fail
+                       '((mouse-3 eglot-clear-status  "Clear this status"))
+                       (format "An error occurred: %s\n"
+                               (plist-get last-error
+                                          :message)))))
+           ,@(when (and doing (not done-p))
+               `("/" ,(eglot--mode-line-props doing
+                                              'compilation-mode-line-run '())))
+           ,@(when (cl-plusp pending)
+               `("/" ,(eglot--mode-line-props
+                       (format "%d" pending) 'warning
+                       '((mouse-3 eglot-forget-pending-continuations
+                                  "Forget pending continuations"))
+                       "Number of outgoing, \
+still unanswered LSP requests to the server\n")))))))))
+
+(setq flymake-mode-line-lighter "fm:")
+
+(defvar tdm/right (list '(:eval (tdm/eglot))
+                        " "
+                        '(:eval (when flymake-mode
+                                  flymake-mode-line-title
+                                  flymake-mode-line-exception
+                                  flymake-mode-line-counters))
+                        " "
+                        mode-line-misc-info
+                        mode-line-modes
+                        "[%p] ")
   "The cluster of right-hand side cluster of mode-line constructs.")
 
 (with-eval-after-load 'all-the-icons
