@@ -172,10 +172,6 @@ A few settings that are useful in programming buffers
 (setq-default evil-shift-width 2)
 (setq-default electric-indent-inhibit t)
 
-(dolist (combo '(("C-c i" . td/toggle-indent-tabs-mode)
-                 ("C-i" . indent-relative)))
-  (define-key prog-mode-map (kbd (car combo)) (cdr combo)))
-
 (add-hook 'prog-mode-hook 'td/prog-mode-settings)
 #+END_SRC
 
