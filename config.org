@@ -46,10 +46,11 @@ Set up the dictionary and preferred browser.
 
 #+BEGIN_SRC elisp
 ;; Spelling
-(setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd")
-(setq ispell-program-name "aspell")
-(setq ispell-dictionary "english")
-
+(setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd"
+      ispell-program-name "aspell"
+      ispell-dictionary "en"
+      ispell-library-directory "~/.guix-home/profile/lib/aspell"
+      ispell-alternate-dictionary (concat (getenv "HOME") "/Documents/wordlist"))
 ;; Browser
 (setq browse-url-generic-program "/usr/bin/firefox")
 #+END_SRC
