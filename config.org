@@ -401,7 +401,7 @@ I've written my own theme called "tangonov".
 (defun tdm/status-flag (on face)
   "Produce a status flag based on some `PRED'icate test and give it a `FACE'."
   (format "%s" (if on
-                   (propertize "▰" 'face `(:inherit ',face :weight 'bold))
+                   (propertize "▰" 'face `(:inherit ,face :weight bold))
                  "-")))
 
 (defvar tdm/left (list " " tdm/god-state tdm/meow-state
