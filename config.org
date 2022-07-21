@@ -295,9 +295,21 @@ Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" 
                 ("org-indent" 'org-indent-mode)
                 ("simple" 'visual-line-mode)
                 ("eldoc" 'eldoc-mode)
-                ("tree-sitter" 'tree-sitter-mode "TS")))
+                ("flymake" 'flymake-mode)
+                ("tree-sitter" 'tree-sitter-mode "TS")
+                ("god-mode" 'god-local-mode)
+                ("beacon" 'beacon-mode)
+                ("goggles" 'goggles-mode)))
   (eval-after-load (car mode)
     `(diminish ,(cadr mode) ,(caddr mode))))
+
+(with-eval-after-load 'meow
+  (dolist (mode (list 'meow-normal-mode
+                      'meow-insert-mode
+                      'meow-motion-mode
+                      'meow-keypad-mode))
+    (diminish mode)
+    (diminish 'meow-beacon-mode (propertize " 🐾" 'face 'warning))))
 #+END_SRC
 
 **** Doom Themes
