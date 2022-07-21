@@ -3,80 +3,6 @@
 #+STARTUP: content
 :END:
 Herein lies my Emacs configuration. Use it well.
-
-** Contents
-:PROPERTIES:
-:TOC:      :include siblings :depth 3 :force (nothing) :ignore (nothing) :local (nothing)
-:END:
-:CONTENTS:
-- [[#general-settings][General Settings]]
-- [[#helper-functions][Helper Functions]]
-- [[#prog-mode][Prog Mode]]
-- [[#package-configuration][Package Configuration]]
-  - [[#bootstrapping][Bootstrapping]]
-    - [[#repositories][Repositories]]
-    - [[#maintaining-selected-packages][Maintaining selected packages]]
-    - [[#quelpa][Quelpa]]
-  - [[#look--feel][Look & Feel]]
-    - [[#all-the-icons][All The Icons]]
-    - [[#dired][Dired]]
-    - [[#diminish][Diminish]]
-    - [[#doom-themes][Doom Themes]]
-    - [[#emojify][Emojify]]
-    - [[#font-setup][Font Setup]]
-    - [[#modeline][Modeline]]
-  - [[#utility-packages][Utility Packages]]
-    - [[#avy][Avy]]
-    - [[#completions][Completions]]
-    - [[#dashboard][Dashboard]]
-    - [[#diff-hl][Diff-hl]]
-    - [[#elfeed][Elfeed]]
-    - [[#ement][Ement]]
-    - [[#erc][ERC]]
-    - [[#expand-region][Expand Region]]
-    - [[#exec-path][Exec Path]]
-    - [[#hydra][Hydra]]
-    - [[#magit][Magit]]
-    - [[#org][Org]]
-    - [[#ledger][Ledger]]
-    - [[#notmuch][Notmuch]]
-    - [[#password-store][Password Store]]
-    - [[#sensitive-mode][Sensitive Mode]]
-    - [[#rg][RG]]
-    - [[#undo-tree][Undo-Tree]]
-    - [[#visual-fill-column][Visual Fill Column]]
-    - [[#which-key][Which-key]]
-  - [[#syntax-support][Syntax Support]]
-    - [[#clojure][Clojure]]
-    - [[#crontab-mode][Crontab Mode]]
-    - [[#cssscss][CSS/SCSS]]
-    - [[#eglot][Eglot]]
-    - [[#emmet][Emmet]]
-    - [[#flymake][Flymake]]
-    - [[#golang][GoLang]]
-    - [[#lua-mode][Lua Mode]]
-    - [[#markdown][Markdown]]
-    - [[#paredit][Paredit]]
-    - [[#php][PHP]]
-    - [[#prettier][Prettier]]
-    - [[#python][Python]]
-    - [[#rainbow-delimiters][Rainbow Delimiters]]
-    - [[#rainbow-mode][Rainbow Mode]]
-    - [[#rust][Rust]]
-    - [[#scheme][Scheme]]
-    - [[#shopify-mode][Shopify Mode]]
-    - [[#svelte][Svelte]]
-    - [[#treesitter][Treesitter]]
-    - [[#typescript--javascript][TypeScript & JavaScript]]
-    - [[#vuejs][VueJS]]
-    - [[#web-mode][Web Mode]]
-    - [[#yaml][YAML]]
-    - [[#yasnippet][Yasnippet]]
-  - [[#install--configure-packages][Install & Configure Packages]]
-- [[#about-this-config][About This Config]]
-  - [[#installation][Installation]]
-  - [[#licenses][Licenses]]
-:END:
 ** General Settings
 Some general performance based improvements. Reset GC after init as it is maxed out in [[file:early-init.el][early init]].
 
@@ -1136,32 +1062,9 @@ I like org-publish, but there are some files (like my cookbook) that I would lik
     (require 'ox-hugo)))
 #+END_SRC
 
-****** org-make-toc
-Org Make TOC gives me the ability to automagically update documentation files with a table of contents, which is really nice for README files that I don't feel like exporting every time I update them.
-
-I wrote =td/org-auto-toc-files= and =td/set-auto-toc= to automatically update this config on save.
-
-#+BEGIN_SRC elisp
-(defvar td/org-auto-toc-files
-  '("~/.config/emacs/config.org")
-  "Files that should auto-toc on save.")
-
-(defun td/set-auto-toc ()
-  "Set auto-toc if buffer in auto-toc-files."
-  (if (member
-       (buffer-file-name)
-       (mapcar 'expand-file-name td/org-auto-toc-files))
-      (progn
-        (org-make-toc-mode)
-        (message "Org make TOC mode is on!"))))
-
-(td/add-setup 'org-make-toc
-  (add-hook 'org-mode-hook #'td/set-auto-toc))
-#+END_SRC
-
 ****** COMMENT org-modern
 
-#+begin_src elisp
+#+begin_src lisp
 (td/add-setup 'org-modern
   (setq org-pretty-entities t
         org-ellipsis "…"
