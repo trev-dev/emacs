@@ -340,7 +340,7 @@ I've written my own theme called "tangonov".
 #+BEGIN_SRC elisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "SauceCodePro Nerd Font 12"))
+(add-to-list 'default-frame-alist '(font . "Hack 12"))
 #+END_SRC
 **** Modeline
 
