@@ -75,6 +75,12 @@ I want to use emacs for pinentry whenever that may apply. This needs to be paire
 (pinentry-start)
 #+END_SRC
 
+Don't pause the search while wrapping, just flash so we know we wrapped in isearch-mode.
+
+#+BEGIN_SRC elisp
+(setq isearch-wrap-pause 'no)
+#+END_SRC
+
 ** Helper Functions
 Functions that help me with configuration.
 
