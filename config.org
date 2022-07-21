@@ -67,6 +67,14 @@ I hate seeing project folders get all cluttered up. Let's move autosaves and bac
 
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 #+END_SRC
+
+
+I want to use emacs for pinentry whenever that may apply. This needs to be paired with ~/.gnupg/gpg-agent.conf with the =allow-emacs-pinentry= rule.
+
+#+BEGIN_SRC elisp
+(pinentry-start)
+#+END_SRC
+
 ** Helper Functions
 Functions that help me with configuration.
 
