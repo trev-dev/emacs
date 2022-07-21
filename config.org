@@ -110,6 +110,24 @@ Adds '-hook' onto the end of the symbols for brevity."
   (seq-filter #'(lambda (item) item) seq))
 #+END_SRC
 
+Create a mode for mapping high priority keybinds early on.
+
+*** Priority Mode
+
+I am creating "Priority Mode," which has an emulation-mode keymap. Keybindings assigned to this mode will not be over-written by other modes.
+
+#+BEGIN_SRC elisp
+(define-minor-mode priority-mode
+  "A minor mode for short-listing keybindings.
+This will prevent other modes form overriding keys that I would prefer to
+see bound."
+  :init-value nil
+  :global t
+  :keymap (make-sparse-keymap))
+(add-to-list 'emulation-mode-map-alists `((priority-mode . ,priority-mode-map)))
+(priority-mode)
+#+END_SRC
+
 ** Prog Mode
 A few settings that are useful in programming buffers
 
