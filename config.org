@@ -908,7 +908,21 @@ RSS Reader :D
     (setq rmh-elfeed-org-files '("~/Org/elfeed.org"))))
 #+END_SRC
 
-**** Ement
+**** Embrace
+Embrace is the Emacs equivalent of "vim surround". It make it easy to swap out surrounding elements.
+
+#+BEGIN_SRC elisp
+(defun td/smart-embrace ()
+  (interactive)
+  (if (region-active-p)
+      (embrace-add)
+    (embrace-commander)))
+
+(td/add-setup 'embrace
+  (global-set-key (kbd "C-S-s") #'td/smart-embrace))
+#+END_SRC
+
+**** COMMENT Ement
 A Matrix client for Emacs.
 
 #+BEGIN_SRC elisp
@@ -995,7 +1009,6 @@ A Matrix client for Emacs.
   (with-eval-after-load 'evil
     (evil-goggles-mode)))
 #+END_SRC
-
 **** Expand Region
 It just makes selecting text between sexps easy.
 
@@ -1128,22 +1141,21 @@ A tool for making repetative chords less cumbersome
     ("=" enlarge-window "Enlarge")
     ("-" shrink-window "Shrink")
     ("b" balance-windows "Balance")
-    ("D" delete-other-windows "Delete Others"))
-
-  (defhydra org-nav-elements (org-mode-map "C-c n")
-    "Navigate Org Elements"
-    ("a" org-up-element "Up one level")
-    ("e" org-down-element "Down one level")
-    ("p" org-backward-element "Move to previous")
-    ("n" org-forward-element "Move to next")
-    ("TAB" org-cycle "Cycle element")))
+    ("D" delete-other-windows "Delete Others")))
 #+END_SRC
 
-**** COMMENT Meow
+**** Meow
 
 #+BEGIN_SRC elisp
 (defun meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty
+        meow-expand-hint-remove-delay 2.0
+        meow-expand-exclude-mode-list '())
+  (dolist (state '((notmuch-hello-mode . motion)
+                   (notmuch-search-mode . motion)
+                   (notmuch-tree-mode . motion)
+                   (notmuch-show-mode . motion)))
+    (add-to-list 'meow-mode-state-list state))
   (meow-motion-overwrite-define-key
    '("j" . meow-next)
    '("k" . meow-prev)
@@ -1164,7 +1176,12 @@ A tool for making repetative chords less cumbersome
    '("9" . meow-digit-argument)
    '("0" . meow-digit-argument)
    '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
+   '("?" . meow-cheatsheet)
+   ;; Custom keybinds
+   '("i" . "C-c i")
+   '("I" . "C-c I")
+   (cons "P" project-prefix-map)
+   '("e" . "C-c e"))
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -1226,7 +1243,9 @@ A tool for making repetative chords less cumbersome
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
    '("'" . repeat)
-   '("<escape>" . ignore)))
+   '("<escape>" . ignore)
+   '("S" . td/smart-embrace)
+   '("=" . er/expand-region)))
 
 (td/add-setup 'meow
   (require 'meow)
@@ -1240,6 +1259,22 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
 #+BEGIN_SRC elisp
 (td/add-setup 'magit
   (global-set-key (kbd "M-o g") #'magit-status))
+#+END_SRC
+
+**** COMMENT Multiple Cursors
+
+#+BEGIN_SRC elisp
+(td/add-setup 'multiple-cursors
+  (td/bind-keys '(("C-S-l" . mc/edit-lines)
+                  ("C-." . mc/mark-next-like-this)
+                  ("C-," . mc/mark-previous-like-this)
+                  ("C->" . mc/skip-to-next-like-this)
+                  ("C-<" . mc/skip-to-previous-like-this)
+                  ("C-c C-." . mc/mark-all-like-this)
+                  ("C-c C-?" . mc/mark-all-like-this-dwim)
+                  ("C-c C-/" . mc/mark-all-in-region)
+                  ("C-M-n" . mc/insert-letters)
+                  ("C-M-a" . mc/insert-letters)) priority-mode-map))
 #+END_SRC
 
 **** Org
@@ -1270,10 +1305,10 @@ Next are my TODO key words. They are meant to be used as such:
 - =DONE= The task is completed
 - =PASS= The task has been "passed along" or "delegated" to someone else. Considered 'done', just not by myself
 - =CANC= The task has been cancelled or ended before completion
-  
+
 #+BEGIN_SRC elisp
 (defvar td/todo-keywords
-  '((sequence "TODO(t)" "NEXT(n)" "PROJ(p)" "WAIT(w@/!)" "LOW(l)"
+  '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "LOW(l)"
               "|" "DONE(d!)" "PASS(p@)" "CANC(k@)"))
   "A sequence of keywords for Org headlines.")
 #+END_SRC
@@ -1307,7 +1342,7 @@ My org agenda commands & stuck projects. Currently a work in progress! I am read
   "Custom commands for Org Agenda.")
 #+END_SRC
 
-Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [[*Org mode extensions][extensions]] for how I extend org-mode. 
+Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [[*Org mode extensions][extensions]] for how I extend org-mode.
 
 #+BEGIN_SRC elisp
 (defvar td/capture-templates '() "Base org-capture-templates.")
@@ -1421,7 +1456,7 @@ Get access to Github Flavored Markdown
 (td/add-setup 'ox-gfm
   (with-eval-after-load 'ox
     (require 'ox-gfm)))
-#+END_SRC             
+#+END_SRC
 
 ****** ox-hugo
 I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
@@ -1765,25 +1800,47 @@ Knowing what resources you have at your disposal and learning how to budget are 
   (setq ledger-use-native-highlighting t))
 #+END_SRC
 
+**** Vterm
+A "normal" terminal for Emacs
+
+#+BEGIN_SRC elisp
+;; Currently installed via guix system
+;; (td/add-setup 'vterm)
+;; (td/add-setup 'multi-vterm)
+;; (td/add-setup 'verm-toggle)
+
+(td/bind-keys '(("C-c v t" . multi-vterm)
+                ("C-c v n" . multi-vterm-next)
+                ("C-c v p" . multi-vterm-prev)
+                ("C-c v d" . multi-vterm-dedicated-toggle)
+                ("C-c v P" . multi-vterm-project)))
+#+END_SRC
+
 **** Notmuch
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
 
 First, some general mail configs:
 #+BEGIN_SRC elisp
 (setq send-mail-function 'sendmail-send-it
-      sendmail-program "/home/trevdev/.guix-profile/bin/msmtp"
+      sendmail-program "~/.guix-home/profile/bin/msmtp"
+      message-directory "~/.local/share/mail"
       mail-specify-envelope-from t
       mail-envelope-from 'header
       message-sendmail-envelope-from 'header
-      message-signature-directory "~/.local/mail/signatures"
+      message-signature-directory "~/.local/share/mail/signatures"
       message-signature-file "default")
 #+END_SRC
 
 Now, to configure Notmuch:
 #+BEGIN_SRC elisp
-(td/add-setup 'notmuch)
+(td/add-setup 'notmuch
+              (require 'notmuch))
 
-(setq notmuch-fcc-dirs "fastmail/Sent"
+(setq notmuch-fcc-dirs
+      '(("trev@fastmail.com" . "fastmail/Sent")
+        ("trev@trevdev.ca"   . "fastmail/Sent")
+        ("tn@eml.cc"         . "fastmail/Sent")
+        ("trevor@voltagenewmedia.com" . "voltage/Sent"))
       notmuch-saved-searches '(
                                (:name "todo"
                                       :query "tag:todo"
@@ -1797,14 +1854,12 @@ Now, to configure Notmuch:
                                       :query "not tag:work"
                                       :count-query "not tag:work and tag:unread"
                                       :key "p"
-                                      :sort-order newest-first
-                                      :search-type tree)
+                                      :sort-order newest-first)
                                (:name "work"
                                       :query "tag:work"
                                       :count-query "tag:work and tag:unread"
                                       :key "w"
-                                      :sort-order newest-first
-                                      :search-type tree)
+                                      :sort-order newest-first)
                                (:name "drafts"
                                       :query "tag:draft"
                                       :key "d"
@@ -1818,8 +1873,7 @@ Now, to configure Notmuch:
                                       :query "*"
                                       :count-query "tag:nil"
                                       :key "a"
-                                      :sort-order newest-first
-                                      :search-type tree))
+                                      :sort-order newest-first))
       notmuch-archive-tags '("+archive" "-inbox")
       notmuch-tagging-keys '(("a" notmuch-archive-tags "Archive")
                              ("u" notmuch-show-mark-read-tags "Mark read")
@@ -1827,11 +1881,22 @@ Now, to configure Notmuch:
                              ("s" ("+spam" "-inbox") "Mark as spam")
                              ("d" ("+deleted" "-inbox") "Delete"))
       notmuch-show-logo nil
-      notmuch-mua-user-agent-function 'notmuch-user-agent-full
-      notmuch-hello-thousands-separator ","
-      notmuch-multipart/alternative-discouraged '("text/plain"
-                                                  "multipart/related"))
+      notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full
+      notmuch-hello-thousands-separator ",")
+
 (global-set-key (kbd "M-o m") #'notmuch)
+
+(defun td/specify-msmtp-account ()
+  (save-excursion
+    (beginning-of-buffer)
+    (search-forward "From:")
+    (setq message-sendmail-extra-arguments
+          (if (string-match-p (regexp-quote "voltagenewmedia")
+                              (thing-at-point 'line t))
+              (list "-a" "voltage")
+            (list "-a" "default")))))
+
+(add-hook 'notmuch-mua-send-hook #'td/specify-msmtp-account)
 #+END_SRC
 
 Some extras for mime and contacts:
@@ -1896,7 +1961,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
   (rg-enable-default-bindings))
 #+END_SRC
 
-**** Undo-Tree
+**** COMMENT Undo-Tree
 
 A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
 
@@ -1909,6 +1974,7 @@ A great tool for turning back the clock on a buffer. Especially when git commits
 #+END_SRC
 
 **** Visual Fill Column
+
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
 
 #+BEGIN_SRC elisp
@@ -1959,35 +2025,41 @@ This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can
 
 **** Eglot
 Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be leaner, faster and less intense.
+
 #+BEGIN_SRC elisp
 (td/add-setup 'eglot
   (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs '(php-mode . ("intelephense" "--stdio")))
-    (add-to-list 'eglot-server-programs '(svelte-mode . ("svelteserver" "--stdio")))
-    (add-to-list 'eglot-server-programs '(shopify-mode
-                                          . ("theme-check-language-server" "--stdio")))
-    (td/bind-keys '(("C-c e r" . eglot-rename)
-                    ("C-c e d" . eglot-find-typeDefinition)
-                    ("C-c e D" . eglot-find-declaration)
-                    ("C-c e f" . eglot-format)
-                    ("C-c e F" . eglot-format-buffer)
-                    ("C-c e R" . eglot-reconnect)) eglot-mode-map)
-    (setq eglot-events-buffer-size 0)
-    (add-hook 'eglot-managed-mode-hook
-              #'(lambda ()
-                  "Make sure Eldoc will show us all of the feedback at point."
-                  (setq-local eldoc-documentation-strategy
-                              #'eldoc-documentation-compose)))
+    (add-to-list 'eglot-server-programs
+                 '(php-mode . ("intelephense" "--stdio")))
+    (add-to-list 'eglot-server-programs
+                 '(svelte-mode . ("svelteserver" "--stdio")))
+    (add-to-list 'eglot-server-programs
+                 '(shopify-mode
+                   . ("theme-check-language-server" "--stdio")))
 
-    )
-  (td/add-hooks '(css-mode
-                  html-mode
-                  js-mode
-                  python-mode
-                  php-mode
-                  svelte-mode
-                  typescript-mode) #'eglot-ensure))
+    (defvar td/eglot-funcs
+      (let ((map (make-sparse-keymap)))
+        (td/bind-keys '(("r" . eglot-rename)
+                        ("d" . eglot-find-typeDefinition)
+                        ("D" . eglot-find-declaration)
+                        ("f" . eglot-format)
+                        ("F" . eglot-format-buffer)
+                        ("R" . eglot-reconnect)) map)
+        map) "Custom keybinds for eglot functions. \\{td/eglot-funcs}")
+    (fset 'td/eglot-funcs td/eglot-funcs)
+    (define-key eglot-mode-map (kbd "C-c e") 'td/eglot-funcs)
+
+    (setq eglot-events-buffer-size 0
+          eglot-send-changes-idle-time 0.7
+          eglot-autoshutdown t)
+
+    (add-hook 'eglot-managed-mode-hook
+              (lambda ()
+                "Make sure Eldoc will show us all of the feedback at point."
+                (setq-local eldoc-documentation-strategy
+                            #'eldoc-documentation-compose)))))
 #+END_SRC
+
 **** Emmet
  ~.Emmet[data-love="true"]~
 
@@ -2093,22 +2165,9 @@ The built-in linting package.
 
 #+BEGIN_SRC elisp
 (td/add-setup 'lsp-mode
-  (td/add-hooks '(css-mode
-                  scss-mode
-                  html-mode
-                  js-mode
-                  json-mode
-                  python-mode
-                  php-mode
-                  rust-mode
-                  scss-mode
-                  svelte-mode
-                  typescript-mode
-                  vue-mode
-                  yaml-mode) #'lsp)
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
-  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-keymap-prefix "C-c L")
   (setq lsp-log-io nil
         lsp-enable-folding nil
         lsp-clients-typescript-server-args '("--stdio"
@@ -2147,6 +2206,12 @@ The free software documentation language of the Internet.
   (td/auto-mode '(("README\\.md\\'" . gfm-mode)
                   ("\\.md\\'" . markdown-mode)
                   ("\\.markdown\\'" . markdown-mode))))
+#+END_SRC
+
+**** Nim
+
+#+BEGIN_SRC elisp
+(td/add-setup 'nim-mode)
 #+END_SRC
 
 **** Paredit
@@ -2252,6 +2317,7 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
                                           liquid-electric-pairs)
               electric-pair-text-pairs electric-pair-pairs))
 (add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
+(add-to-list 'org-src-lang-modes '("liquid" . shopify))
 #+END_SRC
 
 **** Svelte
@@ -2268,23 +2334,20 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
 #+BEGIN_SRC elisp
-  (td/add-setup 'tree-sitter
-    (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-    (global-tree-sitter-mode))
+(td/add-setup 'tree-sitter
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+  (global-tree-sitter-mode))
 
-  (td/add-setup 'tree-sitter-langs)
+(td/add-setup 'tree-sitter-langs)
 #+END_SRC
 
 **** TypeScript & JavaScript
 
 #+BEGIN_SRC elisp
+(setq js-indent-level 2)
+
 (td/add-setup 'typescript-mode
   (setq typescript-indent-level 2))
-
-(td/add-setup 'js2-mode
-  (td/auto-mode '(("\\.js\\'" . js2-mode)))
-  (setq js-indent-level 2
-        js2-strict-inconsistent-return-warning nil))
 #+END_SRC
 
 **** VueJS
@@ -2308,7 +2371,8 @@ There isn't a much better catch-all for web template syntax support than web-mod
         web-mode-script-padding tab-width
         web-mode-block-padding tab-width
         web-mode-enable-auto-indentation nil
-        web-mode-enable-auto-pairing nil))
+        web-mode-enable-auto-pairing nil)
+  (add-to-list 'org-src-lang-modes '("html" . web)))
 #+END_SRC
 
 **** YAML
@@ -2359,8 +2423,9 @@ If you've decided to fork this repository and wish to use it as-is, here are the
 
 1. Clone this repository to =~/.config/emacs=.
 2. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+
 3. Symlink =init.el=, =early-init.el= and =config.el= into your =~/.emacs.d/= directory.
 4. Run emacs for the first time.
 
 *** Licenses
-- For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
+- For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0
