@@ -820,15 +820,15 @@ Better descriptions of symbols in the minibuffer.
   (define-key minibuffer-local-map (kbd "M-A") #'marginalia-cycle))
 #+END_SRC
 
-***** Orderless
+***** COMMENT Orderless
 A completion style that permits entering parts of completion names in any order.
 
 #+BEGIN_SRC elisp
 (td/add-setup 'orderless
-  (setq completion-styles '(orderless)
+  (setq completion-styles '(orderless basic)
         completion-category-defaults nil
         completion-category-overrides
-        '((file (styles basic partial-completion)))))
+        '((file (styles . (partial-completion))))))
 #+END_SRC
 
 ***** Savehist
@@ -881,6 +881,18 @@ Show me the diffs in the fringe!
   (with-eval-after-load 'magit
     (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
     (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)))
+#+END_SRC
+
+**** Eldoc Box
+
+#+BEGIN_SRC elisp
+(setq eldoc-echo-area-use-multiline-p nil
+      eldoc-idle-delay 0.75)
+
+(td/add-setup 'eldoc-box
+  (require 'eldoc-box)
+  (global-set-key (kbd "C-c i") #'eldoc-box-help-at-point)
+  (define-key eglot-mode-map (kbd "C-c I") #'eldoc-box-eglot-help-at-point))
 #+END_SRC
 
 **** Elfeed
