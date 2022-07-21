@@ -2330,9 +2330,22 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
 #+BEGIN_SRC elisp
+(require 'tree-sitter)
+(require 'tree-sitter-langs)
+
 (td/add-setup 'tree-sitter
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
-  (global-tree-sitter-mode))
+  (with-eval-after-load 'tree-sitter-langs
+    ;; Tree sitter doesn't play well with html mode. Set up a special setup
+    ;; method for activating tree-sitter on all supported langs except those
+    ;; listed as excluded.
+    (let ((excluded-modes '(html-mode))
+          (ts-modes (mapcar
+                     #'car tree-sitter-major-mode-language-alist)))
+      (dolist (mode ts-modes)
+        (unless (member mode excluded-modes)
+          (add-hook (intern (concat
+                             (symbol-name mode) "-hook"))
+                    #'tree-sitter-hl-mode))))))
 
 (td/add-setup 'tree-sitter-langs)
 #+END_SRC
