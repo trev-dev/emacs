@@ -345,18 +345,18 @@ I've written my own theme called "tangonov".
 **** Modeline
 
 #+BEGIN_SRC elisp
+(defun vc-dirty-p ()
+  "Return t if local repository is dirty."
+  (with-temp-buffer
+    (vc-git-command t 0 nil "status" "--porcelain")
+    (> (buffer-size) 0)))
+
 (defun tdm/vc ()
   (when-let (vc vc-mode)
-    (concat (format " %s " (all-the-icons-octicon "git-branch"
-                                                 :face 'all-the-icons-green
-                                                 :v-adjust 0.01))
-            (format "%s " (propertize (substring vc-mode 5) 'face 'success)))))
-
-(defun tdm/client-icon()
-  (when (not (eq (format-mode-line mode-line-client) ""))
-    (concat " " (all-the-icons-alltheicon "terminal-alt"
-                              :face 'all-the-icons-purple
-                              :v-adjust 0.01) " ")))
+    (format "[%s]:" (propertize
+                    (substring vc-mode 5) 'face (if (vc-dirty-p)
+                                                    'warning
+                                                  'success)))))
 
 (defcustom td/custom-project-name nil
   "A custom directory-local name for a project.el project"
