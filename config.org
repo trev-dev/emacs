@@ -574,18 +574,26 @@ A simple, but nicer looking modeline
 *** Utility Packages
 Packages that extend and augment emacs in a general way
 
-**** Avy
+**** COMMENT Avy
 
 #+BEGIN_SRC elisp
 (td/add-setup 'avy
-  (global-set-key (kbd "C-.") #'avy-goto-char-timer)
+  (global-set-key (kbd "C-\\") #'avy-goto-char-timer)
+  (define-key isearch-mode-map (kbd "C-\\") #'avy-isearch)
   (avy-setup-default))
+#+END_SRC
+
+**** Beacon
+
+#+BEGIN_SRC elisp
+(td/add-setup 'beacon
+  (beacon-mode 1))
 #+END_SRC
 
 **** Completions
 A combination of packages to enhance completions.
 
-***** Company
+***** COMMENT Company
 Completions at point/region.
 
 #+BEGIN_SRC elisp
@@ -866,6 +874,101 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 #+BEGIN_SRC elisp
 (td/add-setup 'exec-path-from-shell
   (exec-path-from-shell-initialize))
+#+END_SRC
+
+**** COMMENT God Mode
+
+#+BEGIN_SRC elisp
+(defun god/eol-insert ()
+  "Move the cursor to the end-of-line and exit god mode."
+  (interactive)
+  (end-of-line)
+  (god-local-mode -1))
+
+(defun god/boi-insert ()
+  "Move the cursor back-to-indentation and exit god mode."
+  (interactive)
+  (back-to-indentation)
+  (god-local-mode -1))
+
+(defun god/change ()
+  "Kill char/region and exit god mode."
+  (interactive)
+  (if (region-active-p)
+      (kill-region (region-beginning) (region-end))
+    (zap-to-char 1 (char-after)))
+  (god-local-mode -1))
+
+(defun god/join ()
+  "Join the line below with the current line."
+  (interactive)
+  (next-line)
+  (join-line))
+
+(defun god/backward-symbol (num)
+  "Move backward `NUM' symbols."
+  (interactive "^p")
+  (forward-symbol (- 0 (or (when (natnump num) num) 1))))
+
+(defun god/open-above ()
+  "Open a new line above the current line, put the point there."
+  (interactive)
+  (previous-line)
+  (end-of-line)
+  (newline-and-indent))
+
+(defun god/open-below ()
+  "Open a new line below the current line, put the point there."
+  (interactive)
+  (end-of-line)
+  (newline-and-indent))
+
+(defun god/cursor-toggle ()
+  "Toggles the cursor between a box and bar while in or out of `god-mode'."
+  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+
+(defvar god/keybinds '(("z" . repeat)
+                       ("i" . god-local-mode)
+                       ("f" . forward-word)
+                       ("F" . forward-symbol)
+                       ("b" . backward-word)
+                       ("B" . god/backward-symbol)
+                       ("o" . god/open-below)
+                       ("O" . god/open-above)
+                       ("A" . god/eol-insert)
+                       ("I" . god/boi-insert)
+                       ("C" . god/change)
+                       ("J" . god/join)
+                       ("[" . backward-paragraph)
+                       ("]" . forward-paragraph)))
+
+(td/add-setup 'god-mode
+  (require 'god-mode-isearch)
+  (god-mode)
+  (god/cursor-toggle)
+  (with-eval-after-load 'which-key
+    (which-key-enable-god-mode-support))
+  (dolist (mode '(vterm-mode
+                  notmuch-hello-mode
+                  notmuch-search-mode
+                  notmuch-show-mode))
+    (add-to-list 'god-exempt-major-modes mode))
+  (global-set-key (kbd "<escape>") #'god-local-mode)
+  (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
+  (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
+  (add-hook 'post-command-hook #'god/cursor-toggle)
+  (td/bind-keys god/keybinds god-local-mode-map)
+  (add-to-list 'emulation-mode-map-alists
+               `((god-local-mode . ,god-local-mode-map))))
+#+END_SRC
+
+**** Goggles
+Extra feedback for text changes.
+
+#+BEGIN_SRC elisp
+(td/add-setup 'goggles
+  (td/add-hooks '(text-mode prog-mode) #'goggles-mode)
+  (setq-default goggles-pulse t))
 #+END_SRC
 
 **** Hydra
