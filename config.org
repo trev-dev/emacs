@@ -327,8 +327,15 @@ I've written my own theme called "tangonov".
 
 #+BEGIN_SRC elisp
 (add-to-list 'custom-theme-load-path "~/Projects/tangonov-theme/")
-(load-theme 'tangonov t)
-(enable-theme 'tangonov)
+
+(defun td/load-theme (frame)
+  "Load the theme correctly for a `FRAME' if we're using emacsclient."
+  (select-frame frame)
+  (load-theme 'tangonov t))
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions #'td/load-theme)
+  (load-theme 'tangonov t))
 #+END_SRC
 
 **** Font Setup
