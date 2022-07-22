@@ -2328,10 +2328,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 
 (td/add-setup 'tree-sitter
   (with-eval-after-load 'tree-sitter-langs
-    ;; Tree sitter doesn't play well with html mode. Set up a special setup
-    ;; method for activating tree-sitter on all supported langs except those
-    ;; listed as excluded.
-    (let ((excluded-modes '(html-mode))
+    (let ((excluded-modes '(html-mode mhtml-mode))
           (ts-modes (mapcar
                      #'car tree-sitter-major-mode-language-alist)))
       (dolist (mode ts-modes)
