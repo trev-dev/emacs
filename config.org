@@ -1044,12 +1044,6 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
     (zap-to-char 1 (char-after)))
   (god-local-mode -1))
 
-(defun god/join ()
-  "Join the line below with the current line."
-  (interactive)
-  (next-line)
-  (join-line))
-
 (defun god/backward-symbol (num)
   "Move backward `NUM' symbols."
   (interactive "^p")
@@ -1058,9 +1052,9 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 (defun god/open-above ()
   "Open a new line above the current line, put the point there."
   (interactive)
-  (previous-line)
-  (end-of-line)
-  (newline-and-indent))
+  (beginning-of-line)
+  (open-line 1)
+  (indent-relative-maybe))
 
 (defun god/open-below ()
   "Open a new line below the current line, put the point there."
@@ -1074,16 +1068,17 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 
 (defvar god/keybinds '(("z" . repeat)
                        ("i" . god-local-mode)
-                       ("f" . forward-word)
                        ("F" . forward-symbol)
-                       ("b" . backward-word)
                        ("B" . god/backward-symbol)
                        ("o" . god/open-below)
                        ("O" . god/open-above)
                        ("A" . god/eol-insert)
                        ("I" . god/boi-insert)
+                       ("t" . avy-goto-char-in-line)
+                       ("T" . avy-goto-char-timer)
+                       (";" . avy-next)
                        ("C" . god/change)
-                       ("J" . god/join)
+                       ("J" . join-line)
                        ("[" . backward-paragraph)
                        ("]" . forward-paragraph)))
 
