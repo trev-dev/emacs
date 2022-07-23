@@ -356,8 +356,8 @@ I've written my own theme called "tangonov".
 
 (defun tdm/vc ()
   (when-let (vc vc-mode)
-    (format "[%s]:" (propertize
-                    (substring vc-mode 5) 'face (if (vc-dirty-p)
+    (format "[%s]" (propertize
+                    (substring vc 5) 'face (if (vc-dirty-p)
                                                     'warning
                                                   'success)))))
 
@@ -414,7 +414,7 @@ I've written my own theme called "tangonov".
 (defvar tdm/left (list " " tdm/god-state tdm/meow-state
                        '(:eval (tdm/project))
                        '(:eval (tdm/vc))
-                       "%b (%I) "
+                       " %b (%I) "
                        '(:eval (tdm/status-flag buffer-read-only 'error))
                        '(:eval (tdm/status-flag (buffer-modified-p) 'warning))
                        '(:eval (if (not (eq
