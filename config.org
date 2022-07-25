@@ -3,6 +3,83 @@
 #+STARTUP: content
 :END:
 Herein lies my Emacs configuration. Use it well.
+** Contents
+:PROPERTIES:
+:TOC:      :include siblings :depth 3 :force (depth) :ignore (this) :local (depth)
+:END:
+:CONTENTS:
+- [[#general-settings][General Settings]]
+- [[#helper-functions][Helper Functions]]
+  - [[#priority-mode][Priority Mode]]
+- [[#prog-mode][Prog Mode]]
+- [[#package-configuration][Package Configuration]]
+  - [[#bootstrapping][Bootstrapping]]
+    - [[#repositories][Repositories]]
+    - [[#maintaining-selected-packages][Maintaining selected packages]]
+    - [[#quelpa][Quelpa]]
+  - [[#look--feel][Look & Feel]]
+    - [[#all-the-icons][All The Icons]]
+    - [[#dired][Dired]]
+    - [[#diminish][Diminish]]
+    - [[#custom-theme-devel][Custom Theme Devel]]
+    - [[#font-setup][Font Setup]]
+    - [[#modeline][Modeline]]
+  - [[#utility-packages][Utility Packages]]
+    - [[#completions][Completions]]
+    - [[#dashboard][Dashboard]]
+    - [[#diff-hl][Diff-hl]]
+    - [[#eldoc-box][Eldoc Box]]
+    - [[#elfeed][Elfeed]]
+    - [[#embrace][Embrace]]
+    - [[#erc][ERC]]
+    - [[#expand-region][Expand Region]]
+    - [[#exec-path][Exec Path]]
+    - [[#goggles][Goggles]]
+    - [[#hydra][Hydra]]
+    - [[#meow][Meow]]
+    - [[#magit][Magit]]
+    - [[#org][Org]]
+    - [[#ledger][Ledger]]
+    - [[#vterm][Vterm]]
+    - [[#notmuch][Notmuch]]
+    - [[#password-store][Password Store]]
+    - [[#sensitive-mode][Sensitive Mode]]
+    - [[#rg][RG]]
+    - [[#visual-fill-column][Visual Fill Column]]
+    - [[#which-key][Which-key]]
+  - [[#syntax-support][Syntax Support]]
+    - [[#clojure][Clojure]]
+    - [[#crontab-mode][Crontab Mode]]
+    - [[#cssscss][CSS/SCSS]]
+    - [[#eglot][Eglot]]
+    - [[#emmet][Emmet]]
+    - [[#flymake][Flymake]]
+    - [[#golang][GoLang]]
+    - [[#lua-mode][Lua Mode]]
+    - [[#markdown][Markdown]]
+    - [[#nim][Nim]]
+    - [[#paredit][Paredit]]
+    - [[#php][PHP]]
+    - [[#prettier][Prettier]]
+    - [[#python][Python]]
+    - [[#rainbow-delimiters][Rainbow Delimiters]]
+    - [[#rainbow-mode][Rainbow Mode]]
+    - [[#rust][Rust]]
+    - [[#scheme][Scheme]]
+    - [[#shopify-mode][Shopify Mode]]
+    - [[#svelte][Svelte]]
+    - [[#treesitter][Treesitter]]
+    - [[#typescript--javascript][TypeScript & JavaScript]]
+    - [[#vuejs][VueJS]]
+    - [[#web-mode][Web Mode]]
+    - [[#yaml][YAML]]
+    - [[#yasnippet][Yasnippet]]
+  - [[#install--configure-packages][Install & Configure Packages]]
+- [[#about-this-config][About This Config]]
+  - [[#installation][Installation]]
+  - [[#licenses][Licenses]]
+:END:
+
 ** General Settings
 Some general performance based improvements. Reset GC after init as it is maxed out in [[file:early-init.el][early init]].
 
@@ -322,7 +399,7 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
   (doom-themes-org-config))
 #+END_SRC
 
-**** Custom Theme
+**** Custom Theme Devel
 I've written my own theme called "tangonov".
 
 #+BEGIN_SRC elisp
@@ -336,6 +413,14 @@ I've written my own theme called "tangonov".
 (if (daemonp)
     (add-hook 'after-make-frame-functions #'td/load-theme)
   (load-theme 'tangonov t))
+#+END_SRC
+
+**** COMMENT Custom Theme
+
+#+BEGIN_SRC elisp
+(unless (package-installed-p 'tangonov-theme)
+  (package-install 'tangonov-theme))
+(load-theme 'tangonov t)
 #+END_SRC
 
 **** Font Setup
@@ -1453,6 +1538,13 @@ I like org-publish, but there are some files (like my cookbook) that I would lik
 (td/add-setup 'ox-hugo
   (with-eval-after-load 'ox
     (require 'ox-hugo)))
+#+END_SRC
+
+****** org-make-toc
+
+#+BEGIN_SRC elisp
+(load-file "~/Projects/org-make-toc/org-make-toc.el")
+(org-make-toc-auto-toc)
 #+END_SRC
 
 ****** COMMENT org-modern
