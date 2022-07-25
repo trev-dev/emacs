@@ -433,16 +433,27 @@ I've written my own theme called "tangonov".
 **** Modeline
 
 #+BEGIN_SRC elisp
-(defun vc-dirty-p ()
+(defvar tdm/git-cached-status nil)
+(defvar tdm/git--last-update nil)
+
+(defun tdm/git-dirty? ()
   "Return t if local repository is dirty."
-  (with-temp-buffer
-    (vc-git-command t 0 nil "status" "--porcelain")
-    (> (buffer-size) 0)))
+  (if (and
+       tdm/git--last-update
+       (< (float-time
+           (time-subtract (current-time) tdm/git--last-update))
+          1.0))
+      tdm/git-cached-status
+    (setq tdm/git--last-update (current-time))
+    (setq tdm/git-cached-status
+          (with-temp-buffer
+            (vc-git-command t 0 nil "status" "--porcelain")
+            (> (buffer-size) 0)))))
 
 (defun tdm/vc ()
   (when-let (vc vc-mode)
     (format "[%s]" (propertize
-                    (substring vc 5) 'face (if (vc-dirty-p)
+                    (substring vc 5) 'face (if (tdm/git-dirty?)
                                                     'warning
                                                   'success)))))
 
