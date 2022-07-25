@@ -349,6 +349,7 @@ This should improve init by not looking for things we already have."
                             (all-the-icons-dired-mode))
                           (dired-hide-details-mode)))))
 #+END_SRC
+
 **** Diminish
 Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" text output from the =minor-mode-alist=. Due to how lazy-loading works, we want to make sure we have diminish early on.
 
