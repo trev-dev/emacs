@@ -876,6 +876,7 @@ Drop-down style completions & related packages
 
 (td/add-setup 'corfu
   (global-corfu-mode)
+  (setq corfu-auto t)
 
   (defun corfu-enable-in-minibuffer ()
     "Enable Corfu in the minibuffer if `completion-at-point' is bound."
