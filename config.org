@@ -32,7 +32,6 @@ Herein lies my Emacs configuration. Use it well.
     - [[#elfeed][Elfeed]]
     - [[#embrace][Embrace]]
     - [[#erc][ERC]]
-    - [[#evil][Evil]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#goggles][Goggles]]
@@ -522,8 +521,8 @@ I've written my own theme called "tangonov".
 (defvar tdm/god-state
   '(:eval (when (featurep 'god-mode)
             (format "%s " (if god-local-mode
-                              (tdm/modal-face "<G>" 'all-the-icons-lyellow)
-                            (tdm/modal-face "---" 'all-the-icons-lpurple))))))
+                              (tdm/modal-face "<G>" '(:foreground "#FFCA41"))
+                            (tdm/modal-face "<E>" '(:foreground "#C792EA")))))))
 
 (defun tdm/status-flag (on face)
   "Produce a status flag based on some `PRED'icate test and give it a `FACE'."
@@ -697,7 +696,7 @@ A simple, but nicer looking modeline
 *** Utility Packages
 Packages that extend and augment emacs in a general way
 
-**** COMMENT Avy
+**** Avy
 
 #+BEGIN_SRC elisp
 (td/add-setup 'avy
@@ -1091,7 +1090,7 @@ A Matrix client for Emacs.
                                         "Biz/libera.chat"))))
 #+END_SRC
 
-**** Evil
+**** COMMENT Evil
 
 #+BEGIN_SRC elisp
 (defun td/evil-bind-keys ()
@@ -1160,7 +1159,7 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
   (exec-path-from-shell-initialize))
 #+END_SRC
 
-**** COMMENT God Mode
+**** God Mode
 
 #+BEGIN_SRC elisp
 (defun god/eol-insert ()
@@ -1276,7 +1275,7 @@ A tool for making repetative chords less cumbersome
     ("D" delete-other-windows "Delete Others")))
 #+END_SRC
 
-**** Meow
+**** COMMENT Meow
 
 #+BEGIN_SRC elisp
 (defun meow-setup ()
@@ -1310,8 +1309,7 @@ A tool for making repetative chords less cumbersome
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet)
    ;; Custom keybinds
-   '("i" . "C-c i")
-   '("I" . "C-c I")
+   '("i" . td/eldoc-box-help)
    (cons "P" project-prefix-map)
    '("e" . "C-c e"))
   (meow-normal-define-key
@@ -1393,7 +1391,7 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
   (global-set-key (kbd "M-o g") #'magit-status))
 #+END_SRC
 
-**** COMMENT Multiple Cursors
+**** Multiple Cursors
 
 #+BEGIN_SRC elisp
 (td/add-setup 'multiple-cursors
