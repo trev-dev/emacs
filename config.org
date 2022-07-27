@@ -32,10 +32,10 @@ Herein lies my Emacs configuration. Use it well.
     - [[#elfeed][Elfeed]]
     - [[#embrace][Embrace]]
     - [[#erc][ERC]]
+    - [[#evil][Evil]]
     - [[#expand-region][Expand Region]]
     - [[#exec-path][Exec Path]]
     - [[#goggles][Goggles]]
-    - [[#hydra][Hydra]]
     - [[#meow][Meow]]
     - [[#magit][Magit]]
     - [[#org][Org]]
@@ -45,6 +45,7 @@ Herein lies my Emacs configuration. Use it well.
     - [[#password-store][Password Store]]
     - [[#sensitive-mode][Sensitive Mode]]
     - [[#rg][RG]]
+    - [[#undo-tree][Undo-Tree]]
     - [[#visual-fill-column][Visual Fill Column]]
     - [[#which-key][Which-key]]
   - [[#syntax-support][Syntax Support]]
@@ -373,6 +374,8 @@ Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" 
                 ("tree-sitter" 'tree-sitter-mode "TS")
                 ("god-mode" 'god-local-mode)
                 ("beacon" 'beacon-mode)
+                ("evil-goggles" 'evil-goggles-mode)
+                ("evil-commentary" 'evil-commentary-mode)
                 ("goggles" 'goggles-mode)))
   (eval-after-load (car mode)
     `(diminish ,(cadr mode) ,(caddr mode))))
@@ -480,20 +483,40 @@ I've written my own theme called "tangonov".
   (propertize str 'face
               `(:inherit ,base :weight bold :height 0.9)))
 
-(defvar td/custom-meow-states `((normal . ,(tdm/modal-face
-                                            "<N>" '(:foreground "#FFCA41")))
-                                (motion . ,(tdm/modal-face
-                                            "<M>" '(:foreground "#82AAFF")))
-                                (keypad . ,(tdm/modal-face
-                                            "<K>" '(:foreground "#89DDFF")))
-                                (insert . ,(tdm/modal-face
-                                            "<I>" '(:foreground "#C792EA")))
-                                (beacon . ,(tdm/modal-face
-                                            "<B>" '(:foreground "#FF7B85")))))
+(defvar tdm/custom-meow-states `((normal . ,(tdm/modal-face
+                                             "<N>" '(:foreground "#FFCA41")))
+                                 (motion . ,(tdm/modal-face
+                                             "<M>" '(:foreground "#82AAFF")))
+                                 (keypad . ,(tdm/modal-face
+                                             "<K>" '(:foreground "#89DDFF")))
+                                 (insert . ,(tdm/modal-face
+                                             "<I>" '(:foreground "#C792EA")))
+                                 (beacon . ,(tdm/modal-face
+                                             "<B>" '(:foreground "#FF7B85")))))
+
+(defvar tdm/evil-states `((normal . ,(tdm/modal-face
+                                      "<N>" '(:foreground "#FFCA41")))
+                          (motion . ,(tdm/modal-face
+                                      "<M>" '(:foreground "#82AAFF")))
+                          (operator . ,(tdm/modal-face
+                                        "<O>" '(:foreground "#89DDFF")))
+                          (insert . ,(tdm/modal-face
+                                      "<I>" '(:foreground "#ABDC88")))
+                          (visual . ,(tdm/modal-face
+                                       "<V>" '(:foreground "#FF996B")))
+                          (replace . ,(tdm/modal-face
+                                       "<R>" '(:foreground "#FF7B85")))
+                          (emacs . ,(tdm/modal-face
+                                     "<E>" '(:foreground "#C792EA")))))
 
 (defvar tdm/meow-state
   '(:eval (when (featurep 'meow)
-            (concat (alist-get (meow--current-state) td/custom-meow-states)
+            (concat (alist-get (meow--current-state) tdm/custom-meow-states)
+                    " "))))
+
+(defvar tdm/evil-state
+  '(:eval (when (featurep 'evil)
+            (concat (alist-get evil-state tdm/evil-states)
                     " "))))
 
 (defvar tdm/god-state
@@ -508,7 +531,7 @@ I've written my own theme called "tangonov".
                    (propertize "▰" 'face `(:inherit ,face :weight bold))
                  "-")))
 
-(defvar tdm/left (list " " tdm/god-state tdm/meow-state
+(defvar tdm/left (list " " tdm/god-state tdm/meow-state tdm/evil-state
                        '(:eval (tdm/project))
                        '(:eval (tdm/vc))
                        " %b (%I) "
@@ -1060,33 +1083,33 @@ A Matrix client for Emacs.
                                         "Biz/libera.chat"))))
 #+END_SRC
 
-**** COMMENT Evil
+**** Evil
 
 #+BEGIN_SRC elisp
 (defun td/evil-bind-keys ()
   "Create some extra evil bindings."
-  (evil-set-leader 'normal (kbd "\\"))
+  (evil-set-leader 'normal (kbd "SPC"))
   ;; Avy
   (evil-define-key 'normal 'global (kbd "<leader>s") 'avy-goto-char-timer)
   ;; General
   (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fb") 'consult-buffer)
-  (evil-define-key 'normal 'global (kbd "<leader>m") 'mu4e)
-  (evil-define-key 'normal 'global (kbd "<leader>e") 'elfeed)
   ;; LSP
   (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
   ;; Org
   (evil-define-key 'normal org-mode-map (kbd "<leader>ci") 'org-clock-in)
   (evil-define-key 'normal org-mode-map (kbd "<leader>co") 'org-clock-out)
+  (evil-define-key 'normal 'global (kbd "<leader>i") 'td/eldoc-box-help)
   (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
   ;; Magit
   (evil-define-key 'normal 'global (kbd "gs") 'magit))
 
 (td/add-setup 'evil
   (require 'evil)
-  (setq evil-undo-system 'undo-tree
-        evil-visual-state-cursor 'hbar)
+  (setq evil-visual-state-cursor 'hbar
+        evil-want-C-u-scroll t)
+  (customize-save-variable 'evil-undo-system 'undo-tree)
   (td/evil-bind-keys)
   (evil-mode 1))
 
@@ -1102,6 +1125,17 @@ A Matrix client for Emacs.
   (with-eval-after-load 'evil
     (evil-goggles-mode)))
 #+END_SRC
+
+***** evil-multiedit
+Multiple cursors support for evil.
+
+#+BEGIN_SRC elisp
+(td/add-setup 'evil-multiedit
+  (with-eval-after-load 'evil
+    (require 'evil-multiedit)
+    (evil-multiedit-default-keybinds)))
+#+END_SRC
+
 **** Expand Region
 It just makes selecting text between sexps easy.
 
@@ -1205,7 +1239,7 @@ Extra feedback for text changes.
   (setq-default goggles-pulse t))
 #+END_SRC
 
-**** Hydra
+**** COMMENT Hydra
 A tool for making repetative chords less cumbersome
 
 #+BEGIN_SRC elisp
@@ -2054,7 +2088,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
   (rg-enable-default-bindings))
 #+END_SRC
 
-**** COMMENT Undo-Tree
+**** Undo-Tree
 
 A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
 
