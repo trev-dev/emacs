@@ -370,6 +370,10 @@ Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" 
                 ("simple" 'visual-line-mode)
                 ("eldoc" 'eldoc-mode)
                 ("flymake" 'flymake-mode)
+                ("flycheck" 'flycheck-mode)
+                ("lsp-mode" 'lsp-mode '(:propertize
+                                        " LSP" face
+                                        '(:inherit success :weight bold)))
                 ("tree-sitter" 'tree-sitter-mode "TS")
                 ("god-mode" 'god-local-mode)
                 ("beacon" 'beacon-mode)
@@ -433,6 +437,7 @@ I've written my own theme called "tangonov".
 (set-default-coding-systems 'utf-8)
 (add-to-list 'default-frame-alist '(font . "Hack 12"))
 #+END_SRC
+
 **** Modeline
 
 #+BEGIN_SRC elisp
@@ -601,14 +606,18 @@ I wanted and indicator that took up less space on the modeline."
 still unanswered LSP requests to the server\n")))))))))
 
 (setq flymake-mode-line-lighter "fm:")
+(setq flycheck-mode-line-prefix "fc:")
 
 (defvar tdm/right (list '(:eval (tdm/eglot))
                         " "
                         '(:eval (when flymake-mode
                                   flymake-mode-line-title
                                   flymake-mode-line-exception
-                                  flymake-mode-line-counters))
-                        " "
+                                  flymake-mode-line-counters
+                                  " "))
+                        '(:eval (when flycheck-mode)
+                                flycheck-mode-line
+                                " ")
                         mode-line-misc-info
                         mode-line-modes
                         "[%p] ")
@@ -708,7 +717,7 @@ Packages that extend and augment emacs in a general way
 **** Completions
 A combination of packages to enhance completions.
 
-***** COMMENT Company
+***** Company
 Completions at point/region.
 
 #+BEGIN_SRC elisp
@@ -716,20 +725,22 @@ Completions at point/region.
   "Completions for programming."
   (setq-local company-backends
               '(company-capf
-                company-dabbrev-code
+                company-yasnippet
+                company-dabbrv-code
                 company-files)))
 
 (td/add-setup 'company
   (add-hook 'after-init-hook #'global-company-mode)
   (add-hook 'prog-mode-hook #'td/company-prog-hook)
   (setq company-backends '(company-capf
+                           company-yasnippet
                            company-ispell
                            company-files)
         company-files-exclusions '(".git/")
         company-idle-delay 0.3))
 #+END_SRC
 
-***** Cape
+***** COMMENT Cape
 Add completion at point functions for things like Corfu
 
 #+BEGIN_SRC elisp
@@ -760,21 +771,22 @@ If `NO-EXTEND' is non-nil, the global capfs will be discarded."
                       ("l" . cape-line)
                       ("w" . cape-dict)
                       ("&" . cape-sgml)
-                      ("t" . complete-tag)
+                      ("t" . tempel-expand)
                       ("r" . cape-rfc1345)) map)
       map) "Keymap for the various cape completion functions. \\{td/capes}")
   (fset 'td/capes td/capes)
+
   (global-set-key (kbd "C-c l") 'td/capes)
 
   (add-hook 'prog-mode-hook (td/don-local-cape (list #'cape-keyword
+                                                     #'tempel-expand
                                                      #'cape-file
                                                      #'cape-dabbrev)))
-
-  (add-hook 'eshell-mode-hook (td/don-local-cape (list #'cape-history)))
 
   (add-hook 'emacs-lisp-mode-hook (td/don-local-cape
                                    (list #'cape-symbol
                                          #'cape-keyword
+                                         #'tempel-expand
                                          #'cape-file
                                          #'cape-dabbrev) t))
 
@@ -782,10 +794,11 @@ If `NO-EXTEND' is non-nil, the global capfs will be discarded."
                                (list #'geiser-capf--for-module
                                      #'geiser-capf--for-symbol
                                      #'geiser-capf--for-filename
+                                     #'tempel-expand
                                      #'cape-file
                                      #'cape-dabbrev) t))
 
-  (add-hook 'text-mode-hook (td/don-local-cape (list #'cape-dict))))
+  (add-hook 'text-mode-hook (td/don-local-cape (list #'tempel-expand #'cape-dict))))
 #+END_SRC
 
 #+BEGIN_SRC elisp
@@ -827,7 +840,7 @@ other better ways to reference things in Emacs.
                   ("<help> a" . consult-apropos)
                   ;; M-g bindings (goto-map)
                   ("M-g e" . consult-compile-error)
-                  ("M-g f" . consult-flymake) ; or flycheck?
+                  ("M-g f" . consult-flycheck) ; or flymake?
                   ("M-g g" . consult-goto-line)
                   ("M-g M-g" . consult-goto-line)
                   ("M-g o" . consult-outline)
@@ -867,15 +880,16 @@ other better ways to reference things in Emacs.
 (td/add-setup 'consult-flycheck)
 #+END_SRC
 
-***** Corfu
+***** COMMENT Corfu
 Drop-down style completions & related packages
 
 #+BEGIN_SRC elisp
 (setq tab-always-indent 'complete)
 
 (td/add-setup 'corfu
+  (setq corfu-auto t
+        corfu-quit-no-match 'separator)
   (global-corfu-mode)
-  (setq corfu-auto t)
 
   (defun corfu-enable-in-minibuffer ()
     "Enable Corfu in the minibuffer if `completion-at-point' is bound."
@@ -904,8 +918,10 @@ Drop-down style completions & related packages
   (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
 
   (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer))
+
 ;; Enhance shell completions
-(td/add-setup 'pcmpl-args)
+(td/add-setup 'pcmpl-args
+  (require 'pcmpl-args))
 #+END_SRC
 
 ***** Fussy
@@ -918,7 +934,7 @@ Fuzzy Completions
         completion-category-overrides nil))
 #+END_SRC
 
-***** Kind-Icon
+***** COMMENT Kind-Icon
 
 #+BEGIN_SRC elisp
 (td/add-setup 'kind-icon
@@ -953,6 +969,15 @@ Save history for Vertico to look at later.
 #+BEGIN_SRC elisp
 ;; Built into emacs 29
 (savehist-mode)
+#+END_SRC
+
+***** COMMENT TempEl
+Snippet completions written in elisp.
+
+Note to self: This is intertwined with [[* Cape][cape]].
+
+#+BEGIN_SRC elisp
+(td/add-setup 'tempel)
 #+END_SRC
 
 ***** Vertico
@@ -999,7 +1024,7 @@ Show me the diffs in the fringe!
     (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)))
 #+END_SRC
 
-**** Eldoc Box
+**** COMMENT Eldoc Box
 
 #+BEGIN_SRC elisp
 (setq eldoc-echo-area-use-multiline-p nil
@@ -1159,7 +1184,7 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
   (exec-path-from-shell-initialize))
 #+END_SRC
 
-**** God Mode
+**** COMMENT God Mode
 
 #+BEGIN_SRC elisp
 (defun god/eol-insert ()
@@ -1275,7 +1300,7 @@ A tool for making repetative chords less cumbersome
     ("D" delete-other-windows "Delete Others")))
 #+END_SRC
 
-**** COMMENT Meow
+**** Meow
 
 #+BEGIN_SRC elisp
 (defun meow-setup ()
@@ -1309,9 +1334,7 @@ A tool for making repetative chords less cumbersome
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet)
    ;; Custom keybinds
-   '("i" . td/eldoc-box-help)
-   (cons "P" project-prefix-map)
-   '("e" . "C-c e"))
+   (cons "P" project-prefix-map))
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -1391,7 +1414,7 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
   (global-set-key (kbd "M-o g") #'magit-status))
 #+END_SRC
 
-**** Multiple Cursors
+**** COMMENT Multiple Cursors
 
 #+BEGIN_SRC elisp
 (td/add-setup 'multiple-cursors
@@ -2185,7 +2208,7 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
                         ("R" . eglot-reconnect)) map)
         map) "Custom keybinds for eglot functions. \\{td/eglot-funcs}")
     (fset 'td/eglot-funcs td/eglot-funcs)
-    (define-key eglot-mode-map (kbd "C-c e") 'td/eglot-funcs)
+    (define-key eglot-mode-map (kbd "C-c C-e") 'td/eglot-funcs)
 
     (setq eglot-events-buffer-size 0
           eglot-send-changes-idle-time 0.7
@@ -2210,7 +2233,7 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
                   svelte-mode) #'emmet-mode))
 #+END_SRC
 
-**** COMMENT Flycheck
+**** Flycheck
 
 #+BEGIN_SRC elisp
 (td/add-setup 'flycheck
@@ -2264,7 +2287,7 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
 (td/add-setup 'flycheck-ledger)
 #+END_SRC
 
-**** Flymake
+**** COMMENT Flymake
 The built-in linting package.
 
 #+BEGIN_SRC elisp
@@ -2299,21 +2322,21 @@ The built-in linting package.
   (td/auto-mode '(("\\.go\\'" . go-mode))))
 #+END_SRC
 
-**** COMMENT LSP Mode
+**** LSP Mode
 
 #+BEGIN_SRC elisp
 (td/add-setup 'lsp-mode
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
-  (setq lsp-keymap-prefix "C-c L")
+  (setq lsp-keymap-prefix "C-c C-l")
   (setq lsp-log-io nil
+        lsp-modeline-code-actions-segments '(count)
+        lsp-signature-doc-lines 1
         lsp-enable-folding nil
         lsp-clients-typescript-server-args '("--stdio"
                                              "--tsserver-log-file"
                                              "/dev/stderr")
-        lsp-auto-guess-root t
-        lsp-keep-workspace-alive nil
-        lsp-eldoc-enable-hover nil)
+        lsp-keep-workspace-alive nil)
 
   (with-eval-after-load 'lsp-mode
     (lsp-register-client
@@ -2325,6 +2348,8 @@ The built-in linting package.
      'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'")
     (add-to-list 'lsp-language-id-configuration
                  '(shopify-mode . "shopify"))))
+
+(td/add-setup 'lsp-ui)
 
 (td/add-setup 'consult-lsp)
 #+END_SRC
