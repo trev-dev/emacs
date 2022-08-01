@@ -205,6 +205,44 @@ see bound."
 (priority-mode)
 #+END_SRC
 
+** Keybinds
+
+Change some of the built-in keybinds & bind some of the useful unbound functions.
+
+#+begin_src elisp
+(global-set-key (kbd "M-j") #'join-line)
+
+(defvar td/wind-move-map
+  (let ((map (make-sparse-keymap)))
+    (td/bind-keys '(("e" . windmove-right)
+                    ("a" . windmove-left)
+                    ("n" . windmove-down)
+                    ("p" . windmove-up)
+                    ("s e" . windmove-swap-states-right)
+                    ("s a" . windmove-swap-states-left)
+                    ("s n" . windmove-swap-states-down)
+                    ("s p" . windmove-swap-states-up)
+                    ("d e" . windmove-delete-right)
+                    ("d a" . windmove-delete-left)
+                    ("d n" . windmove-delete-down)
+                    ("d p" . windmove-delete-up)
+                    ("d d" . delete-window)
+                    ("d D" . delete-other-windows)
+                    ("o" . other-window)
+                    ("v" . split-window-right)
+                    ("h" . split-window-below)
+                    ("=" . enlarge-window)
+                    ("-" . shrink-window)
+                    ("b" . balance-windows))
+                  map)
+    map)
+  "A keymap for windmove functions.
+\\{td/wind-move-map}")
+(fset 'td/wind-move-map td/wind-move-map)
+
+(global-set-key (kbd "M-o") td/wind-move-map)
+#+end_src
+
 ** Prog Mode
 A few settings that are useful in programming buffers
 
@@ -236,7 +274,6 @@ A few settings that are useful in programming buffers
   (display-line-numbers-mode)
   (display-fill-column-indicator-mode)
   (electric-pair-local-mode)
-  (yas-minor-mode)
   (td/infer-indentation-style)
   (whitespace-mode))
 
@@ -373,9 +410,14 @@ Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" 
                 ("flycheck" 'flycheck-mode)
                 ("lsp-mode" 'lsp-mode '(:propertize
                                         " LSP" face
-                                        '(:inherit success :weight bold)))
+                                        '(:inherit (if lsp--buffer-workspaces
+                                                       'success
+                                                     'warning)
+                                                   :weight bold)))
                 ("tree-sitter" 'tree-sitter-mode "TS")
-                ("god-mode" 'god-local-mode)
+                ("god-mode" 'god-local-mode '(:propertize
+                                              " God" face
+                                              '(:inherit 'warning :weight bold)))
                 ("beacon" 'beacon-mode)
                 ("evil-goggles" 'evil-goggles-mode)
                 ("evil-commentary" 'evil-commentary-mode)
@@ -459,11 +501,14 @@ I've written my own theme called "tangonov".
             (> (buffer-size) 0)))))
 
 (defun tdm/vc ()
-  (when-let (vc vc-mode)
-    (format "[%s]" (propertize
-                    (substring vc 5) 'face (if (tdm/git-dirty?)
-                                                    'warning
-                                                  'success)))))
+  "Get the git status for the current buffer."
+  (let* ((vc vc-mode)
+        (dirty (tdm/git-dirty?))
+        (icon (if dirty "±" "✔")))
+    (format "%s" (propertize
+                      (substring vc 5) 'face (if (tdm/git-dirty?)
+                                                 'warning
+                                               'success)))))
 
 (defcustom td/custom-project-name nil
   "A custom directory-local name for a project.el project"
@@ -472,16 +517,18 @@ I've written my own theme called "tangonov".
 (defun tdm/project()
   "Display the current project name, or path."
   (when (project-current)
-    (propertize (if (stringp td/custom-project-name)
-                    td/custom-project-name
-                  (file-name-nondirectory
-                  (directory-file-name
-                    (project-root (project-current)))))
-                'face 'success
-                'help-echo "Switch project"
-                'mouse-face '(:box 1)
-                'local-map (make-mode-line-mouse-map
-                            'mouse-1 #'project-switch-project))))
+    (concat (propertize (if (stringp td/custom-project-name)
+                     td/custom-project-name
+                   (file-name-nondirectory
+                    (directory-file-name
+                     (project-root (project-current)))))
+                 'face 'success
+                 'help-echo "Switch project"
+                 'mouse-face '(:box 1)
+                 'local-map (make-mode-line-mouse-map
+                             'mouse-1 #'project-switch-project))
+            (propertize ":" 'face
+                        '(:inherit font-lock-comment-face :background nil)))))
 
 (defun tdm/modal-face (str base)
   (propertize str 'face
@@ -535,17 +582,29 @@ I've written my own theme called "tangonov".
                    (propertize "▰" 'face `(:inherit ,face :weight bold))
                  "-")))
 
-(defvar tdm/left (list " " tdm/god-state tdm/meow-state tdm/evil-state
-                       '(:eval (tdm/project))
-                       '(:eval (tdm/vc))
-                       " %b (%I) "
+(defvar tdm/buffer-name
+  '(:propertize "%b" face (:inherit mode-line-buffer-id)))
+
+(defvar tdm/buffer-position
+  '("  %l:%c"
+    (:propertize " %p" face (:inherit font-lock-comment-face :background nil))))
+
+(defvar tdm/buffer-size
+  '(:propertize " (%I)" face (:inherit font-lock-comment-face)))
+
+(defvar tdm/left (list " "
                        '(:eval (tdm/status-flag buffer-read-only 'error))
                        '(:eval (tdm/status-flag (buffer-modified-p) 'warning))
                        '(:eval (if (not (eq
-                                      (format-mode-line mode-line-client)
-                                      ""))
+                                         (format-mode-line mode-line-client)
+                                         ""))
                                    (tdm/status-flag t '(:foreground "#C792EA"))
-                                 "")))
+                                 ""))
+                       " "
+                       '(:eval (tdm/project))
+                       tdm/buffer-name
+                       tdm/buffer-size
+                       tdm/buffer-position)
   "The cluster of left-hand side mode-line constructs.")
 
 (defun tdm/middle-gap (len)
@@ -555,72 +614,32 @@ I've written my own theme called "tangonov".
    `((space :align-to (- (+ right right-fringe right-margin)
                          ,(+ 0 len))))))
 
-(defun tdm/eglot ()
-  "It's the same eglot indicator, but with the server name removed.
-I wanted and indicator that took up less space on the modeline."
-  (when (and (featurep 'eglot) eglot--managed-mode)
-    (pcase-let* ((server (eglot-current-server))
-                 (nick (and server (eglot-project-nickname server)))
-                 (pending (and server (hash-table-count
-                                       (jsonrpc--request-continuations server))))
-                 (`(,_id ,doing ,done-p ,_detail) (and server (eglot--spinner server)))
-                 (last-error (and server (jsonrpc-last-error server))))
-      (append
-       `(,(propertize
-           eglot-menu-string
-           'face 'eglot-mode-line
-           'mouse-face 'mode-line-highlight
-           'help-echo
-           "Eglot: Emacs LSP client\nmouse-1: Display minor mode menu"
-           'keymap (let ((map (make-sparse-keymap)))
-                     (define-key map [mode-line down-mouse-1] eglot-menu)
-                     map)))
-       (when nick
-         `(":"
-           ,(propertize
-             "on"
-             'face 'eglot-mode-line
-             'mouse-face 'mode-line-highlight
-             'help-echo
-             (format "Project '%s'\nmouse-1: LSP server control menu" nick)
-             'keymap (let ((map (make-sparse-keymap)))
-                       (define-key map
-                                   [mode-line down-mouse-1] eglot-server-menu)
-                       map))
-           ,@(when last-error
-               `("/" ,(eglot--mode-line-props
-                       "error" 'compilation-mode-line-fail
-                       '((mouse-3 eglot-clear-status  "Clear this status"))
-                       (format "An error occurred: %s\n"
-                               (plist-get last-error
-                                          :message)))))
-           ,@(when (and doing (not done-p))
-               `("/" ,(eglot--mode-line-props doing
-                                              'compilation-mode-line-run '())))
-           ,@(when (cl-plusp pending)
-               `("/" ,(eglot--mode-line-props
-                       (format "%d" pending) 'warning
-                       '((mouse-3 eglot-forget-pending-continuations
-                                  "Forget pending continuations"))
-                       "Number of outgoing, \
-still unanswered LSP requests to the server\n")))))))))
+(defvar tdm/flycheck
+  '(:eval (when (and (bound-and-true-p flycheck-mode)
+                     (not (bound-and-true-p lsp-mode)))
+            (let* ((errlist (flycheck-count-errors flycheck-current-errors))
+                   (warnings (alist-get 'warning errlist))
+                   (errors (alist-get 'error errlist)))
+              (concat
+               (when warnings
+                 (propertize (format "  %s%s"
+                                     warnings (if errors "/" ""))
+                             'face 'warning))
+               (when errors
+                 (propertize (format "%s" errors) 'face 'error)))))))
 
-(setq flymake-mode-line-lighter "fm:")
-(setq flycheck-mode-line-prefix "fc:")
+(defvar tdm/flymake
+  '(:eval (when (bound-and-true-p flymake-mode)
+            " "
+            flymake-mode-line-title
+            flymake-mode-line-exception
+            flymake-mode-line-counters)))
 
-(defvar tdm/right (list '(:eval (tdm/eglot))
-                        " "
-                        '(:eval (when flymake-mode
-                                  flymake-mode-line-title
-                                  flymake-mode-line-exception
-                                  flymake-mode-line-counters
-                                  " "))
-                        '(:eval (when flycheck-mode)
-                                flycheck-mode-line
-                                " ")
+(defvar tdm/right (list '(:eval (tdm/vc))
+                        tdm/flycheck
                         mode-line-misc-info
-                        mode-line-modes
-                        "[%p] ")
+                        "  "
+                        mode-line-modes)
   "The cluster of right-hand side cluster of mode-line constructs.")
 
 (with-eval-after-load 'all-the-icons
@@ -645,6 +664,24 @@ still unanswered LSP requests to the server\n")))))))))
  mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
  (vc-mode vc-mode)
  "  " mode-line-modes mode-line-misc-info mode-line-end-spaces)
+#+END_SRC
+
+**** COMMENT Mood-Line
+
+#+BEGIN_SRC elisp
+(quelpa-get mood-line
+            :fetcher git
+            :url "https://gitlab.com/trev-dev/mood-line.git")
+
+(td/add-setup 'mood-line
+  (mood-line-mode))
+#+END_SRC
+
+**** COMMENT Mood-Line Devel
+
+#+BEGIN_SRC elisp
+(load-file "~/Projects/mood-line/mood-line.el")
+(mood-line-mode)
 #+END_SRC
 
 **** COMMENT Telephone Line
@@ -714,10 +751,19 @@ Packages that extend and augment emacs in a general way
   (avy-setup-default))
 #+END_SRC
 
+**** CTRLF
+
+CTRLF greatly enhances isearch.
+
+#+begin_src elisp
+(td/add-setup 'ctrlf
+  (ctrlf-mode 1))
+#+end_src
+
 **** Completions
 A combination of packages to enhance completions.
 
-***** Company
+***** COMMENT Company
 Completions at point/region.
 
 #+BEGIN_SRC elisp
@@ -740,7 +786,7 @@ Completions at point/region.
         company-idle-delay 0.3))
 #+END_SRC
 
-***** COMMENT Cape
+***** Cape
 Add completion at point functions for things like Corfu
 
 #+BEGIN_SRC elisp
@@ -778,15 +824,17 @@ If `NO-EXTEND' is non-nil, the global capfs will be discarded."
 
   (global-set-key (kbd "C-c l") 'td/capes)
 
-  (add-hook 'prog-mode-hook (td/don-local-cape (list #'cape-keyword
-                                                     #'tempel-expand
+  (add-hook 'prog-mode-hook (td/don-local-cape (list (cape-super-capf
+                                                      #'cape-keyword
+                                                      #'tempel-expand)
                                                      #'cape-file
                                                      #'cape-dabbrev)))
 
   (add-hook 'emacs-lisp-mode-hook (td/don-local-cape
-                                   (list #'cape-symbol
-                                         #'cape-keyword
-                                         #'tempel-expand
+                                   (list (cape-super-capf
+                                          #'cape-symbol
+                                          #'cape-keyword
+                                          #'tempel-expand)
                                          #'cape-file
                                          #'cape-dabbrev) t))
 
@@ -880,7 +928,7 @@ other better ways to reference things in Emacs.
 (td/add-setup 'consult-flycheck)
 #+END_SRC
 
-***** COMMENT Corfu
+***** Corfu
 Drop-down style completions & related packages
 
 #+BEGIN_SRC elisp
@@ -888,7 +936,7 @@ Drop-down style completions & related packages
 
 (td/add-setup 'corfu
   (setq corfu-auto t
-        corfu-quit-no-match 'separator)
+        corfu-quit-no-match t)
   (global-corfu-mode)
 
   (defun corfu-enable-in-minibuffer ()
@@ -934,7 +982,7 @@ Fuzzy Completions
         completion-category-overrides nil))
 #+END_SRC
 
-***** COMMENT Kind-Icon
+***** Kind-Icon
 
 #+BEGIN_SRC elisp
 (td/add-setup 'kind-icon
@@ -971,13 +1019,14 @@ Save history for Vertico to look at later.
 (savehist-mode)
 #+END_SRC
 
-***** COMMENT TempEl
+***** TempEl
 Snippet completions written in elisp.
 
 Note to self: This is intertwined with [[* Cape][cape]].
 
 #+BEGIN_SRC elisp
-(td/add-setup 'tempel)
+(td/add-setup 'tempel
+   (global-set-key (kbd "C-c M-t") #'tempel-insert))
 #+END_SRC
 
 ***** Vertico
@@ -1070,7 +1119,7 @@ Embrace is the Emacs equivalent of "vim surround". It make it easy to swap out s
   (global-set-key (kbd "C-S-s") #'td/smart-embrace))
 #+END_SRC
 
-**** COMMENT Ement
+**** Ement
 A Matrix client for Emacs.
 
 #+BEGIN_SRC elisp
@@ -1184,7 +1233,10 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
   (exec-path-from-shell-initialize))
 #+END_SRC
 
-**** COMMENT God Mode
+**** God Mode
+:PROPERTIES:
+:ORDERED:  t
+:END:
 
 #+BEGIN_SRC elisp
 (defun god/eol-insert ()
@@ -1233,8 +1285,6 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
                        ("i" . god-local-mode)
                        ("F" . forward-symbol)
                        ("B" . god/backward-symbol)
-                       ("u" . undo-tree-undo)
-                       ("U" . undo-tree-redo)
                        ("t" . avy-goto-char-in-line)
                        ("o" . god/open-below)
                        ("O" . god/open-above)
@@ -1248,8 +1298,8 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
                        ("]" . forward-paragraph)))
 
 (td/add-setup 'god-mode
+  (require 'god-mode)
   (require 'god-mode-isearch)
-  (god-mode)
   (god/cursor-toggle)
   (with-eval-after-load 'which-key
     (which-key-enable-god-mode-support))
@@ -1258,9 +1308,9 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
                   notmuch-search-mode
                   notmuch-show-mode))
     (add-to-list 'god-exempt-major-modes mode))
-  (global-set-key (kbd "<escape>") #'god-local-mode)
-  (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
-  (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
+  (global-set-key (kbd "s-g") #'god-local-mode)
+  (define-key isearch-mode-map (kbd "s-g") #'god-mode-isearch-activate)
+  (define-key god-mode-isearch-map (kbd "s-g") #'god-mode-isearch-disable)
   (add-hook 'post-command-hook #'god/cursor-toggle)
   (td/bind-keys god/keybinds god-local-mode-map)
   (add-to-list 'emulation-mode-map-alists
@@ -1276,31 +1326,7 @@ Extra feedback for text changes.
   (setq-default goggles-pulse t))
 #+END_SRC
 
-**** COMMENT Hydra
-A tool for making repetative chords less cumbersome
-
-#+BEGIN_SRC elisp
-(td/add-setup 'hydra
-  (defhydra hydra-window (global-map "C-c o")
-    "Hydra Windmove"
-    ("e" windmove-right "Right")
-    ("a" windmove-left "Left")
-    ("p" windmove-up "Up")
-    ("n" windmove-down "Down")
-    ("o" other-window "Other"))
-
-  (defhydra hydra-split (global-map "C-c p")
-    "Hydra Split"
-    ("v" split-window-right "Vertically")
-    ("h" split-window-below "Horizontally")
-    ("d" delete-window "Delete")
-    ("=" enlarge-window "Enlarge")
-    ("-" shrink-window "Shrink")
-    ("b" balance-windows "Balance")
-    ("D" delete-other-windows "Delete Others")))
-#+END_SRC
-
-**** Meow
+**** COMMENT Meow
 
 #+BEGIN_SRC elisp
 (defun meow-setup ()
@@ -1414,7 +1440,7 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
   (global-set-key (kbd "M-o g") #'magit-status))
 #+END_SRC
 
-**** COMMENT Multiple Cursors
+**** Multiple Cursors
 
 #+BEGIN_SRC elisp
 (td/add-setup 'multiple-cursors
@@ -2326,6 +2352,19 @@ The built-in linting package.
 
 #+BEGIN_SRC elisp
 (td/add-setup 'lsp-mode
+  (td/add-hooks '(css-mode
+                  scss-mode
+                  html-mode
+                  js-mode
+                  json-mode
+                  python-mode
+                  php-mode
+                  rust-mode
+                  scss-mode
+                  svelte-mode
+                  typescript-mode
+                  vue-mode
+                  yaml-mode) #'lsp)
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
   (setq lsp-keymap-prefix "C-c C-l")
@@ -2497,21 +2536,20 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
 #+BEGIN_SRC elisp
-(require 'tree-sitter)
-(require 'tree-sitter-langs)
-
 (td/add-setup 'tree-sitter
+		(require 'tree-sitter)
   (with-eval-after-load 'tree-sitter-langs
     (let ((excluded-modes '(html-mode mhtml-mode))
-          (ts-modes (mapcar
-                     #'car tree-sitter-major-mode-language-alist)))
-      (dolist (mode ts-modes)
-        (unless (member mode excluded-modes)
-          (add-hook (intern (concat
-                             (symbol-name mode) "-hook"))
-                    #'tree-sitter-hl-mode))))))
+	    (ts-modes (mapcar
+		       #'car tree-sitter-major-mode-language-alist)))
+	(dolist (mode ts-modes)
+	  (unless (member mode excluded-modes)
+	    (add-hook (intern (concat
+			       (symbol-name mode) "-hook"))
+		      #'tree-sitter-hl-mode))))))
 
-(td/add-setup 'tree-sitter-langs)
+(td/add-setup 'tree-sitter-langs
+		(require 'tree-sitter-langs))
 #+END_SRC
 
 **** TypeScript & JavaScript
@@ -2556,7 +2594,7 @@ YAML's a really nice way to configure software, containers and projects. I use i
   (td/auto-mode '(("\\.yml\\'" . yaml-mode))))
 #+END_SRC
 
-**** Yasnippet
+**** COMMENT Yasnippet
 Snippets! They're helpful.
 
 #+BEGIN_SRC elisp
