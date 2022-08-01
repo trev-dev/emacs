@@ -430,8 +430,7 @@ Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" 
                       'meow-insert-mode
                       'meow-motion-mode
                       'meow-keypad-mode))
-    (diminish mode)
-    (diminish 'meow-beacon-mode (propertize " 🐾" 'face 'warning))))
+    (diminish mode)))
 #+END_SRC
 
 **** COMMENT Doom Themes
@@ -503,15 +502,13 @@ I've written my own theme called "tangonov".
 (defun tdm/vc ()
   "Get the git status for the current buffer."
   (let* ((vc vc-mode)
-        (dirty (tdm/git-dirty?))
-        (icon (if dirty "±" "✔")))
-    (format "%s" (propertize
-                      (substring vc 5) 'face (if (tdm/git-dirty?)
-                                                 'warning
-                                               'success)))))
+         (dirty (tdm/git-dirty?))
+         (icon (if dirty "±" "✔"))
+         (color (if dirty '(:foreground "#82AAFF") 'success)))
+    `(:propertize ,(concat icon " " (substring vc 5)) face ,color)))
 
 (defcustom td/custom-project-name nil
-  "A custom directory-local name for a project.el project"
+  "A custom directory-local name for a project.el project."
   :type 'string)
 
 (defun tdm/project()
@@ -746,8 +743,8 @@ Packages that extend and augment emacs in a general way
 
 #+BEGIN_SRC elisp
 (td/add-setup 'avy
-  (global-set-key (kbd "C-\\") #'avy-goto-char-timer)
-  (define-key isearch-mode-map (kbd "C-\\") #'avy-isearch)
+  (define-key priority-mode-map (kbd "C-'") #'avy-goto-char-timer)
+  (define-key isearch-mode-map (kbd "C-'") #'avy-isearch)
   (avy-setup-default))
 #+END_SRC
 
@@ -871,7 +868,7 @@ other better ways to reference things in Emacs.
   (advice-add #'register-preview :override #'consult-register-window)
 
   (td/bind-keys '(("C-c h" . consult-history)
-                  ("C-c m" . consult-mode-command)
+                  ("C-c M-x" . consult-mode-command)
                   ;; ("C-c k" . consult-kmacro)
                   ;; C-x bindings (ctl-x-map)
                   ("C-x M-:" . consult-complex-command)
@@ -1097,7 +1094,7 @@ RSS Reader :D
 
 #+BEGIN_SRC elisp
 (td/add-setup 'elfeed
-  (global-set-key (kbd "M-o e ") #'elfeed))
+  (global-set-key (kbd "<f6>") #'elfeed))
 
 (td/add-setup 'elfeed-org
   (with-eval-after-load 'elfeed
@@ -1146,8 +1143,8 @@ A Matrix client for Emacs.
 (quelpa-get ement :fetcher github :repo "alphapapa/ement.el")
 
 (td/add-setup 'plz)
-(td/add-setup 'ement
-  (setq print-circle t))
+(td/add-setup 'ts)
+(td/add-setup 'ement)
 #+END_SRC
 
 **** ERC
@@ -1155,13 +1152,14 @@ A Matrix client for Emacs.
 #+BEGIN_SRC elisp
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat" "#emacs" "#guix" "#systemcrafters")))
-(global-set-key (kbd "M-o i")
-                #'(lambda () (interactive)
-                    (erc-tls :server "irc.libera.chat"
+
+(defun td/launch-erc ()
+  (interactive)
+  (erc-tls :server "irc.libera.chat"
                              :port 7000
                              :nick "trevdev"
                              :password (password-store-get
-                                        "Biz/libera.chat"))))
+                                        "Biz/libera.chat")))
 #+END_SRC
 
 **** COMMENT Evil
@@ -1222,7 +1220,7 @@ It just makes selecting text between sexps easy.
 
 #+BEGIN_SRC elisp
 (td/add-setup 'expand-region
-  (global-set-key (kbd "C-=") #'er/expand-region))
+  (td/bind-keys '(("C-=" . er/expand-region))))
 #+END_SRC
 
 **** Exec Path
@@ -1234,9 +1232,6 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
 #+END_SRC
 
 **** God Mode
-:PROPERTIES:
-:ORDERED:  t
-:END:
 
 #+BEGIN_SRC elisp
 (defun god/eol-insert ()
@@ -1246,9 +1241,15 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
   (god-local-mode -1))
 
 (defun god/boi-insert ()
-  "Move the cursor back-to-indentation and exit god mode."
+  "Move the cursor `back-to-indentation' and exit god mode."
   (interactive)
   (back-to-indentation)
+  (god-local-mode -1))
+
+(defun god/forward-insert ()
+  "Move the cursor over one char and exit god mode."
+  (interactive)
+  (forward-char)
   (god-local-mode -1))
 
 (defun god/change ()
@@ -1269,37 +1270,89 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
   (interactive)
   (beginning-of-line)
   (open-line 1)
-  (indent-relative-maybe))
+  (indent-relative-first-indent-point)
+  (god-local-mode -1))
 
 (defun god/open-below ()
   "Open a new line below the current line, put the point there."
   (interactive)
   (end-of-line)
-  (newline-and-indent))
+  (newline-and-indent)
+  (god-local-mode -1))
+
+(defvar god/previous-seek-motion nil
+  "The previous until/find motion performed by god-mode.")
+
+(defun god/seek (n &optional until-p repeat-ch)
+  "Move the cursor forward, or backword to the nearest char in `N' direction.
+Can be called with a `REPEAT-CH' to automatically seek for or `UNTIL-P' a char."
+  (interactive "p")
+  (let* ((case-fold-search nil)
+         (ch (or repeat-ch
+                 (read-char
+                  (message "Seek%s(%d):" (if until-p "-Until" "") n))))
+         (ch-str (if (eq ch 13) "\n" (char-to-string ch)))
+         (fix-pos (if until-p (if (< n 0) 1 -1) 0))
+         end)
+    (save-mark-and-excursion
+      (if (< n 0) (forward-char -1) (forward-char 1))
+      (setq end (search-forward ch-str nil t n)))
+    (if (not end)
+        (message "char %s not found" ch-str)
+      (setq god/previous-seek-motion `(god/seek ,n ,until-p ,ch))
+      (goto-char (+ end (if until-p fix-pos 0))))))
+
+(defun god/seek-until (neg-arg &optional repeat-ch)
+  "Seek up to but not including a char.
+Direction can be modified with a `NEG-ARG'. Can be repeated with a `REPEAT-CH'."
+  (interactive "p")
+  (god/seek neg-arg t repeat-ch))
+
+(defun god/repeat-seek (reverse)
+  "Repeat the `god/previous-seek-motion'.
+Apply a neg-arg to go in `REVERSE'"
+  (interactive "p")
+  (when god/previous-seek-motion
+    (let ((func (car god/previous-seek-motion))
+          (num (cadr god/previous-seek-motion))
+          (until (caddr god/previous-seek-motion))
+          (ch (cadddr god/previous-seek-motion)))
+      (funcall func (if (< reverse 0) (* num -1) num) until ch))))
+
+(setq-default cursor-type '(bar . 4))
 
 (defun god/cursor-toggle ()
-  "Toggles the cursor between a box and bar while in or out of `god-mode'."
-  (setq cursor-type (if (or god-local-mode buffer-read-only) 'box '(bar . 4))))
+  "Toggle the cursor between a box and bar while in or out of `god-mode'."
+  (setq cursor-type (if (or (bound-and-true-p god-local-mode) buffer-read-only)
+                        'box
+                      '(bar . 4))))
 
-(defvar god/keybinds '(("z" . repeat)
-                       ("i" . god-local-mode)
-                       ("F" . forward-symbol)
+(defvar god/keybinds '((";" . god/repeat-seek)
+                       ("A" . god/boi-insert)
                        ("B" . god/backward-symbol)
-                       ("t" . avy-goto-char-in-line)
-                       ("o" . god/open-below)
-                       ("O" . god/open-above)
-                       ("A" . god/eol-insert)
-                       ("I" . god/boi-insert)
                        ("C" . god/change)
                        ("C-c C-i" . td/eldoc-box-help)
                        ("D" . delete-backward-char)
-                       ("J" . join-line)
+                       ("E" . god/eol-insert)
+                       ("F" . forward-symbol)
+                       ("I" . god/forward-insert)
+                       ("i" . god-local-mode)
+                       ("O" . god/open-above)
+                       ("o" . god/open-below)
+                       ("T" . god/seek)
+                       ("t" . god/seek-until)
+                       ("U" . redo)
+                       ("u" . undo)
                        ("[" . backward-paragraph)
-                       ("]" . forward-paragraph)))
+                       ("]" . forward-paragraph)
+                       ("q" . quit-window)
+                       ("z" . repeat)))
 
 (td/add-setup 'god-mode
+  (setq god-mode-enable-function-key-translation nil)
   (require 'god-mode)
   (require 'god-mode-isearch)
+  (god-mode-all)
   (god/cursor-toggle)
   (with-eval-after-load 'which-key
     (which-key-enable-god-mode-support))
@@ -1308,10 +1361,11 @@ It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired o
                   notmuch-search-mode
                   notmuch-show-mode))
     (add-to-list 'god-exempt-major-modes mode))
-  (global-set-key (kbd "s-g") #'god-local-mode)
-  (define-key isearch-mode-map (kbd "s-g") #'god-mode-isearch-activate)
-  (define-key god-mode-isearch-map (kbd "s-g") #'god-mode-isearch-disable)
+  (global-set-key (kbd "<escape>") #'god-mode-all)
+  (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
+  (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
   (add-hook 'post-command-hook #'god/cursor-toggle)
+  (add-hook 'god-local-mode-hook #'corfu-quit)
   (td/bind-keys god/keybinds god-local-mode-map)
   (add-to-list 'emulation-mode-map-alists
                `((god-local-mode . ,god-local-mode-map))))
@@ -1437,7 +1491,7 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
 
 #+BEGIN_SRC elisp
 (td/add-setup 'magit
-  (global-set-key (kbd "M-o g") #'magit-status))
+  (global-set-key (kbd "C-c g") #'magit-status))
 #+END_SRC
 
 **** Multiple Cursors
@@ -2056,10 +2110,14 @@ Now, to configure Notmuch:
                                       :count-query "tag:nil"
                                       :key "s"
                                       :sort-order newest-first)
+                               (:name "archive"
+                                      :query "tag:archive"
+                                      :key "s"
+                                      :sort-order newest-first)
                                (:name "all mail"
                                       :query "*"
                                       :count-query "tag:nil"
-                                      :key "a"
+                                      :key "A"
                                       :sort-order newest-first))
       notmuch-archive-tags '("+archive" "-inbox")
       notmuch-tagging-keys '(("a" notmuch-archive-tags "Archive")
@@ -2071,7 +2129,7 @@ Now, to configure Notmuch:
       notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full
       notmuch-hello-thousands-separator ",")
 
-(global-set-key (kbd "M-o m") #'notmuch)
+(global-set-key (kbd "<f5>") #'notmuch)
 
 (defun td/specify-msmtp-account ()
   (save-excursion
