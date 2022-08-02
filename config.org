@@ -1343,8 +1343,8 @@ Apply a neg-arg to go in `REVERSE'"
                        ("t" . god/seek-until)
                        ("U" . redo)
                        ("u" . undo)
-                       ("[" . backward-paragraph)
-                       ("]" . forward-paragraph)
+                       ("P" . backward-paragraph)
+                       ("N" . forward-paragraph)
                        ("q" . quit-window)
                        ("z" . repeat)))
 
@@ -2111,8 +2111,9 @@ Now, to configure Notmuch:
                                       :key "s"
                                       :sort-order newest-first)
                                (:name "archive"
+                                      :count-query "tag:nil"
                                       :query "tag:archive"
-                                      :key "s"
+                                      :key "a"
                                       :sort-order newest-first)
                                (:name "all mail"
                                       :query "*"
