@@ -2423,6 +2423,7 @@ The built-in linting package.
                   json-mode
                   python-mode
                   php-mode
+                  ruby-mode
                   rust-mode
                   scss-mode
                   svelte-mode
@@ -2545,6 +2546,12 @@ LSP-Mode covers making visual representations of hex color codes almost everywhe
 #+BEGIN_SRC elisp
 (td/add-setup 'rainbow-mode)
 #+END_SRC
+
+**** Ruby
+
+#+begin_src elisp
+(td/add-setup 'inf-ruby)
+#+end_src
 
 **** Rust
 
