@@ -388,7 +388,7 @@ This should improve init by not looking for things we already have."
 #+END_SRC
 
 **** Diminish
-Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" text output from the =minor-mode-alist=. Due to how lazy-loading works, we want to make sure we have diminish early on.
+Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to make sure we have diminish early on.
 
 #+BEGIN_SRC elisp
 (unless (package-installed-p 'diminish)
@@ -410,14 +410,14 @@ Diminish allows us to tidy up the mode-line by removing or exchanging "lighter" 
                 ("flycheck" 'flycheck-mode)
                 ("lsp-mode" 'lsp-mode '(:propertize
                                         " LSP" face
-                                        '(:inherit (if lsp--buffer-workspaces
-                                                       'success
-                                                     'warning)
-                                                   :weight bold)))
+                                        (:inherit (if lsp--buffer-workspaces
+                                                      success
+                                                    warning)
+                                                  :weight bold)))
                 ("tree-sitter" 'tree-sitter-mode "TS")
                 ("god-mode" 'god-local-mode '(:propertize
                                               " God" face
-                                              '(:inherit 'warning :weight bold)))
+                                              (:inherit warning :weight bold)))
                 ("beacon" 'beacon-mode)
                 ("evil-goggles" 'evil-goggles-mode)
                 ("evil-commentary" 'evil-commentary-mode)
@@ -501,11 +501,11 @@ I've written my own theme called "tangonov".
 
 (defun tdm/vc ()
   "Get the git status for the current buffer."
-  (let* ((vc vc-mode)
-         (dirty (tdm/git-dirty?))
-         (icon (if dirty "±" "✔"))
-         (color (if dirty '(:foreground "#82AAFF") 'success)))
-    `(:propertize ,(concat icon " " (substring vc 5)) face ,color)))
+  (when-let (vc vc-mode)
+    (let* ((dirty (tdm/git-dirty?))
+           (icon (if dirty "±" "✔"))
+           (color (if dirty '(:foreground "#82AAFF") 'success)))
+      `(:propertize ,(concat icon " " (substring vc 5)) face ,color))))
 
 (defcustom td/custom-project-name nil
   "A custom directory-local name for a project.el project."
@@ -525,7 +525,7 @@ I've written my own theme called "tangonov".
                  'local-map (make-mode-line-mouse-map
                              'mouse-1 #'project-switch-project))
             (propertize ":" 'face
-                        '(:inherit font-lock-comment-face :background nil)))))
+                        '(:inherit font-lock-comment-face)))))
 
 (defun tdm/modal-face (str base)
   (propertize str 'face
@@ -584,7 +584,7 @@ I've written my own theme called "tangonov".
 
 (defvar tdm/buffer-position
   '("  %l:%c"
-    (:propertize " %p" face (:inherit font-lock-comment-face :background nil))))
+    (:propertize " %p" face (:inherit font-lock-comment-face))))
 
 (defvar tdm/buffer-size
   '(:propertize " (%I)" face (:inherit font-lock-comment-face)))
