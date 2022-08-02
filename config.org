@@ -632,9 +632,14 @@ I've written my own theme called "tangonov".
             flymake-mode-line-exception
             flymake-mode-line-counters)))
 
+(defvar tdm/misc
+  '(:eval (let ((info (format-mode-line mode-line-misc-info)))
+            (unless (equal info "")
+              (list "  " (string-trim info))))))
+
 (defvar tdm/right (list '(:eval (tdm/vc))
                         tdm/flycheck
-                        mode-line-misc-info
+                        tdm/misc
                         "  "
                         mode-line-modes)
   "The cluster of right-hand side cluster of mode-line constructs.")
