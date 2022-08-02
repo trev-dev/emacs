@@ -634,7 +634,7 @@ I've written my own theme called "tangonov".
 
 (defvar tdm/misc
   '(:eval (let ((info (format-mode-line mode-line-misc-info)))
-            (unless (equal info "")
+            (unless (string= info "")
               (list "  " (string-trim info))))))
 
 (defvar tdm/right (list '(:eval (tdm/vc))
@@ -644,13 +644,12 @@ I've written my own theme called "tangonov".
                         mode-line-modes)
   "The cluster of right-hand side cluster of mode-line constructs.")
 
-(with-eval-after-load 'all-the-icons
-  (setq-default mode-line-format
-                (list tdm/left
-                      '(:eval (tdm/middle-gap
-                               (length
-                                (format-mode-line tdm/right))))
-                      tdm/right)))
+(setq-default mode-line-format
+              (list tdm/left
+                    '(:eval (tdm/middle-gap
+                             (length
+                              (format-mode-line tdm/right))))
+                    tdm/right))
 #+END_SRC
 
 ***** COMMENT Defaults
