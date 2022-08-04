@@ -397,6 +397,19 @@ Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to ma
 
 (td/add-setup 'diminish)
 
+(defun tdm/diminish-lsp-lighter ()
+  "Display the LSP status in the `mode-line-modes'."
+  (let* ((lsp-up lsp--buffer-workspaces)
+         (color (if lsp-up '(:inherit success :weight bold)
+                  '(:inherit warning :weight bold))))
+    `(:propertize " LSP" face ,color)))
+
+(defvar tdm/diminish-god-lighter
+  '(:propertize
+    " God" face
+    (:inherit warning :weight bold))
+  "Display god-mode state in the `mode-line-modes'.")
+
 (dolist (mode '(("company" 'company-mode)
                 ("hideshow" 'hs-minor-mode)
                 ("undo-tree" 'undo-tree-mode)
@@ -408,16 +421,9 @@ Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to ma
                 ("eldoc" 'eldoc-mode)
                 ("flymake" 'flymake-mode)
                 ("flycheck" 'flycheck-mode)
-                ("lsp-mode" 'lsp-mode '(:propertize
-                                        " LSP" face
-                                        (:inherit (if lsp--buffer-workspaces
-                                                      success
-                                                    warning)
-                                                  :weight bold)))
+                ("lsp-mode" 'lsp-mode '(:eval (tdm/diminish-lsp-lighter)))
                 ("tree-sitter" 'tree-sitter-mode "TS")
-                ("god-mode" 'god-local-mode '(:propertize
-                                              " God" face
-                                              (:inherit warning :weight bold)))
+                ("god-mode" 'god-local-mode tdm/diminish-god-lighter)
                 ("beacon" 'beacon-mode)
                 ("evil-goggles" 'evil-goggles-mode)
                 ("evil-commentary" 'evil-commentary-mode)
@@ -557,21 +563,24 @@ I've written my own theme called "tangonov".
                           (emacs . ,(tdm/modal-face
                                      "<E>" '(:foreground "#C792EA")))))
 
-(defvar tdm/meow-state
-  '(:eval (when (featurep 'meow)
-            (concat (alist-get (meow--current-state) tdm/custom-meow-states)
-                    " "))))
+(defun tdm/meow-state ()
+  "Retrieve the meow-state for the mode-line."
+  (when (featurep 'meow)
+    (concat (alist-get (meow--current-state) tdm/custom-meow-states)
+            " ")))
 
-(defvar tdm/evil-state
-  '(:eval (when (featurep 'evil)
-            (concat (alist-get evil-state tdm/evil-states)
-                    " "))))
+(defun tdm/evil-state ()
+  "Get the evil state for the mode-line."
+  (when (featurep 'evil)
+    (concat (alist-get evil-state tdm/evil-states)
+            " ")))
 
-(defvar tdm/god-state
-  '(:eval (when (featurep 'god-mode)
-            (format "%s " (if god-local-mode
-                              (tdm/modal-face "<G>" '(:foreground "#FFCA41"))
-                            (tdm/modal-face "<E>" '(:foreground "#C792EA")))))))
+(defun tdm/god-state ()
+  "Get the god-mode state for the mode-line."
+  (when (featurep 'god-mode)
+    (format "%s " (if god-local-mode
+                      (tdm/modal-face "<G>" '(:foreground "#FFCA41"))
+                    (tdm/modal-face "<E>" '(:foreground "#C792EA"))))))
 
 (defun tdm/status-flag (on face)
   "Produce a status flag based on some `PRED'icate test and give it a `FACE'."
@@ -579,77 +588,85 @@ I've written my own theme called "tangonov".
                    (propertize "▰" 'face `(:inherit ,face :weight bold))
                  "-")))
 
-(defvar tdm/buffer-name
-  '(:propertize "%b" face (:inherit mode-line-buffer-id)))
+(defun tdm/buffer-name ()
+  "Display the mode-line buffer name."
+  (format "%s" (propertize "%b" 'face '(:inherit mode-line-buffer-id))))
 
-(defvar tdm/buffer-position
-  '("  %l:%c"
-    (:propertize " %p" face (:inherit font-lock-comment-face))))
+(defun tdm/buffer-position ()
+  "Display the mode-line buffer position."
+  (concat "  %l:%c"
+        (propertize " %p" 'face '(:inherit font-lock-comment-face))))
 
-(defvar tdm/buffer-size
-  '(:propertize " (%I)" face (:inherit font-lock-comment-face)))
+(defun tdm/buffer-size ()
+  "Display the mode-line buffer size."
+  (format "%s" (propertize " (%I)" 'face '(:inherit font-lock-comment-face))))
 
-(defvar tdm/left (list " "
-                       '(:eval (tdm/status-flag buffer-read-only 'error))
-                       '(:eval (tdm/status-flag (buffer-modified-p) 'warning))
-                       '(:eval (if (not (eq
-                                         (format-mode-line mode-line-client)
-                                         ""))
-                                   (tdm/status-flag t '(:foreground "#C792EA"))
-                                 ""))
-                       " "
-                       '(:eval (tdm/project))
-                       tdm/buffer-name
-                       tdm/buffer-size
-                       tdm/buffer-position)
-  "The cluster of left-hand side mode-line constructs.")
-
-(defun tdm/middle-gap (len)
-  "Create gap that is offset by some `LEN' of right-hand mode-line constructs."
-  (propertize
-   " " 'display
-   `((space :align-to (- (+ right right-fringe right-margin)
-                         ,(+ 0 len))))))
-
-(defvar tdm/flycheck
-  '(:eval (when (and (bound-and-true-p flycheck-mode)
-                     (not (bound-and-true-p lsp-mode)))
-            (let* ((errlist (flycheck-count-errors flycheck-current-errors))
-                   (warnings (alist-get 'warning errlist))
-                   (errors (alist-get 'error errlist)))
-              (concat
-               (when warnings
-                 (propertize (format "  %s%s"
-                                     warnings (if errors "/" ""))
-                             'face 'warning))
-               (when errors
-                 (propertize (format "%s" errors) 'face 'error)))))))
-
-(defvar tdm/flymake
-  '(:eval (when (bound-and-true-p flymake-mode)
+(defun tdm/split-format (left right)
+  "Format a mode-line with a `LEFT' and `RIGHT' justified list of elements.
+The modeline should fit the `window-width' with space between the lists."
+  (let ((reserve (length right)))
+    (concat left
             " "
-            flymake-mode-line-title
-            flymake-mode-line-exception
-            flymake-mode-line-counters)))
+            (propertize " "
+                        'display
+                        `((space :align-to
+                                 (- right (- 0 right-margin) ,reserve))))
+            right)))
 
-(defvar tdm/misc
-  '(:eval (let ((info (format-mode-line mode-line-misc-info)))
-            (unless (string= info "")
-              (list "  " (string-trim info))))))
+(defun tdm/flycheck ()
+  "Get the flycheck status for the buffer, if LSP mode is not doing so."
+  (when (and (bound-and-true-p flycheck-mode)
+             (not (bound-and-true-p lsp-mode)))
+    (let* ((errlist (flycheck-count-errors flycheck-current-errors))
+           (warnings (alist-get 'warning errlist))
+           (errors (alist-get 'error errlist)))
+      (concat
+       (when warnings
+         (propertize (format "  %s%s"
+                             warnings (if errors "/" ""))
+                     'face 'warning))
+       (when errors
+         (propertize (format "%s" errors) 'face 'error))))))
 
-(defvar tdm/right (list '(:eval (tdm/vc))
-                        tdm/flycheck
-                        tdm/misc
-                        "  "
-                        mode-line-modes)
-  "The cluster of right-hand side cluster of mode-line constructs.")
+(defun tdm/flymake ()
+  "Display the flymake status for the buffer."
+  (when (bound-and-true-p flymake-mode)
+    " "
+    flymake-mode-line-title
+    flymake-mode-line-exception
+    flymake-mode-line-counters))
+
+(defun tdm/misc ()
+  "Get a trimmed version of the `mode-line-misc-info'."
+  (let ((info (format-mode-line mode-line-misc-info)))
+    (unless (string= info "")
+      (list "  " (string-trim info)))))
 
 (setq-default mode-line-format
-              (list tdm/left
-                    '(:eval (tdm/middle-gap
-                             (length
-                              (format-mode-line tdm/right))))
-                    tdm/right))
+              '((:eval
+                 (tdm/split-format
+                  ;; Left
+                  (format-mode-line
+                   '(" "
+                     (:eval (tdm/status-flag buffer-read-only 'error))
+                     (:eval (tdm/status-flag (buffer-modified-p) 'warning))
+                     (:eval (if (not (eq
+                                      (format-mode-line mode-line-client)
+                                      ""))
+                                (tdm/status-flag t '(:foreground "#C792EA"))
+                              ""))
+                     " "
+                     (:eval (tdm/project))
+                     (:eval (tdm/buffer-name))
+                     (:eval (tdm/buffer-size))
+                     (:eval (tdm/buffer-position))))
+                  ;; Right
+                  (format-mode-line
+                   '((:eval (tdm/vc))
+                     (:eval (tdm/flycheck))
+                     (:eval (tdm/misc))
+                     "  "
+                     mode-line-modes))))))
 #+END_SRC
 
 ***** COMMENT Defaults
