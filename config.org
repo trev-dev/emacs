@@ -764,7 +764,7 @@ Packages that extend and augment emacs in a general way
 
 #+BEGIN_SRC elisp
 (td/add-setup 'avy
-  (define-key priority-mode-map (kbd "C-'") #'avy-goto-char-timer)
+  (global-set-key (kbd "C-'") #'avy-goto-char-timer)
   (define-key isearch-mode-map (kbd "C-'") #'avy-isearch)
   (avy-setup-default))
 #+END_SRC
@@ -840,7 +840,7 @@ If `NO-EXTEND' is non-nil, the global capfs will be discarded."
       map) "Keymap for the various cape completion functions. \\{td/capes}")
   (fset 'td/capes td/capes)
 
-  (global-set-key (kbd "C-c l") 'td/capes)
+  (global-set-key (kbd "C-c M-p") 'td/capes)
 
   (add-hook 'prog-mode-hook (td/don-local-cape (list (cape-super-capf
                                                       #'cape-keyword
@@ -1352,7 +1352,6 @@ Apply a neg-arg to go in `REVERSE'"
                        ("A" . god/boi-insert)
                        ("B" . god/backward-symbol)
                        ("C" . god/change)
-                       ("C-c C-i" . td/eldoc-box-help)
                        ("D" . delete-backward-char)
                        ("E" . god/eol-insert)
                        ("F" . forward-symbol)
@@ -1499,7 +1498,9 @@ Extra feedback for text changes.
    '("'" . repeat)
    '("<escape>" . ignore)
    '("S" . td/smart-embrace)
-   '("=" . er/expand-region)))
+   '("=" . er/expand-region)
+   '("P" . backward-paragraph)
+   '("N" . forward-paragraph)))
 
 (td/add-setup 'meow
   (require 'meow)
@@ -2448,7 +2449,7 @@ The built-in linting package.
                   yaml-mode) #'lsp)
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
-  (setq lsp-keymap-prefix "C-c C-l")
+  (setq lsp-keymap-prefix "C-c l")
   (setq lsp-log-io nil
         lsp-modeline-code-actions-segments '(count)
         lsp-signature-doc-lines 1
