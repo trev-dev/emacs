@@ -1131,7 +1131,7 @@ RSS Reader :D
     (setq rmh-elfeed-org-files '("~/Org/elfeed.org"))))
 #+END_SRC
 
-**** Embrace
+**** COMMENT Embrace
 Embrace is the Emacs equivalent of "vim surround". It make it easy to swap out surrounding elements.
 
 #+BEGIN_SRC elisp
@@ -1144,6 +1144,102 @@ Embrace is the Emacs equivalent of "vim surround". It make it easy to swap out s
 (td/add-setup 'embrace
   (global-set-key (kbd "C-S-s") #'td/smart-embrace))
 #+END_SRC
+
+**** Surround
+
+My attempt at writing a quick replacement for "vim surround". There are better solutions out there, but when they're unpredictable, I don't want to figure out why.
+
+This is a "dumb" solution. It just seeks backward for the start of a pair, then matches the surround with a forward sexp. If it's called with a neg-arg (eg: ~(surround -1)~) it will scan forward first and look back. If the point is not inside the bounds of a resulting backward scan, we fall back to forward.
+
+Ideally if the point is not inside the bounds of a found sexp, I should be scanning recursively in the same direction until it does. Maybe I'll implement this later.
+
+When a pair is not in ~surround-pairs~, it will fall-back to symmetrical pairs (a pair of the same char). When this happens, scanning forward, or backward, makes no difference.
+
+It currently doesn't care about the scope of the scan, either, and doesn't care if the backward or forward sexp is 100 lines elsewhere.
+
+I should refine this.
+
+#+begin_src elisp
+(defvar surround-pairs '(("{" . "}")
+                         ("(" . ")")
+                         ("[" . "]")
+                         ("<" . ">"))
+  "A list of asymmetric pairs for `surrund' to respect.")
+
+(defun surround--add-pair (pair bounds)
+  "Add a matchin `PAIR' around a `BOUNDS' in a buffer."
+  (save-excursion
+    (goto-char (car bounds))
+    (insert (car pair)))
+  (save-excursion
+    (goto-char (cdr bounds))
+    (insert (cdr pair))))
+
+(defun surround--seek-bounds (pair forward)
+  "Find the bounds of the `PAIR' by finding a matching sexp of the opening char.
+Scan `FORWARD' using a negative arg, or as a fallback to a failed reverse scan.
+If a region is active, return an adjusted region boundary instead."
+  (if (region-active-p)
+      (cons (region-beginning) (+ 1 (region-end)))
+    (let ((start (point))
+          (beg nil)
+          (end nil)
+          (out-of-bounds nil))
+      (if forward
+          (save-excursion (setq end (search-forward (cdr pair) nil t 1))
+                          (backward-sexp)
+                          (setq beg (point)))
+        (save-excursion (setq beg (search-backward (car pair) nil t 1))
+                        (forward-sexp)
+                        (setq end (point))
+                        (setq out-of-bounds (< end start))))
+      (cond (out-of-bounds (surround--seek-bounds pair t))
+            ((and beg end) (cons beg end))
+            (t (error (format "No matching pair %s" pair)))))))
+
+(defun surround--delete-pair (bounds)
+  "Delete a surrounding pair outside the `BOUNDS' of a range of positions."
+  (save-excursion
+    (goto-char (car bounds))
+    (delete-char 1)
+    (goto-char (- (cdr bounds) 2))
+    (delete-char 1)))
+
+(defun surround--change-pair (bounds)
+  "Swap out an exisiting `PAIR' outside of `BOUNDS'."
+  (let* ((to-what (char-to-string (read-char (message "To new pair: "))))
+         (new-pair (or (assoc to-what surround-pairs)
+                       (rassoc to-what surround-pairs)
+                       (cons to-what to-what))))
+    (surround--delete-pair bounds)
+    (save-excursion
+      (goto-char (car bounds))
+      (insert (car new-pair))
+      (goto-char (- (cdr bounds) 1))
+      (insert (cdr new-pair)))))
+
+(defun surround (neg)
+  "Add surrounding pairs to a region, or change/delete an existing pair.
+Inspired by vim-surround. Scans forward. Use `NEG'-arg to scan backward
+for pair."
+  (interactive "p")
+  (let* ((forward (< neg 0))
+         (case-fold-search nil)
+         (method (if (and (region-active-p)
+                          (not (eq (region-beginning) (region-end))))
+                     ?a
+                   (read-char-choice "(c)hange or (d)elete pair? " '(?c ?d))))
+         (target (char-to-string (read-char (message "Pair:"))))
+         (pair (or (assoc target surround-pairs)
+                   (rassoc target surround-pairs)
+                   (cons target target)))
+         (bounds (surround--seek-bounds pair forward)))
+    (cond ((eq method ?a) (surround--add-pair pair bounds))
+          ((eq method ?c) (surround--change-pair bounds))
+          ((eq method ?d) (surround--delete-pair bounds)))))
+
+(global-set-key (kbd "C-S-s") #'surround)
+#+end_src
 
 **** Ement
 A Matrix client for Emacs.
