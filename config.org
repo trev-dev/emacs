@@ -509,7 +509,7 @@ I've written my own theme called "tangonov".
   "Get the git status for the current buffer."
   (when-let (vc vc-mode)
     (let* ((dirty (tdm/git-dirty?))
-           (icon (if dirty "±" "✔"))
+           (icon (if dirty "  ±" "  ✔"))
            (color (if dirty '(:foreground "#82AAFF") 'success)))
       `(:propertize ,(concat icon " " (substring vc 5)) face ,color))))
 
@@ -642,12 +642,19 @@ The modeline should fit the `window-width' with space between the lists."
     (unless (string= info "")
       (list "  " (string-trim info)))))
 
+(defun tdm/macro-indicator ()
+  "Indicate when a macro is being recorded in the mode-line."
+  (when defining-kbd-macro
+    (format "%s" (propertize
+                  "λ" 'face '(:inherit bold :foreground "#C792EA")))))
+
 (setq-default mode-line-format
               '((:eval
                  (tdm/split-format
                   ;; Left
                   (format-mode-line
                    '(" "
+                     (:eval (tdm/meow-state))
                      (:eval (tdm/status-flag buffer-read-only 'error))
                      (:eval (tdm/status-flag (buffer-modified-p) 'warning))
                      (:eval (if (not (eq
@@ -662,7 +669,8 @@ The modeline should fit the `window-width' with space between the lists."
                      (:eval (tdm/buffer-position))))
                   ;; Right
                   (format-mode-line
-                   '((:eval (tdm/vc))
+                   '((:eval (tdm/macro-indicator))
+                     (:eval (tdm/vc))
                      (:eval (tdm/flycheck))
                      (:eval (tdm/misc))
                      "  "
