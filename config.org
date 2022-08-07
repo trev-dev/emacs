@@ -1838,7 +1838,7 @@ I like org-publish, but there are some files (like my cookbook) that I would lik
 
 ****** COMMENT org-modern
 
-#+begin_src lisp
+#+begin_src elisp
 (td/add-setup 'org-modern
   (setq org-pretty-entities t
         org-ellipsis "…"
