@@ -1448,7 +1448,7 @@ Apply a neg-arg to go in `REVERSE'"
 
 (defun god/cursor-toggle ()
   "Toggle the cursor between a box and bar while in or out of `god-mode'."
-  (setq cursor-type (if (or (bound-and-true-p god-local-mode) buffer-read-only)
+  (setq cursor-type (if (bound-and-true-p god-local-mode)
                         'box
                       '(bar . 4))))
 
@@ -1461,11 +1461,12 @@ Apply a neg-arg to go in `REVERSE'"
                        ("F" . forward-symbol)
                        ("I" . god/forward-insert)
                        ("i" . god-local-mode)
+                       ("m" . er/keymap)
                        ("O" . god/open-above)
                        ("o" . god/open-below)
                        ("T" . god/seek)
                        ("t" . god/seek-until)
-                       ("U" . redo)
+                       ("U" . undo-redo)
                        ("u" . undo)
                        ("P" . backward-paragraph)
                        ("N" . forward-paragraph)
