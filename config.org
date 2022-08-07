@@ -210,7 +210,9 @@ see bound."
 Change some of the built-in keybinds & bind some of the useful unbound functions.
 
 #+begin_src elisp
-(global-set-key (kbd "M-j") #'join-line)
+(td/bind-keys '(("M-j" . join-line)
+                ("M-n" . forward-paragraph)
+                ("M-p" . backward-paragraph)))
 
 (defvar td/wind-move-map
   (let ((map (make-sparse-keymap)))
