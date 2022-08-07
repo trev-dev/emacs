@@ -2452,79 +2452,8 @@ Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be lean
   (td/add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
   (global-set-key (kbd "C-c f") #'flycheck-mode)
   (with-eval-after-load 'flycheck
-    (define-fringe-bitmap 'flycheck-fringe-bitmap-caret
-      (vector #b00000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b10000000
-              #b11000000
-              #b11100000
-              #b11110000
-              #b11100000
-              #b11000000
-              #b10000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00000000
-              #b00000000))
-    (setq flycheck-checker-error-threshold 1000)
-    (flycheck-define-error-level
-        'error
-      :severity 100
-      :compilation-level 2
-      :overlay-category 'flycheck-error-overlay
-      :fringe-bitmap 'flycheck-fringe-bitmap-caret
-      :fringe-face 'flycheck-fringe-error
-      :error-list-face 'flycheck-error-list-error)
-    (flycheck-define-error-level
-        'warning
-      :severity 100
-      :compilation-level 1
-      :overlay-category 'flycheck-warning-overlay
-      :fringe-bitmap 'flycheck-fringe-bitmap-caret
-      :fringe-face 'flycheck-fringe-warning
-      :warning-list-face 'flycheck-warning-list-warning)
-    (flycheck-define-error-level
-        'info
-      :severity 100
-      :compilation-level 1
-      :overlay-category 'flycheck-info-overlay
-      :fringe-bitmap 'flycheck-fringe-bitmap-caret
-      :fringe-face 'flycheck-fringe-info
-      :info-list-face 'flycheck-info-list-info)))
-
+    (setq flycheck-checker-error-threshold 1000)))
 (td/add-setup 'flycheck-ledger)
-#+END_SRC
-
-**** COMMENT Flymake
-The built-in linting package.
-
-#+BEGIN_SRC elisp
-(define-fringe-bitmap 'small-right-triangle
-  (vector #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b10000000
-          #b11000000
-          #b11100000
-          #b11110000
-          #b11100000
-          #b11000000
-          #b10000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000))
-
-(setq flymake-note-bitmap '(small-right-triangle compilation-info)
-      flymake-error-bitmap '(small-right-triangle compilation-error)
-      flymake-warning-bitmap '(small-right-triangle compilation-warning))
 #+END_SRC
 
 **** GoLang
