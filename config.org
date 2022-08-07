@@ -1136,20 +1136,6 @@ RSS Reader :D
     (setq rmh-elfeed-org-files '("~/Org/elfeed.org"))))
 #+END_SRC
 
-**** COMMENT Embrace
-Embrace is the Emacs equivalent of "vim surround". It make it easy to swap out surrounding elements.
-
-#+BEGIN_SRC elisp
-(defun td/smart-embrace ()
-  (interactive)
-  (if (region-active-p)
-      (embrace-add)
-    (embrace-commander)))
-
-(td/add-setup 'embrace
-  (global-set-key (kbd "C-S-s") #'td/smart-embrace))
-#+END_SRC
-
 **** Surround
 
 My attempt at writing a quick replacement for "vim surround". There are better solutions out there, but when they're unpredictable, I don't want to figure out why.
