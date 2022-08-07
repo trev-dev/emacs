@@ -1169,45 +1169,55 @@ I should refine this.
                          ("(" . ")")
                          ("[" . "]")
                          ("<" . ">"))
-  "A list of asymmetric pairs for `surrund' to respect.")
+  "A list of asymmetric pairs for `surround' to respect.")
 
-(defun surround--add-pair (pair bounds)
-  "Add a matchin `PAIR' around a `BOUNDS' in a buffer."
+(defun surround--seek-outer-boundary (start left pair count)
+  "Seek out the boundary of an outside `PAIR' from the `START'.
+If `LEFT' is non-nil, seek left. Otherwise, seek right."
+  (let* ((search (if left #'search-backward #'search-forward))
+         (ch-match (if left (car pair) (cdr pair)))
+         (ch-skip  (if left (cdr pair) (car pair)))
+         (sym (eq ch-skip ch-match))
+         (case-fold-search nil))
+    (save-excursion
+      (if sym
+          (apply search (list ch-match nil t count))
+        (let* ((match (apply search (list ch-match nil t count)))
+               (mid (push-mark start t t))
+               (imbalance (count-matches (regexp-quote ch-skip)
+                                         (region-beginning)
+                                         (region-end)))
+               (mcount (count-matches (regexp-quote ch-match)
+                                      (region-beginning)
+                                      (region-end))))
+          (if (and (>= imbalance mcount) match)
+              (surround--seek-outer-boundary start left pair
+                                             (+ (- imbalance mcount) 1))
+            (deactivate-mark)
+            match))))))
+
+(defun surround--seek-bounds (pair)
+  "Find the bounds of a surrounding `PAIR' around the point."
+  (let ((bounds (cons (surround--seek-outer-boundary (point) t pair 1)
+                      (surround--seek-outer-boundary (point) nil pair 1))))
+    (if (and (car bounds) (cdr bounds))
+        bounds
+      (user-error (format "No surrounding pair: %s" pair)))))
+
+(defun surround--add-pair (bounds pair)
+  "Add an arbitrary surrounding `PAIR' of chars to a `BOUNDS'."
   (save-excursion
     (goto-char (car bounds))
-    (insert (car pair)))
-  (save-excursion
-    (goto-char (cdr bounds))
+    (insert (car pair))
+    (goto-char (+ (cdr bounds) 1))
     (insert (cdr pair))))
 
-(defun surround--seek-bounds (pair forward)
-  "Find the bounds of the `PAIR' by finding a matching sexp of the opening char.
-Scan `FORWARD' using a negative arg, or as a fallback to a failed reverse scan.
-If a region is active, return an adjusted region boundary instead."
-  (if (region-active-p)
-      (cons (region-beginning) (+ 1 (region-end)))
-    (let ((start (point))
-          (beg nil)
-          (end nil)
-          (out-of-bounds nil))
-      (if forward
-          (save-excursion (setq end (search-forward (cdr pair) nil t 1))
-                          (backward-sexp)
-                          (setq beg (point)))
-        (save-excursion (setq beg (search-backward (car pair) nil t 1))
-                        (forward-sexp)
-                        (setq end (point))
-                        (setq out-of-bounds (< end start))))
-      (cond (out-of-bounds (surround--seek-bounds pair t))
-            ((and beg end) (cons beg end))
-            (t (error (format "No matching pair %s" pair)))))))
-
 (defun surround--delete-pair (bounds)
-  "Delete a surrounding pair outside the `BOUNDS' of a range of positions."
+  "Delete a surrounding pair outside the `BOUNDS' a range of positions."
   (save-excursion
-    (goto-char (car bounds))
+    (goto-char (- (cdr bounds) 1))
     (delete-char 1)
-    (goto-char (- (cdr bounds) 2))
+    (goto-char (car bounds))
     (delete-char 1)))
 
 (defun surround--change-pair (bounds)
@@ -1217,18 +1227,14 @@ If a region is active, return an adjusted region boundary instead."
                        (rassoc to-what surround-pairs)
                        (cons to-what to-what))))
     (surround--delete-pair bounds)
-    (save-excursion
-      (goto-char (car bounds))
-      (insert (car new-pair))
-      (goto-char (- (cdr bounds) 1))
-      (insert (cdr new-pair)))))
+    (surround--add-pair (cons (car bounds) (- (cdr bounds) )) new-pair)))
 
 (defun surround (neg)
   "Add surrounding pairs to a region, or change/delete an existing pair.
 Inspired by vim-surround. Scans forward. Use `NEG'-arg to scan backward
 for pair."
   (interactive "p")
-  (let* ((forward (< neg 0))
+  (let* ((reverse (< neg 0))
          (case-fold-search nil)
          (method (if (and (region-active-p)
                           (not (eq (region-beginning) (region-end))))
@@ -1238,8 +1244,11 @@ for pair."
          (pair (or (assoc target surround-pairs)
                    (rassoc target surround-pairs)
                    (cons target target)))
-         (bounds (surround--seek-bounds pair forward)))
-    (cond ((eq method ?a) (surround--add-pair pair bounds))
+         (bounds (or (and
+                      (region-active-p)
+                      (car (region-bounds)))
+                     (surround--seek-bounds pair))))
+    (cond ((eq method ?a) (surround--add-pair bounds pair))
           ((eq method ?c) (surround--change-pair bounds))
           ((eq method ?d) (surround--delete-pair bounds)))))
 
