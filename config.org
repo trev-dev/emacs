@@ -631,7 +631,9 @@ The modeline should fit the `window-width' with space between the lists."
                              warnings (if errors "/" ""))
                      'face 'warning))
        (when errors
-         (propertize (format "%s" errors) 'face 'error))))))
+         (propertize (format
+                      "%s%s" (if warnings "" "  ") errors)
+                     'face 'error))))))
 
 (defun tdm/flymake ()
   "Display the flymake status for the buffer."
