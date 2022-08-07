@@ -1848,14 +1848,14 @@ I like org-publish, but there are some files (like my cookbook) that I would lik
         org-tags-column 0
         org-auto-align-tags nil)
   (global-org-modern-mode))
-  #+end_src
+#+end_src
 
 ****** org-present
 A tiny package for presenting with org-mode.
 
 #+BEGIN_SRC elisp
 (td/add-setup 'org-present
-  (setq org-present-text-scale 4)
+  (setq org-present-text-scale 5)
   (with-eval-after-load 'org-present
     (add-hook 'org-present-mode-hook
               #'(lambda ()
@@ -1880,9 +1880,9 @@ A tiny package for presenting with org-mode.
 #+BEGIN_SRC elisp
 (defvar td/roam-capture-templates
   '(("d" "default" plain "%?"
-  :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                     "#+TITLE: ${title}\n#+DATE: %U\n")
-  :unnarrowed t)))
+     :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                        "#+TITLE: ${title}\n#+DATE: %U\n")
+     :unnarrowed t)))
 
 (defvar td/roam-capture-daily
   '(("d" "default" entry "* %<%I:%M %p>: %?"
