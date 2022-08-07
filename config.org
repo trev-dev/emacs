@@ -2074,9 +2074,7 @@ Here's an example:
 #+END
 
 **** COMMENT Mu4e
-Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my
-context settings out of this source-controlled repository as to keep some more sensitive
-info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Contexts]] are well documented if you need a hand with them.
+Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my context settings out of this source-controlled repository as to keep some more sensitive info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Contexts]] are well documented if you need a hand with them.
 
 Also, If you need a good starting point with mu4e, I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]].
 
