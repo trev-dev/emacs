@@ -433,11 +433,14 @@ Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to ma
   (eval-after-load (car mode)
     `(diminish ,(cadr mode) ,(caddr mode))))
 
+(diminish 'defining-kbd-macro)
+
 (with-eval-after-load 'meow
   (dolist (mode (list 'meow-normal-mode
                       'meow-insert-mode
                       'meow-motion-mode
-                      'meow-keypad-mode))
+                      'meow-keypad-mode
+                      'meow-beacon-mode))
     (diminish mode)))
 #+END_SRC
 
@@ -1592,7 +1595,7 @@ Extra feedback for text changes.
    '("s" . meow-kill)
    '("t" . meow-till)
    '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
+   '("U" . undo-redo)
    '("v" . meow-visit)
    '("w" . meow-mark-word)
    '("W" . meow-mark-symbol)
@@ -1603,15 +1606,15 @@ Extra feedback for text changes.
    '("z" . meow-pop-selection)
    '("'" . repeat)
    '("<escape>" . ignore)
-   '("S" . td/smart-embrace)
-   '("=" . er/expand-region)
+   '("S" . surround)
    '("P" . backward-paragraph)
    '("N" . forward-paragraph)))
 
 (td/add-setup 'meow
   (require 'meow)
   (meow-setup)
-  (meow-global-mode 1))
+  (meow-global-mode 1)
+  (add-hook 'meow-insert-exit-hook #'corfu-quit))
 #+END_SRC
 
 **** Magit
