@@ -1773,10 +1773,10 @@ Some fairly self-explanatory utility functions.
       org-insert-heading-respect-content t)
 
 (add-to-list 'display-buffer-alist '("\\*Org Agenda*\\*"
-                                       (display-buffer-in-direction)
-                                       (direction . right)
-                                       (window-width . 0.50)
-                                       (window-height . fit-window-to-buffer)))
+                                     (display-buffer-in-direction)
+                                     (direction . right)
+                                     (window-width . 0.50)
+                                     (window-height . fit-window-to-buffer)))
 #+END_SRC
 
 ***** Extending Org Mode
@@ -1873,6 +1873,11 @@ A tiny package for presenting with org-mode.
                   (blink-cursor-mode 1)
                   (td/org-scale-levels-toggle)
                   (org-present-read-write)))))
+
+(with-eval-after-load 'org-present
+  (td/bind-keys '(("C-c C-p C-c" . org-present-show-cursor)
+                  ("C-c C-p C-h" . org-present-hide-cursor))
+                org-present-mode-keymap))
 #+END_SRC
 
 ****** org-roam
