@@ -2336,18 +2336,6 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
   (rg-enable-default-bindings))
 #+END_SRC
 
-**** Undo-Tree
-
-A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
-
-#+BEGIN_SRC elisp
-(td/add-setup 'undo-tree
-  (global-undo-tree-mode)
-  (add-to-list
-   'undo-tree-history-directory-alist
-   '(".*" . "~/.emacs.d/undo-tree/")))
-#+END_SRC
-
 **** Visual Fill Column
 
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
