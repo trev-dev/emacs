@@ -1807,8 +1807,8 @@ Libnotify alerts for Agenda alerts.
      ("m" "Manual Cookbook" entry
       (file "~/Projects/os-cookbook/src/cookbook.org")
       (eval (concat "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n"
-              "  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n"
-              "  :END:\n** Ingredients\n   %?\n** Directions\n\n"))))))
+                    "  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n"
+                    "  :END:\n** Ingredients\n   %?\n** Directions\n\n"))))))
 #+END_SRC
 
 ****** ox-gfm
