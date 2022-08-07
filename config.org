@@ -311,7 +311,39 @@ see bound."
 Change some of the built-in keybinds & bind some of the useful unbound functions.
 
 #+begin_src elisp
-(global-set-key (kbd "M-j") #'join-line)
+(td/bind-keys '(("M-j" . join-line)
+                ("M-n" . forward-paragraph)
+                ("M-p" . backward-paragraph)))
+
+(defvar td/wind-move-map
+  (let ((map (make-sparse-keymap)))
+    (td/bind-keys '(("e" . windmove-right)
+                    ("a" . windmove-left)
+                    ("n" . windmove-down)
+                    ("p" . windmove-up)
+                    ("s e" . windmove-swap-states-right)
+                    ("s a" . windmove-swap-states-left)
+                    ("s n" . windmove-swap-states-down)
+                    ("s p" . windmove-swap-states-up)
+                    ("d e" . windmove-delete-right)
+                    ("d a" . windmove-delete-left)
+                    ("d n" . windmove-delete-down)
+                    ("d p" . windmove-delete-up)
+                    ("d d" . delete-window)
+                    ("d D" . delete-other-windows)
+                    ("o" . other-window)
+                    ("v" . split-window-right)
+                    ("h" . split-window-below)
+                    ("=" . enlarge-window)
+                    ("-" . shrink-window)
+                    ("b" . balance-windows))
+                  map)
+    map)
+  "A keymap for windmove functions.
+\\{td/wind-move-map}")
+(fset 'td/wind-move-map td/wind-move-map)
+
+(global-set-key (kbd "M-o") td/wind-move-map)
 #+end_src
 
 ** Prog Mode
@@ -510,11 +542,14 @@ diminish
   (eval-after-load (car mode)
     `(diminish ,(cadr mode) ,(caddr mode))))
 
+(diminish 'defining-kbd-macro)
+
 (with-eval-after-load 'meow
   (dolist (mode (list 'meow-normal-mode
                       'meow-insert-mode
                       'meow-motion-mode
-                      'meow-keypad-mode))
+                      'meow-keypad-mode
+                      'meow-beacon-mode))
     (diminish mode)))
 #+end_src
 
@@ -593,7 +628,7 @@ tangonov-theme
   "Get the git status for the current buffer."
   (when-let (vc vc-mode)
     (let* ((dirty (tdm/git-dirty?))
-           (icon (if dirty "±" "✔"))
+           (icon (if dirty "  ±" "  ✔"))
            (color (if dirty '(:foreground "#82AAFF") 'success)))
       `(:propertize ,(concat icon " " (substring vc 5)) face ,color))))
 
@@ -710,7 +745,9 @@ The modeline should fit the `window-width' with space between the lists."
                              warnings (if errors "/" ""))
                      'face 'warning))
        (when errors
-         (propertize (format "%s" errors) 'face 'error))))))
+         (propertize (format
+                      "%s%s" (if warnings "" "  ") errors)
+                     'face 'error))))))
 
 (defun tdm/flymake ()
   "Display the flymake status for the buffer."
@@ -726,12 +763,19 @@ The modeline should fit the `window-width' with space between the lists."
     (unless (string= info "")
       (list "  " (string-trim info)))))
 
+(defun tdm/macro-indicator ()
+  "Indicate when a macro is being recorded in the mode-line."
+  (when defining-kbd-macro
+    (format "%s" (propertize
+                  "λ" 'face '(:inherit bold :foreground "#C792EA")))))
+
 (setq-default mode-line-format
               '((:eval
                  (tdm/split-format
                   ;; Left
                   (format-mode-line
                    '(" "
+                     (:eval (tdm/meow-state))
                      (:eval (tdm/status-flag buffer-read-only 'error))
                      (:eval (tdm/status-flag (buffer-modified-p) 'warning))
                      (:eval (if (not (eq
@@ -746,7 +790,8 @@ The modeline should fit the `window-width' with space between the lists."
                      (:eval (tdm/buffer-position))))
                   ;; Right
                   (format-mode-line
-                   '((:eval (tdm/vc))
+                   '((:eval (tdm/macro-indicator))
+                     (:eval (tdm/vc))
                      (:eval (tdm/flycheck))
                      (:eval (tdm/misc))
                      "  "
@@ -1177,22 +1222,109 @@ elfeed-org
   (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))
 #+end_src
 
-**** Embrace
+**** Surround
 
-Embrace is the Emacs equivalent of "vim surround". It make it easy to swap out surrounding elements.
+My attempt at writing a quick replacement for "vim surround". There are better solutions out there, but when they're unpredictable, I don't want to figure out why.
 
-#+begin_src elisp :noweb-ref packages :tangle no
-embrace
-#+end_src
+This is a "dumb" solution. It just seeks backward for the start of a pair, then matches the surround with a forward sexp. If it's called with a neg-arg (eg: ~(surround -1)~) it will scan forward first and look back. If the point is not inside the bounds of a resulting backward scan, we fall back to forward.
+
+Ideally if the point is not inside the bounds of a found sexp, I should be scanning recursively in the same direction until it does. Maybe I'll implement this later.
+
+When a pair is not in ~surround-pairs~, it will fall-back to symmetrical pairs (a pair of the same char). When this happens, scanning forward, or backward, makes no difference.
+
+It currently doesn't care about the scope of the scan, either, and doesn't care if the backward or forward sexp is 100 lines elsewhere.
+
+I should refine this.
 
 #+begin_src elisp
-(defun td/smart-embrace ()
-  (interactive)
-  (if (region-active-p)
-      (embrace-add)
-    (embrace-commander)))
+(defvar surround-pairs '(("{" . "}")
+                         ("(" . ")")
+                         ("[" . "]")
+                         ("<" . ">"))
+  "A list of asymmetric pairs for `surround' to respect.")
 
-(global-set-key (kbd "C-S-s") #'td/smart-embrace)
+(defun surround--seek-outer-boundary (start left pair count)
+  "Seek out the boundary of an outside `PAIR' from the `START'.
+If `LEFT' is non-nil, seek left. Otherwise, seek right."
+  (let* ((search (if left #'search-backward #'search-forward))
+         (ch-match (if left (car pair) (cdr pair)))
+         (ch-skip  (if left (cdr pair) (car pair)))
+         (sym (eq ch-skip ch-match))
+         (case-fold-search nil))
+    (save-excursion
+      (if sym
+          (apply search (list ch-match nil t count))
+        (let* ((match (apply search (list ch-match nil t count)))
+               (mid (push-mark start t t))
+               (imbalance (count-matches (regexp-quote ch-skip)
+                                         (region-beginning)
+                                         (region-end)))
+               (mcount (count-matches (regexp-quote ch-match)
+                                      (region-beginning)
+                                      (region-end))))
+          (if (and (>= imbalance mcount) match)
+              (surround--seek-outer-boundary start left pair
+                                             (+ (- imbalance mcount) 1))
+            (deactivate-mark)
+            match))))))
+
+(defun surround--seek-bounds (pair)
+  "Find the bounds of a surrounding `PAIR' around the point."
+  (let ((bounds (cons (surround--seek-outer-boundary (point) t pair 1)
+                      (surround--seek-outer-boundary (point) nil pair 1))))
+    (if (and (car bounds) (cdr bounds))
+        bounds
+      (user-error (format "No surrounding pair: %s" pair)))))
+
+(defun surround--add-pair (bounds pair)
+  "Add an arbitrary surrounding `PAIR' of chars to a `BOUNDS'."
+  (save-excursion
+    (goto-char (car bounds))
+    (insert (car pair))
+    (goto-char (+ (cdr bounds) 1))
+    (insert (cdr pair))))
+
+(defun surround--delete-pair (bounds)
+  "Delete a surrounding pair outside the `BOUNDS' a range of positions."
+  (save-excursion
+    (goto-char (- (cdr bounds) 1))
+    (delete-char 1)
+    (goto-char (car bounds))
+    (delete-char 1)))
+
+(defun surround--change-pair (bounds)
+  "Swap out an exisiting `PAIR' outside of `BOUNDS'."
+  (let* ((to-what (char-to-string (read-char (message "To new pair: "))))
+         (new-pair (or (assoc to-what surround-pairs)
+                       (rassoc to-what surround-pairs)
+                       (cons to-what to-what))))
+    (surround--delete-pair bounds)
+    (surround--add-pair (cons (car bounds) (- (cdr bounds) )) new-pair)))
+
+(defun surround (neg)
+  "Add surrounding pairs to a region, or change/delete an existing pair.
+Inspired by vim-surround. Scans forward. Use `NEG'-arg to scan backward
+for pair."
+  (interactive "p")
+  (let* ((reverse (< neg 0))
+         (case-fold-search nil)
+         (method (if (and (region-active-p)
+                          (not (eq (region-beginning) (region-end))))
+                     ?a
+                   (read-char-choice "(c)hange or (d)elete pair? " '(?c ?d))))
+         (target (char-to-string (read-char (message "Pair:"))))
+         (pair (or (assoc target surround-pairs)
+                   (rassoc target surround-pairs)
+                   (cons target target)))
+         (bounds (or (and
+                      (region-active-p)
+                      (car (region-bounds)))
+                     (surround--seek-bounds pair))))
+    (cond ((eq method ?a) (surround--add-pair bounds pair))
+          ((eq method ?c) (surround--change-pair bounds))
+          ((eq method ?d) (surround--delete-pair bounds)))))
+
+(global-set-key (kbd "C-S-s") #'surround)
 #+end_src
 
 **** Ement
@@ -1433,7 +1565,7 @@ I like having a thick bar for "emacs mode" and a box for god-mode.
 
 (defun god/cursor-toggle ()
   "Toggle the cursor between a box and bar while in or out of `god-mode'."
-  (setq cursor-type (if (or (bound-and-true-p god-local-mode) buffer-read-only)
+  (setq cursor-type (if (bound-and-true-p god-local-mode)
                         'box
                       '(bar . 4))))
 #+end_src
@@ -1452,11 +1584,12 @@ Declare key-bindings, apply them to =god-local-mode-map= and give the keymap pri
                        ("F" . forward-symbol)
                        ("I" . god/forward-insert)
                        ("i" . god-local-mode)
+                       ("m" . er/keymap)
                        ("O" . god/open-above)
                        ("o" . god/open-below)
                        ("T" . god/seek)
                        ("t" . god/seek-until)
-                       ("U" . redo)
+                       ("U" . undo-redo)
                        ("u" . undo)
                        ("P" . backward-paragraph)
                        ("N" . forward-paragraph)
@@ -1600,7 +1733,7 @@ meow
    '("s" . meow-kill)
    '("t" . meow-till)
    '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
+   '("U" . undo-redo)
    '("v" . meow-visit)
    '("w" . meow-mark-word)
    '("W" . meow-mark-symbol)
@@ -1611,14 +1744,14 @@ meow
    '("z" . meow-pop-selection)
    '("'" . repeat)
    '("<escape>" . ignore)
-   '("S" . td/smart-embrace)
-   '("=" . er/expand-region)
+   '("S" . surround)
    '("P" . backward-paragraph)
    '("N" . forward-paragraph)))
 
 (require 'meow)
 (meow-setup)
 (meow-global-mode 1)
+(add-hook 'meow-insert-exit-hook #'corfu-quit)
 #+end_src
 
 **** Magit
@@ -1788,10 +1921,10 @@ Some fairly self-explanatory utility functions.
       org-insert-heading-respect-content t)
 
 (add-to-list 'display-buffer-alist '("\\*Org Agenda*\\*"
-                                       (display-buffer-in-direction)
-                                       (direction . right)
-                                       (window-width . 0.50)
-                                       (window-height . fit-window-to-buffer)))
+                                     (display-buffer-in-direction)
+                                     (direction . right)
+                                     (window-width . 0.50)
+                                     (window-height . fit-window-to-buffer)))
 #+end_src
 
 ***** Extending Org Mode
@@ -1893,7 +2026,7 @@ org-present
 #+end_src
 
 #+begin_src elisp
-(setq org-present-text-scale 4)
+(setq org-present-text-scale 5)
 (with-eval-after-load 'org-present
   (add-hook 'org-present-mode-hook
             #'(lambda ()
@@ -1911,6 +2044,9 @@ org-present
                 (blink-cursor-mode 1)
                 (td/org-scale-levels-toggle)
                 (org-present-read-write))))
+(td/bind-keys '(("C-c C-p C-c" . org-present-show-cursor)
+                  ("C-c C-p C-h" . org-present-hide-cursor))
+                org-present-mode-keymap)
 #+end_src
 
 ****** org-roam
@@ -2123,9 +2259,7 @@ Here's an example:
 #+END
 
 **** COMMENT Mu4e
-Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my
-context settings out of this source-controlled repository as to keep some more sensitive
-info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Contexts]] are well documented if you need a hand with them.
+Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my context settings out of this source-controlled repository as to keep some more sensitive info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Contexts]] are well documented if you need a hand with them.
 
 Also, If you need a good starting point with mu4e, I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]].
 
@@ -2411,21 +2545,6 @@ rg
 (rg-enable-default-bindings)
 #+end_src
 
-**** Undo-Tree
-
-A great tool for turning back the clock on a buffer. Especially when git commits are overlooked.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-undo-tree
-#+end_src
-
-#+begin_src elisp
-(global-undo-tree-mode)
-(add-to-list
- 'undo-tree-history-directory-alist
- '(".*" . "~/.emacs.d/undo-tree/"))
-#+end_src
-
 **** Visual Fill Column
 
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
@@ -2580,79 +2699,7 @@ flycheck
 (td/add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
 (global-set-key (kbd "C-c f") #'flycheck-mode)
 (with-eval-after-load 'flycheck
-  (define-fringe-bitmap 'flycheck-fringe-bitmap-caret
-    (vector #b00000000
-            #b00000000
-            #b00000000
-            #b00000000
-            #b00000000
-            #b10000000
-            #b11000000
-            #b11100000
-            #b11110000
-            #b11100000
-            #b11000000
-            #b10000000
-            #b00000000
-            #b00000000
-            #b00000000
-            #b00000000
-            #b00000000))
-  (setq flycheck-checker-error-threshold 1000)
-  (flycheck-define-error-level
-      'error
-    :severity 100
-    :compilation-level 2
-    :overlay-category 'flycheck-error-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-error
-    :error-list-face 'flycheck-error-list-error)
-  (flycheck-define-error-level
-      'warning
-    :severity 100
-    :compilation-level 1
-    :overlay-category 'flycheck-warning-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-warning
-    :warning-list-face 'flycheck-warning-list-warning)
-  (flycheck-define-error-level
-      'info
-    :severity 100
-    :compilation-level 1
-    :overlay-category 'flycheck-info-overlay
-    :fringe-bitmap 'flycheck-fringe-bitmap-caret
-    :fringe-face 'flycheck-fringe-info
-    :info-list-face 'flycheck-info-list-info))
-
-(td/add-setup 'flycheck-ledger)
-#+end_src
-
-**** COMMENT Flymake
-The built-in linting package.
-
-#+begin_src elisp
-(define-fringe-bitmap 'small-right-triangle
-  (vector #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b10000000
-          #b11000000
-          #b11100000
-          #b11110000
-          #b11100000
-          #b11000000
-          #b10000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000
-          #b00000000))
-
-(setq flymake-note-bitmap '(small-right-triangle compilation-info)
-      flymake-error-bitmap '(small-right-triangle compilation-error)
-      flymake-warning-bitmap '(small-right-triangle compilation-warning))
+  (setq flycheck-checker-error-threshold 1000))
 #+end_src
 
 **** GoLang
