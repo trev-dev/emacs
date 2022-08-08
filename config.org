@@ -593,10 +593,6 @@ I've written my own theme called "tangonov".
                    (propertize "▰" 'face `(:inherit ,face :weight bold))
                  "-")))
 
-(defun tdm/buffer-name ()
-  "Display the mode-line buffer name."
-  (format "%s" (propertize "%b" 'face '(:inherit mode-line-buffer-id))))
-
 (defun tdm/buffer-position ()
   "Display the mode-line buffer position."
   (concat "  %l:%c"
@@ -671,7 +667,7 @@ The modeline should fit the `window-width' with space between the lists."
                               ""))
                      " "
                      (:eval (tdm/project))
-                     (:eval (tdm/buffer-name))
+                     mode-line-buffer-identification
                      (:eval (tdm/buffer-size))
                      (:eval (tdm/buffer-position))))
                   ;; Right
