@@ -1661,7 +1661,6 @@ Next are my TODO key words. They are meant to be used as such:
 
 - =TODO= A generic task or actionable thing.
 - =NEXT= A planned task, something I am setting my mind to until it is done. There should be very few of these types of tasks so that I am setting achievable goals
-- =PROJ= A project that may consist of many subtasks.
 - =WAIT= The task that is held up by some pre-requesite or external factor
 - =LOW= The task is a "maybe/someday" task. I'd like to see it done, but it's not a priority right now.
 - =DONE= The task is completed
@@ -1681,6 +1680,8 @@ My org agenda commands & stuck projects. Currently a work in progress! I am read
 (defvar td/org-agenda-commands
   '(("d" "Dashboard: Get things done!"
      ((agenda "" ((org-agenda-span 7)))
+      (tags-todo "+refile"
+                 ((org-agenda-overriding-header "Unfiled")))
       (tags-todo "+PRIORITY=\"A\""
                  ((org-agenda-overriding-header "High Priority")
                   (org-agenda-skip-function
@@ -1707,7 +1708,12 @@ My org agenda commands & stuck projects. Currently a work in progress! I am read
 Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [[*Org mode extensions][extensions]] for how I extend org-mode.
 
 #+BEGIN_SRC elisp
-(defvar td/capture-templates '() "Base org-capture-templates.")
+(defvar td/capture-templates
+  '(("t" "Todo" entry (file+headline "~/Org/agenda.org" "Inbox")
+     "* TODO %^{Title: }\n:PROPERTIES:\n:date: %U\n:END:\n%?"
+     :empty-lines 1))
+  "Base org-capture-templates.")
+(global-set-key (kbd "C-c M-a") #'org-capture)
 #+END_SRC
 
 I usually stick to monospace sized fonts with the exception of Org files. I like the first 3 levels to be slightly larger than the rest, and progressively smaller. This helps me create a sense of urgency at the lower-level headers and it also improves readability.
@@ -1760,9 +1766,11 @@ Some fairly self-explanatory utility functions.
       org-agenda-tags-column -80
       org-duration-format '(("h" . nil) (special . 2))
       org-clock-total-time-cell-format "%s"
-      org-agenda-files '("~/Org/agenda")
+      org-agenda-files '("~/Org")
       org-tag-alist td/tag-list
       org-todo-keywords td/todo-keywords
+      org-refile-use-outline-path t
+      org-refile-allow-creating-parent-nodes t
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
       org-timer-default-timer "25"
       org-agenda-custom-commands td/org-agenda-commands
