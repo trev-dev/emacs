@@ -2112,7 +2112,7 @@ org-roam
 
 A fancy, web-based user interface for reviewing your org-roam notes and how they connect to one-another.
 
-#+begin_src elisp :noweb-ref package :tangle no
+#+begin_src elisp :noweb-ref packages :tangle no
 org-roam-ui
 #+end_src
 
