@@ -1855,6 +1855,9 @@ Capture templates! These help me collect information into Org files. Currently I
 (defvar td/capture-templates
   '(("t" "Todo" entry (file+headline "~/Org/agenda.org" "Inbox")
      "* TODO %^{Title: }\n:PROPERTIES:\n:date: %U\n:END:\n%?"
+     :empty-lines 1)
+    ("c" "Contact" entry (file+headline "~/Org/contacts.org" "Other")
+     "* %^{Name: }\n:PROPERTIES:\n:email: %?\n:END:"
      :empty-lines 1))
   "Base org-capture-templates.")
 (global-set-key (kbd "C-c M-a") #'org-capture)
@@ -1915,6 +1918,7 @@ Some fairly self-explanatory utility functions.
       org-todo-keywords td/todo-keywords
       org-refile-use-outline-path t
       org-refile-allow-creating-parent-nodes t
+      org-refile-targets '((org-agenda-files :maxlevel . 4))
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
       org-timer-default-timer "25"
       org-agenda-custom-commands td/org-agenda-commands
@@ -1961,11 +1965,11 @@ org-chef
 
 #+begin_src elisp
 (td/org-append-templates
- '(("c" "Cookbook" entry (file "~/Projects/os-cookbook/src/cookbook.org")
+ '(("r" "Recipe" entry (file "~/Projects/cookbook/src/cookbook.org")
     "%(org-chef-get-recipe-from-url)"
     :empty-lines 1)
    ("m" "Manual Cookbook" entry
-    (file "~/Projects/os-cookbook/src/cookbook.org")
+    (file "~/Projects/cookbook/src/cookbook.org")
     (eval (concat "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n"
             "  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n"
             "  :END:\n** Ingredients\n   %?\n** Directions\n\n")))))
@@ -2071,6 +2075,9 @@ org-roam
 (defvar td/roam-capture-daily
   '(("d" "default" entry "* %<%I:%M %p>: %?"
      :target (file+head "%<%Y-%m-%d>.org"
+                        "#+TITLE: %<%a, %b %d %Y>\n"))
+    ("p" "Private" entry "* %<%I:%M %p>: %?"
+     :target (file+head "%<%Y-%m-%d>.org.gpg"
                         "#+TITLE: %<%a, %b %d %Y>\n"))))
 
 (defvar td/roam-display-template
