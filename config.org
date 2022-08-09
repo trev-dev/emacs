@@ -443,7 +443,7 @@ If `package-autoremove' wants to delete any of these, something is wrong.")
 
 (defun td/save-package-list ()
   "Customize `package-selected-packages' with `td/package-list'."
-  (customize-save-variable 'package-selected-packages 'td/package-list))
+  (customize-save-variable 'package-selected-packages td/package-list))
 
 (add-hook 'after-init-hook #'td/save-package-list)
 #+end_src
