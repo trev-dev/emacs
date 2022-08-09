@@ -436,13 +436,10 @@ Here we will generage the =~/.emacs.d/package-list.el= file using the =noweb= fe
   "Packages that are defined in init.el and are meant to be used.
 If `package-autoremove' wants to delete any of these, something is wrong.")
 
-(let ((refreshed nil))
-  (dolist (pkg td/package-list)
-    (unless (package-installed-p pkg)
-      (unless refreshed
-        (package-refresh-contents)
-        (setq refreshed t))
-      (package-install pkg t))))
+(dolist (pkg td/package-list)
+  (unless (package-installed-p pkg)
+    (unless package-archive-contents (package-refresh-contents))
+    (package-install pkg t)))
 
 (defun td/save-package-list ()
   "Customize `package-selected-packages' with `td/package-list'."
@@ -507,7 +504,7 @@ Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to ma
 diminish
 #+end_src
 
-#begin_src elisp
+#+begin_src elisp
 (defun tdm/diminish-lsp-lighter ()
   "Display the LSP status in the `mode-line-modes'."
   (let* ((lsp-up lsp--buffer-workspaces)
@@ -965,6 +962,7 @@ other better ways to reference things in Emacs.
 
 #+begin_src elisp :noweb-ref packages :tangle no
 consult
+consult-flycheck
 #+end_src
 
 #+begin_src elisp
@@ -1024,8 +1022,6 @@ consult
       (lambda ()
         (when-let (project (project-current))
           (car (project-roots project)))))
-
-(td/add-setup 'consult-flycheck)
 #+end_src
 
 ***** Corfu
@@ -1455,6 +1451,11 @@ Because it has its own keymap, I can add utility functions to god-mode. This tur
 god-mode
 #+end_src
 
+#+begin_src elisp
+(require 'god-mode)
+(require 'god-mode-isearch)
+#+end_src
+
 ***** Functions
 
 These functions enhance editing while allowing me to "drop out" of god-mode in useful ways.
@@ -1605,9 +1606,6 @@ Declare key-bindings, apply them to =god-local-mode-map= and give the keymap pri
 ***** Apply & Finish Setup
 
 #+begin_src elisp
-(require 'god-mode)
-(require 'god-mode-isearch)
-
 (god-mode-all)
 (god/cursor-toggle)
 
@@ -1787,6 +1785,7 @@ multiple-cursors
 The greatest part of using Emacs is org-mode. It handles my agenda, my todo list, helps me prioritize tasks, track time and invoice clients.
 
 ***** Key Variables
+
 I am using tags to help sort contexts within my agenda. Some people use categories for that. I technically do that, too, but I also use separate files. Filenames are categories by default, so there is less to configure when you use separate files.
 
 #+begin_src elisp
@@ -1860,6 +1859,7 @@ Capture templates! These help me collect information into Org files. Currently I
      "* %^{Name: }\n:PROPERTIES:\n:email: %?\n:END:"
      :empty-lines 1))
   "Base org-capture-templates.")
+
 (global-set-key (kbd "C-c M-a") #'org-capture)
 #+end_src
 
@@ -1897,9 +1897,13 @@ Some fairly self-explanatory utility functions.
 #+begin_src elisp
 (add-hook 'org-mode-hook #'td/org-hook)
 (global-set-key (kbd "C-c a") #'org-agenda)
-(define-key org-mode-map (kbd "C-c t") #'org-table-export)
 
-(require 'ox-md nil t)
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c t") #'org-table-export))
+
+(with-eval-after-load 'ox
+  (require 'ox-md nil t))
+
 (setq org-fontify-quote-and-verse-blocks t
       org-attach-auto-tag "attach"
       org-directory "~/Org"
@@ -1947,12 +1951,13 @@ org-alert
 #+end_src
 
 #+begin_src elisp
-(require 'org-alert)
-(setq alert-default-style 'libnotify
-      org-alert-interval 7200
-      org-alert-notify-cutoff 60
-      org-alert-notification-title "Org Agenda")
-(org-alert-enable)
+(with-eval-after-load 'org
+  (require 'org-alert)
+  (setq alert-default-style 'libnotify
+        org-alert-interval 7200
+        org-alert-notify-cutoff 60
+        org-alert-notification-title "Org Agenda")
+  (org-alert-enable))
 #+end_src
 
 ****** org-chef
@@ -2001,13 +2006,6 @@ ox-hugo
   (require 'ox-hugo))
 #+end_src
 
-****** org-make-toc
-
-#+begin_src elisp
-(load-file "~/Projects/org-make-toc/org-make-toc.el")
-(org-make-toc-auto-toc)
-#+end_src
-
 ****** COMMENT org-modern
 
 #+begin_src lisp :noweb-ref packages :tangle no
@@ -2051,17 +2049,17 @@ org-present
                 (org-present-show-cursor)
                 (blink-cursor-mode 1)
                 (td/org-scale-levels-toggle)
-                (org-present-read-write))))
-(td/bind-keys '(("C-c C-p C-c" . org-present-show-cursor)
+                (org-present-read-write)))
+  (td/bind-keys '(("C-c C-p C-c" . org-present-show-cursor)
                   ("C-c C-p C-h" . org-present-hide-cursor))
-                org-present-mode-keymap)
+                org-present-mode-keymap))
 #+end_src
 
 ****** org-roam
 
 Org roam is an incredible thought capture system, inspired by roam research. I'm not sure this one's for me, but I am giving it a try.
 
-#+begin_src elisp
+#+begin_src elisp :noweb-ref packages :tangle no
 org-roam
 #+end_src
 
@@ -2084,8 +2082,6 @@ org-roam
   (concat "${title:*} "
           (propertize "${tags:28}" 'face 'org-tag)))
 
-(require 'org-roam-dailies)
-(setq org-roam-directory "~/Org/roam")
 (td/bind-keys '(("C-c r t" . org-roam-buffer-toggle)
                 ("C-c r f" . org-roam-node-find)
                 ("C-c r i" . org-roam-node-insert)
@@ -2100,22 +2096,23 @@ org-roam
       org-roam-node-display-template td/roam-display-template
       org-roam-db-node-include-function
       (lambda ()
-        (not (member "attach" (org-get-tags)))))
+        (not (member "attach" (org-get-tags))))
+      org-roam-directory (file-truename "~/Org/roam"))
 
 (add-to-list 'display-buffer-alist '("\\*org-roam\\*"
                                      (display-buffer-in-direction)
                                      (direction . right)
                                      (window-width . 0.33)
                                      (window-height . fit-window-to-buffer)))
-
-(org-roam-setup)
+(with-eval-after-load 'org-roam
+  (org-roam-db-autosync-mode))
 #+end_src
 
 ****** org-roam-ui
 
 A fancy, web-based user interface for reviewing your org-roam notes and how they connect to one-another.
 
-#+begin_src elisp
+#+begin_src elisp :noweb-ref package :tangle no
 org-roam-ui
 #+end_src
 
@@ -2268,93 +2265,6 @@ Here's an example:
 |-------------------+-------+--------+----------+------------------------|
 | Totals            |       | 20.43h | $1327.95 |                        |
 #+END
-
-**** COMMENT Mu4e
-Setting up mu4e with contexts feels like a pretty massive process. I decided to leave my context settings out of this source-controlled repository as to keep some more sensitive info off of Github. [[https://www.djcbsoftware.nl/code/mu/mu4e/Contexts.html][Contexts]] are well documented if you need a hand with them.
-
-Also, If you need a good starting point with mu4e, I strongly suggest checking out [[https://www.youtube.com/watch?v=yZRyEhi4y44&list=PLEoMzSkcN8oM-kA19xOQc8s0gr0PpFGJQ][System Crafters]].
-
-#+begin_src elisp
-(require 'mu4e)
-
-(defun td/get-mail-signature(file)
-  "Retrieve the signature file from the signatures directory.
-  Mostly used in contexts configuration."
-  (let ((dir "/home/trevdev/.local/mail/signatures/"))
-    (with-temp-buffer
-      (insert-file-contents (format "%s%s" dir file))
-      (buffer-string))))
-
-(add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e")
-
-(global-set-key (kbd "M-o m") #'mu4e)
-
-(setq mu4e-maildir "~/.local/mail"
-      mu4e-change-filenames-when-moving t
-      mu4e-update-interval (* 10 60)
-      mu4e-get-mail-command "mbsync -a"
-      mail-user-agent 'mu4e-user-agent
-      mu4e-maildir-shortcuts '((:maildir "/fastmail/INBOX" :key ?p)
-                               (:maildir "/fastmail/Business" :key ?b)
-                               (:maildir "/fastmail/Tango" :key ?t)
-                               (:maildir "/voltage/INBOX" :key ?v))
-      message-send-mail-function 'smtpmail-send-it
-      mu4e-attachment-dir "~/Downloads"
-      mu4e-context-policy 'pick-first
-      mu4e-compose-format-flowed t
-      mu4e-compose-signature-auto-include nil
-      mml-secure-openpgp-encrypt-to-self t)
-
-(setq mu4e-contexts (eval (let ((contexts "~/.config/emacs/mu4e-contexts.el"))
-                            (when (file-exists-p contexts)
-                              (with-temp-buffer
-                                (insert-file-contents contexts)
-                                (read (current-buffer)))))))
-
-(add-to-list 'mu4e-bookmarks
-             '(:name "Flagged" :key ?f :query "flag:flagged"))
-(add-to-list 'mu4e-bookmarks
-             '(
-               :name "New Mail"
-               :key ?n
-               :query "flag:unread AND NOT maildir:/fastmail/Spam"
-               )
-             )
-
-(td/add-setup 'org-msg
-  (setq org-msg-options "html-postamble:nil num:nil ^:{} toc:nil author:nil
-         email:nil \\n:t"
-        org-msg-startup "hidestars indent inlineimages"
-        org-msg-greeting-fmt "\nHi%s,\n\n"
-        org-msg-greeting-name-limit 3
-        org-msg-default-alternatives '((new            . (text html))
-                                       (reply-to-html  . (text html))
-                                       (reply-to-text  . (text)))))
-
-(autoload 'org-mime-edit-mail-in-org-mode "org-mime"
-  "Edit a message in org-mode")
-
-(td/add-setup 'org-mime
-  (td/bind-keys '(("C-c C-o" . org-mime-edit-mail-in-org-mode)
-                  ("C-c C-h" . org-mime-htmlize)) message-mode-map))
-(quelpa-get org-contacts
-            :fetcher git
-            :url "https://repo.or.cz/org-contacts.git")
-
-(td/add-setup 'org-contacts
-  (require 'org-contacts)
-  (setq org-contacts-files '("~/Org/contacts.org")))
-#+end_src
-
-I'd like to get alerts, so let's use =mu4e-alert= for that.
-
-#+begin_src elisp
-(td/add-setup 'mu4e-alert
-  (mu4e-alert-set-default-style 'libnotify)
-  (add-hook 'after-init-hook #'(lambda nil
-                                 (mu4e-alert-enable-notifications)
-                                 (mu4e-alert-enable-mode-line-display))))
-#+end_src
 
 **** Ledger
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
@@ -2571,7 +2481,9 @@ visual-fill-column
               visual-fill-column-center-text nil)
   (visual-fill-column-mode 1))
 
-(define-key org-mode-map (kbd "C-c v") #'visual-fill-column-mode)
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c v") #'visual-fill-column-mode))
+
 (add-hook 'org-mode-hook #'td/visual-fill-setup)
 #+end_src
 
@@ -2630,11 +2542,11 @@ This configuration includes clojure-mode and cider. [[* LSP Mode][LSP Mode]] can
 
 #+begin_src elisp :noweb-ref packages :tangle no
 clojure-mode
+cider
 #+end_src
 
 #+begin_src elisp
 (td/auto-mode '(("\\.clj\\'" . clojure-mode)))
-(td/add-setup 'cider)
 #+end_src
 
 **** CSS/SCSS
@@ -2954,18 +2866,16 @@ tree-sitter-langs
 #+end_src
 
 #+begin_src elisp
-(require 'tree-sitter)
-(require 'tree-sitter-langs)
+(defun td/start-tree-sitter ()
+  "Fires up tree-sitter for select modes"
+  (tree-sitter-mode)
+  (tree-sitter-hl-mode))
 
-(with-eval-after-load 'tree-sitter-langs
-  (let ((excluded-modes '(html-mode mhtml-mode))
-        (ts-modes (mapcar
-                   #'car tree-sitter-major-mode-language-alist)))
-    (dolist (mode ts-modes)
-      (unless (member mode excluded-modes)
-        (add-hook (intern (concat
-                           (symbol-name mode) "-hook"))
-                  #'tree-sitter-hl-mode)))))
+(td/add-hooks '(js-mode
+                typescript-mode
+                css-mode
+                rust-mode)
+              #'td/start-tree-sitter)
 #+end_src
 
 **** TypeScript & JavaScript
