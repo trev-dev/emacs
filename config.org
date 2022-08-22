@@ -241,8 +241,13 @@ I hate seeing project folders get all cluttered up. Let's move autosaves and bac
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 #+end_src
 
+Move custom variable settings to somewhere other that =init.el=.
 
-I want to use emacs for pinentry whenever that may apply. This needs to be paired with ~/.gnupg/gpg-agent.conf with the =allow-emacs-pinentry= rule.
+#+begin_src elisp
+(setq custom-file (locate-user-emacs-file "custom-vars.el"))
+#+end_src
+
+Start the pinentry service
 
 #+begin_src elisp
 (pinentry-start)
@@ -311,39 +316,17 @@ see bound."
 Change some of the built-in keybinds & bind some of the useful unbound functions.
 
 #+begin_src elisp
+(defun td/forward-chunk ()
+  (interactive)
+  (next-line 20))
+
+(defun td/backward-chunk ()
+  (interactive)
+  (previous-line 20))
+
 (td/bind-keys '(("M-j" . join-line)
-                ("M-n" . forward-paragraph)
-                ("M-p" . backward-paragraph)))
-
-(defvar td/wind-move-map
-  (let ((map (make-sparse-keymap)))
-    (td/bind-keys '(("e" . windmove-right)
-                    ("a" . windmove-left)
-                    ("n" . windmove-down)
-                    ("p" . windmove-up)
-                    ("s e" . windmove-swap-states-right)
-                    ("s a" . windmove-swap-states-left)
-                    ("s n" . windmove-swap-states-down)
-                    ("s p" . windmove-swap-states-up)
-                    ("d e" . windmove-delete-right)
-                    ("d a" . windmove-delete-left)
-                    ("d n" . windmove-delete-down)
-                    ("d p" . windmove-delete-up)
-                    ("d d" . delete-window)
-                    ("d D" . delete-other-windows)
-                    ("o" . other-window)
-                    ("v" . split-window-right)
-                    ("h" . split-window-below)
-                    ("=" . enlarge-window)
-                    ("-" . shrink-window)
-                    ("b" . balance-windows))
-                  map)
-    map)
-  "A keymap for windmove functions.
-\\{td/wind-move-map}")
-(fset 'td/wind-move-map td/wind-move-map)
-
-(global-set-key (kbd "M-o") td/wind-move-map)
+                ("M-n" . td/forward-chunk)
+                ("M-p" . td/backward-chunk)))
 #+end_src
 
 ** Prog Mode
@@ -558,7 +541,6 @@ doom-themes
 #+end_src
 
 #+begin_src elisp
-(add-to-list 'custom-theme-load-path "~/.config/emacs/themes")
 (setq doom-themes-enable-bold t
       doom-themes-enable-italic t
       doom-themes-padded-modeline 1)
@@ -567,12 +549,12 @@ doom-themes
 (doom-themes-org-config)
 #+end_src
 
-**** Custom Theme Devel
+**** COMMENT Custom Theme Devel
 I've written my own theme called "tangonov".
 
 #+begin_src elisp
 (add-to-list 'custom-theme-load-path "~/Projects/tangonov-theme/")
-
+(setq tangonov-selection-foregrounds nil)
 (defun td/load-theme (frame)
   "Load the theme correctly for a `FRAME' if we're using emacsclient."
   (select-frame frame)
@@ -583,7 +565,7 @@ I've written my own theme called "tangonov".
   (load-theme 'tangonov t))
 #+end_src
 
-**** COMMENT Custom Theme
+**** Custom Theme
 
 #+begin_src elisp :noweb-ref packages :tangle no
 tangonov-theme
@@ -768,7 +750,6 @@ The modeline should fit the `window-width' with space between the lists."
                   ;; Left
                   (format-mode-line
                    '(" "
-                     (:eval (tdm/meow-state))
                      (:eval (tdm/status-flag buffer-read-only 'error))
                      (:eval (tdm/status-flag (buffer-modified-p) 'warning))
                      (:eval (if (not (eq
@@ -785,43 +766,10 @@ The modeline should fit the `window-width' with space between the lists."
                   (format-mode-line
                    '((:eval (tdm/macro-indicator))
                      (:eval (tdm/vc))
-                     (:eval (tdm/flycheck))
                      (:eval (tdm/misc))
                      "  "
                      mode-line-modes))))))
 #+END_SRC
-
-***** COMMENT Defaults
-
-#+BEGIN_SRC elisp
-;;;; Reference to defaults
-("%e" mode-line-front-space
- (:propertize
-  ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote)
-  display
-  (min-width
-   (5.0)))
- mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
- (vc-mode vc-mode)
- "  " mode-line-modes mode-line-misc-info mode-line-end-spaces)
-#+END_SRC
-
-**** COMMENT Mood-Line
-
-#+begin_src elisp
-(quelpa-get mood-line
-            :fetcher git
-            :url "https://gitlab.com/trev-dev/mood-line.git")
-(add-to-list 'td/package-list 'mood-line)
-(mood-line-mode)
-#+end_src
-
-**** COMMENT Mood-Line Devel
-
-#+begin_src elisp
-(load-file "~/Projects/mood-line/mood-line.el")
-(mood-line-mode)
-#+end_src
 
 *** Utility Packages
 
@@ -834,8 +782,8 @@ avy
 #+end_src
 
 #+begin_src elisp
-(define-key priority-mode-map (kbd "C-;") #'avy-goto-char-timer)
-(define-key isearch-mode-map (kbd "C-;") #'avy-isearch)
+(define-key priority-mode-map (kbd "C-:") #'avy-goto-char-timer)
+(define-key isearch-mode-map (kbd "C-:") #'avy-isearch)
 (avy-setup-default)
 #+end_src
 
@@ -966,62 +914,66 @@ consult-flycheck
 #+end_src
 
 #+begin_src elisp
-(require 'consult)
+  (require 'consult)
 
-(setq register-preview-delay 0
-      register-preview-function #'consult-register-format
-      xref-show-xrefs-function #'consult-xref
-      xref-show-definitions-function #'consult-xref)
-;; Optionally tweak the register preview window.
-;; This adds thin lines, sorting and hides the mode line of the window.
-(advice-add #'register-preview :override #'consult-register-window)
+  (setq register-preview-delay 0
+        register-preview-function #'consult-register-format
+        xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+  ;; Optionally tweak the register preview window.
+  ;; This adds thin lines, sorting and hides the mode line of the window.
+  (advice-add #'register-preview :override #'consult-register-window)
 
-(td/bind-keys '(("C-c h" . consult-history)
-                ("C-c M-x" . consult-mode-command)
-                ;; ("C-c k" . consult-kmacro)
-                ;; C-x bindings (ctl-x-map)
-                ("C-x M-:" . consult-complex-command)
-                ("C-x C-b" . consult-buffer)
+  (td/bind-keys '(("C-c h" . consult-history)
+                  ("C-c M-x" . consult-mode-command)
+                  ;; ("C-c k" . consult-kmacro)
+                  ;; C-x bindings (ctl-x-map)
+                  ("C-x M-:" . consult-complex-command)
+                  ("C-x C-b" . consult-buffer)
 
-                ("C-x r b" . consult-bookmark)
-                ;; Custom M-# bindings for fast register access
-                ("M-#" . consult-register-load)
-                ("M-'" . consult-register-store)
-                ("C-M-#" . consult-register)
-                ("M-g f" . consult-flycheck) ; or flymake?
-                ("M-g o" . consult-outline)
-                ("M-g m" . consult-mark)
-                ("M-g k" . consult-global-mark)
-                ("M-g i" . consult-imenu)
-                ("M-g I" . consult-imenu-multi)
-                ;; M-s bindings (search-map)
-                ("M-s d" . consult-find)
-                ("M-s D" . consult-locate)
-                ("M-s g" . consult-grep)
-                ("M-s G" . consult-git-grep)
-                ("M-s r" . consult-ripgrep)
-                ("M-s l" . consult-line)
-                ("M-s L" . consult-line-multi)
-                ("M-s m" . consult-multi-occur)
-                ("M-s k" . consult-keep-lines)
-                ("M-s u" . consult-focus-lines)
-                ;; Isearch integration
-                ("M-s e" . consult-isearch-history)))
-(define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
-(add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
-(consult-customize
- consult-theme
- :preview-key '(:debounce 0.2 any)
- consult-ripgrep consult-git-grep consult-grep
- consult-bookmark consult-recent-file consult-xref
- consult--source-recent-file consult--source-project-recent-file
- consult--source-bookmark
- :preview-key (kbd "M-."))
-(setq consult-narrow-key "<"
-      consult-project-root-function
-      (lambda ()
-        (when-let (project (project-current))
-          (car (project-roots project)))))
+                  ("C-x r b" . consult-bookmark)
+                  ;; Custom M-# bindings for fast register access
+                  ("M-#" . consult-register-load)
+                  ("M-'" . consult-register-store)
+                  ("C-M-#" . consult-register)
+                  ("M-g f" . consult-flymake) ; or flymake?
+                  ("M-g o" . consult-outline)
+                  ("M-g m" . consult-mark)
+                  ("M-g k" . consult-global-mark)
+                  ("M-g i" . consult-imenu)
+                  ("M-g I" . consult-imenu-multi)
+                  ;; M-s bindings (search-map)
+                  ("M-s d" . consult-find)
+                  ("M-s D" . consult-locate)
+                  ("M-s g" . consult-grep)
+                  ("M-s G" . consult-git-grep)
+                  ("M-s r" . consult-ripgrep)
+                  ("M-s l" . consult-line)
+                  ("M-s L" . consult-line-multi)
+                  ("M-s m" . consult-multi-occur)
+                  ("M-s k" . consult-keep-lines)
+                  ("M-s u" . consult-focus-lines)
+                  ;; Isearch integration
+                  ("M-s e" . consult-isearch-history)))
+
+  (with-eval-after-load 'org
+    (define-key org-mode-map (kbd "M-g o") #'consult-org-heading))
+
+  (define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
+  (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
+  (consult-customize
+   consult-theme
+   :preview-key '(:debounce 0.2 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-recent-file consult--source-project-recent-file
+   consult--source-bookmark
+   :preview-key (kbd "M-."))
+  (setq consult-narrow-key "<"
+        consult-project-root-function
+        (lambda ()
+          (when-let (project (project-current))
+            (car (project-roots project)))))
 #+end_src
 
 ***** Corfu
@@ -1319,7 +1271,7 @@ for pair."
 (global-set-key (kbd "C-S-s") #'surround)
 #+end_src
 
-**** Ement
+**** COMMENT Ement
 
 A Matrix client for Emacs. Ement currenly has a few stray dependencies.
 
@@ -1349,7 +1301,7 @@ ts
 
 #+begin_src elisp
 (setq erc-autojoin-channels-alist
-      '(("Libera.Chat" "#emacs" "#guix" "#systemcrafters")))
+      '(("Libera.Chat" "#emacs" "#guix" "#systemcrafters" "#stumpwm")))
 
 (defun td/launch-erc ()
   (interactive)
@@ -1360,13 +1312,35 @@ ts
                                         "Biz/libera.chat")))
 #+end_src
 
+**** Eshell
+
+#+begin_src elisp :noweb-ref packages :tangle no
+capf-autosuggest
+eshell-syntax-highlighting
+#+end_src
+
+#+begin_src elisp
+(defun td/eshell-extras ()
+  "Start extra features for eshell-mode"
+  (eshell-syntax-highlighting-mode)
+  (capf-autosuggest-mode))
+
+(add-hook 'eshell-mode-hook #'td/eshell-extras)
+#+end_src
+
 **** COMMENT Evil
 
 #+begin_src elisp :noweb-ref packages :tangle no
 evil
 evil-surround
+evil-matchit
+evil-exchange
+evil-lion
 evil-commentary
+evil-collection
 evil-goggles
+evil-multiedit
+evil-org
 #+end_src
 
 #+begin_src elisp
@@ -1379,44 +1353,47 @@ evil-goggles
   (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fb") 'consult-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>x") 'execute-extended-command)
   ;; LSP
   (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
   ;; Org
   (evil-define-key 'normal org-mode-map (kbd "<leader>ci") 'org-clock-in)
   (evil-define-key 'normal org-mode-map (kbd "<leader>co") 'org-clock-out)
+  (evil-define-key 'normal org-mode-map (kbd "<leader>'") 'org-edit-special)
+  (evil-define-key 'normal org-src-mode-map (kbd "<leader>'") 'org-edit-special)
+  (evil-define-key 'normal 'global (kbd "<leader>a") 'org-agenda)
   (evil-define-key 'normal 'global (kbd "<leader>i") 'td/eldoc-box-help)
   (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
   ;; Magit
   (evil-define-key 'normal 'global (kbd "gs") 'magit))
 
+(setq evil-want-keybinding nil
+      evil-want-C-u-scroll t)
 (require 'evil)
 (setq evil-visual-state-cursor 'hbar
       evil-want-C-u-scroll t)
-(customize-save-variable 'evil-undo-system 'undo-tree)
+(customize-save-variable 'evil-undo-system 'undo-redo)
 (td/evil-bind-keys)
 (evil-mode 1)
 
 (with-eval-after-load 'evil
-  (global-evil-surround-mode 1))
+  (require 'evil-multiedit)
+  (global-evil-surround-mode 1)
+  (global-evil-matchit-mode 1)
+  (evil-multiedit-default-keybinds)
+  (evil-lion-mode)
+  (evil-exchange-install)
+  (evil-collection-init)
+  (evil-goggles-mode))
 
 (with-eval-after-load 'evil
   (add-hook 'prog-mode-hook #'evil-commentary-mode))
 
-(with-eval-after-load 'evil
-  (evil-goggles-mode))
-#+end_src
-
-***** evil-multiedit
-Multiple cursors support for evil.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-multiedit
-#+end_src
-
-#+begin_src elisp
-(with-eval-after-load 'evil
-  (require 'evil-multiedit)
-  (evil-multiedit-default-keybinds))
+(with-eval-after-load 'org
+  (require 'evil-org)
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys)
+  (add-hook 'org-mode-hook #'evil-org-mode))
 #+end_src
 
 **** Expand Region
@@ -1427,10 +1404,33 @@ expand-region
 #+end_src
 
 #+begin_src elisp
+(require 'expand-region)
 (td/bind-keys '(("C-=" . er/expand-region)))
+(defvar er/keymap
+  (let ((map (make-sparse-keymap "er/objects")))
+    (td/bind-keys '(("w"   . er/mark-word)
+                    ("W"   . er/mark-symbol)
+                    ("s"   . er/mark-sentence)
+                    ("p"   . er/mark-paragraph)
+                    ("e"   . er/mark-email)
+                    ("d"   . er/mark-defun)
+                    ("u"   . er/mark-url)
+                    ("o p" . er/mark-outside-pairs)
+                    ("i p" . er/mark-inside-pairs)
+                    ("o s" . er/mark-outside-quotes)
+                    ("i s" . er/mark-inside-quotes)
+                    ("o e" . er/mark-org-element)
+                    ("o E" . er/mark-org-element-parent))
+                  map)
+    map)
+  "A keymap for quickly calling expand region functions.
+\\{er/keymap}")
+
+(fset 'er/keymap er/keymap)
+(define-key priority-mode-map (kbd "C-,") er/keymap)
 #+end_src
 
-**** Exec Path
+**** COMMENT Exec Path
 It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
 
 #+begin_src elisp :noweb-ref packages :tangle no
@@ -1445,15 +1445,10 @@ exec-path-from-shell
 
 God mode is an amazing package. It automatically translates key-chords into single-key bindings and toggled modifiers.
 
-Because it has its own keymap, I can add utility functions to god-mode. This turns it into sort of a pseud-modal editing mode. However, unlike other modal packages, it does not require as much key re-binding, thanks to key-chord translation.
+Because it has its own keymap, I can add utility functions to god-mode. This turns it into sort of a pseudo-modal editing mode. However, unlike other modal packages, it does not require as much key re-binding, thanks to key-chord translation.
 
 #+begin_src elisp :noweb-ref packages :tangle no
 god-mode
-#+end_src
-
-#+begin_src elisp
-(require 'god-mode)
-(require 'god-mode-isearch)
 #+end_src
 
 ***** Functions
@@ -1496,8 +1491,7 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   "Open a new line above the current line, put the point there."
   (interactive)
   (beginning-of-line)
-  (open-line 1)
-  (indent-relative-first-indent-point)
+  (split-line)
   (god-local-mode -1))
 
 (defun god/open-below ()
@@ -1506,11 +1500,85 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   (end-of-line)
   (newline-and-indent)
   (god-local-mode -1))
+
+(defun god/disable-then-do ()
+  (interactive)
+  (message "%s" (char-to-string last-command-event)))
+
+(defun god/pull-line ()
+  "Pull a line up from below the currnet line and join them."
+  (interactive)
+  (save-excursion
+    (next-line)
+    (join-line)))
+#+end_src
+
+***** Insert Ahead
+
+I want some way to intuitively leave god mode one character over from where I scanned to with seeking or moving forward and backward.
+
+This comes in handy because sometimes words separated by non-word characters can put you in a spot where if you could move just one character "over", you could be right where you want to land without having to move a whole word/thing over the mark and back again.
+
+#+begin_src elisp
+(defvar god/ahead-direction 1
+  "A cached value of the presumed `god/insert-ahead' direction.")
+
+(defun god/set-ahead-direction (&optional dir)
+  "Set `god/ahead-direction'. If `DIR' is 1, it's forward.
+A value of -1 is backward.'"
+  (let ((direction (or dir 1)))
+    (unless (= direction god/ahead-direction)
+      (setq-local god/ahead-direction direction))))
+
+(defun god/insert-ahead (&rest args)
+  "Move the cursor in `god/ahead-direction' and exit `god-local-mode'."
+  (interactive)
+  (forward-char god/ahead-direction)
+  (god-local-mode -1))
+
+(add-hook 'god-local-mode-hook
+          #'(lambda () (god/set-ahead-direction)))
+
+(dolist (back-func '(backward-char
+                     backward-word
+                     god/backward-symbol
+                     isearch-backward
+                     isearch-backward-regexp
+                     search-backward
+                     search-backward-regexp))
+  (advice-add back-func :after
+              #'(lambda (&rest args) (god/set-ahead-direction -1))
+              '((name . "god/set-ahead-backward"))))
+
+(dolist (for-func '(forward-char
+                    forward-word
+                    forward-symbol
+                    isearch-forward
+                    isearch-forward-regexp
+                    search-backward
+                    search-forward-regexp))
+  (advice-add for-func :after
+              #'(lambda (&rest args) (god/set-ahead-direction))
+              '((name . "god/set-ahead-forward"))))
+#+end_src
+
+***** Org Mode Newline Advice
+
+I would like to be able to perform special org-mode functions such as ~org-meta-return~ and ~org-insert-todo-heading~ and have ~god-local-mode~ turn off automatically.
+
+#+begin_src elisp
+(advice-add 'org-meta-return :after
+            #'(lambda (&rest args) (god-local-mode -1))
+            '(( name . "god/insert-after-org-meta-return")))
+
+(advice-add 'org-insert-todo-heading :after
+            #'(lambda (&rest args) (god-local-mode -1))
+            '(( name . "god/insert-after-org-new-heading")))
 #+end_src
 
 ***** Seeking Characters
 
-I envied Vim's ability to use f or t to quickly jump to, or just past a char target. I wrote my own solution. You can even repeat the last seek, or throw it into reverse with a negative argument.
+I envied Vim's ability to use =f= or =t= to quickly jump to, or just past a char target. I wrote my own solution. You can even repeat the last seek, or throw it into reverse with a negative argument.
 
 #+begin_src elisp
 (defvar god/previous-seek-motion nil
@@ -1527,12 +1595,13 @@ Can be called with a `REPEAT-CH' to automatically seek for or `UNTIL-P' a char."
          (ch-str (if (eq ch 13) "\n" (char-to-string ch)))
          (fix-pos (if until-p (if (< n 0) 1 -1) 0))
          end)
-    (save-mark-and-excursion
+    (save-excursion
       (if (< n 0) (forward-char -1) (forward-char 1))
       (setq end (search-forward ch-str nil t n)))
     (if (not end)
         (message "char %s not found" ch-str)
       (setq god/previous-seek-motion `(god/seek ,n ,until-p ,ch))
+      (god/set-ahead-direction n)
       (goto-char (+ end (if until-p fix-pos 0))))))
 
 (defun god/seek-until (neg-arg &optional repeat-ch)
@@ -1558,7 +1627,7 @@ Apply a neg-arg to go in `REVERSE'"
 I like having a thick bar for "emacs mode" and a box for god-mode.
 
 #+begin_src elisp
-(setq-default cursor-type '(bar . 4))
+(setq cursor-type '(bar . 4))
 
 (defun god/cursor-toggle ()
   "Toggle the cursor between a box and bar while in or out of `god-mode'."
@@ -1569,54 +1638,70 @@ I like having a thick bar for "emacs mode" and a box for god-mode.
 
 ***** Keybindings
 
-Declare key-bindings, apply them to =god-local-mode-map= and give the keymap priority by adding it to the =emulation-mode-map-alists=.
+Declare key-bindings to be applied in the next section.
 
 #+begin_src elisp
-(defvar god/keybinds '((";" . god/repeat-seek)
+(defvar god/keybinds '(("h" . backward-char)
+                       ("j" . next-line)
+                       ("k" . previous-line)
+                       ("l" . forward-char)
+                       (";" . god/repeat-seek)
                        ("A" . god/boi-insert)
                        ("B" . god/backward-symbol)
+                       ("b" . backward-word)
                        ("C" . god/change)
                        ("D" . delete-backward-char)
                        ("E" . god/eol-insert)
                        ("F" . forward-symbol)
-                       ("I" . god/forward-insert)
+                       ("g" . avy-goto-char-timer)
+                       ("f" . forward-word)
+                       ("I" . god/insert-ahead)
                        ("i" . god-local-mode)
-                       ("m" . er/keymap)
+                       ("J" . god/pull-line)
                        ("O" . god/open-above)
                        ("o" . god/open-below)
+                       ("w" . td/windmove-map)
                        ("T" . god/seek)
                        ("t" . god/seek-until)
-                       ("U" . undo-redo)
-                       ("u" . undo)
-                       ("P" . backward-paragraph)
-                       ("N" . forward-paragraph)
+                       ("P" . td/backward-chunk)
+                       ("N" . td/forward-chunk)
                        ("q" . quit-window)
-                       ("z" . repeat)))
-
-(td/bind-keys god/keybinds god-local-mode-map)
-(add-to-list 'emulation-mode-map-alists
-             `((god-local-mode . ,god-local-mode-map)))
-(setq god-mode-enable-function-key-translation nil)
-
-(global-set-key (kbd "<escape>") #'god-mode-all)
-(define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
-(define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
+                       ("z" . repeat)
+                       ("," . er/keymap)))
 #+end_src
 
 ***** Apply & Finish Setup
 
+I want god mode to be available to me everywhere. To do this, ~god-exempt-major-modes~ needs to be unset before loading =god-mode=.
+
+I would prefer to keep god mode on, or off, on a buffer-to-buffer basis. I use ~god-local-mode~ for this.
+
+God has no intermediary mode for non-editing buffers. I feel like it's better to have to turn it on explicitly for quicker navigation or firing off commands.
+
 #+begin_src elisp
-(god-mode-all)
+(setq god-mode-enable-function-key-translation nil
+      god-exempt-major-modes '(vterm-mode)
+      god-exempt-predicates nil
+      god-mode-alist '((nil . "C-")
+                       ("m" . "M-")
+                       ("M" . "C-M-")))
+
+(require 'god-mode)
+(require 'god-mode-isearch)
+
+(global-set-key (kbd "<escape>") #'god-mode-all)
+(define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
+(define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
+
+(add-to-list 'emulation-mode-map-alists
+             `((god-local-mode . ,god-local-mode-map)))
+
+(td/bind-keys god/keybinds god-local-mode-map)
+
 (god/cursor-toggle)
 
 (with-eval-after-load 'which-key
   (which-key-enable-god-mode-support))
-
-(dolist (mode '(vterm-mode
-                notmuch-hello-mode
-                notmuch-search-mode
-                notmuch-show-mode))
-  (add-to-list 'god-exempt-major-modes mode))
 
 (add-hook 'post-command-hook #'god/cursor-toggle)
 (add-hook 'god-local-mode-hook #'corfu-quit)
@@ -1636,7 +1721,6 @@ goggles
 #+end_src
 
 **** COMMENT Meow
-
 Meow is a pretty special and ambitious modal editing project. It takes inspiration from Vim, Kakuone and god-mode to create a selection first, complete modal experience.
 
 #+begin_src elisp :noweb-ref packages :tangle no
@@ -1674,6 +1758,8 @@ meow
    '("0" . meow-digit-argument)
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet)
+   '("w" . td/windmove-map)
+   '("H" . eldoc-box-help-at-point)
    ;; Custom keybinds
    (cons "P" project-prefix-map))
   (meow-normal-define-key
@@ -1727,7 +1813,7 @@ meow
    '("s" . meow-kill)
    '("t" . meow-till)
    '("u" . meow-undo)
-   '("U" . undo-redo)
+   '("U" . meow-undo-in-selection)
    '("v" . meow-visit)
    '("w" . meow-mark-word)
    '("W" . meow-mark-symbol)
@@ -1739,8 +1825,9 @@ meow
    '("'" . repeat)
    '("<escape>" . ignore)
    '("S" . surround)
-   '("P" . backward-paragraph)
-   '("N" . forward-paragraph)))
+   '("P" . td/backward-chunk)
+   '("N" . td/forward-chunk)
+   '("=" . er/expand-region)))
 
 (require 'meow)
 (meow-setup)
@@ -1767,16 +1854,15 @@ multiple-cursors
 #+end_src
 
 #+begin_src elisp
-(td/bind-keys '(("C-S-l" . mc/edit-lines)
-                ("C-." . mc/mark-next-like-this)
-                ("C-," . mc/mark-previous-like-this)
-                ("C->" . mc/skip-to-next-like-this)
-                ("C-<" . mc/skip-to-previous-like-this)
-                ("C-c C-." . mc/mark-all-like-this)
+(td/bind-keys '(("C-S-l"   . mc/edit-lines)
+                ("C->"     . mc/mark-next-like-this)
+                ("C-<"     . mc/mark-previous-like-this)
+                ("C-M->"   . mc/skip-to-next-like-this)
+                ("C-M-<"   . mc/skip-to-previous-like-this)
                 ("C-c C-?" . mc/mark-all-like-this-dwim)
                 ("C-c C-/" . mc/mark-all-in-region)
-                ("C-M-n" . mc/insert-letters)
-                ("C-M-a" . mc/insert-letters))
+                ("C-M-n"   . mc/insert-numbers)
+                ("C-M-a"   . mc/insert-letters))
               priority-mode-map)
 #+end_src
 
@@ -1794,9 +1880,9 @@ I am using tags to help sort contexts within my agenda. Some people use categori
     ("@home" . ?H)
     ("@work" . ?W)
     (:endgroup)
-    ("foss" . ?f)
+    ("foss"  . ?f)
     ("gurps" . ?g)
-    ("idea" . ?i))
+    ("idea"  . ?i))
   "The tags for org headlines.")
 #+end_src
 
@@ -2393,7 +2479,11 @@ org-mime
 
 #+begin_src elisp
 (autoload 'org-mime-edit-mail-in-org-mode "org-mime"
-  "Edit a message in org-mode")
+  "Edit a message in org-mode"
+  t)
+
+(setq org-mime-export-options
+      '(:with-latex dvipng :section-numbers nil :with-author nil :with-toc nil))
 
 (td/bind-keys '(("C-c C-o" . org-mime-edit-mail-in-org-mode)
                 ("C-c C-h" . org-mime-htmlize))
@@ -2417,6 +2507,17 @@ org-contacts
 (setq org-contacts-files '("~/Org/contacts.org"))
 #+end_src
 
+**** COMMENT Pulsar
+
+#+begin_src elisp :noweb-ref packages :tangle no
+pulsar
+#+end_src
+
+
+#+begin_src elisp
+(setq pulsar-iterations 5)
+#+end_src
+
 **** Password Store
 
 #+begin_src elisp :noweb-ref packages :tangle no
@@ -2431,6 +2532,7 @@ password-store
 #+end_src
 
 **** Sensitive Mode
+
 Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21.html][Anirudh Sasikumar]]. It has been adapted to accomodate undo-tree. This prevents emacs from generating unencrypted backups & autosave data from =.gpg= files.
 
 #+begin_src elisp
@@ -2503,12 +2605,12 @@ which-key
 Set up a keymap for wind-move and bind it to a prefix that's easy to hit.
 
 #+begin_src elisp
-(defvar td/wind-move-map
+(defvar td/windmove-map
   (let ((map (make-sparse-keymap)))
-    (td/bind-keys '(("e" . windmove-right)
-                    ("a" . windmove-left)
-                    ("n" . windmove-down)
-                    ("p" . windmove-up)
+    (td/bind-keys '(("e"   . windmove-right)
+                    ("a"   . windmove-left)
+                    ("n"   . windmove-down)
+                    ("p"   . windmove-up)
                     ("s e" . windmove-swap-states-right)
                     ("s a" . windmove-swap-states-left)
                     ("s n" . windmove-swap-states-down)
@@ -2518,20 +2620,21 @@ Set up a keymap for wind-move and bind it to a prefix that's easy to hit.
                     ("d n" . windmove-delete-down)
                     ("d p" . windmove-delete-up)
                     ("d d" . delete-window)
-                    ("d D" . delete-other-windows)
-                    ("o" . other-window)
-                    ("v" . split-window-right)
-                    ("h" . split-window-below)
-                    ("=" . enlarge-window)
-                    ("-" . shrink-window)
-                    ("b" . balance-windows))
+                    ("D" . delete-other-windows)
+                    ("o"   . other-window)
+                    ("v"   . split-window-right)
+                    ("h"   . split-window-below)
+                    ("="   . enlarge-window)
+                    ("-"   . shrink-window)
+                    ("b"   . balance-windows))
                   map)
     map)
   "A keymap for windmove functions.
-\\{td/wind-move-map}")
-(fset 'td/wind-move-map td/wind-move-map)
+\\{td/windmove-map}")
 
-(global-set-key (kbd "M-o") td/wind-move-map)
+(fset 'td/windmove-map td/windmove-map)
+
+(global-set-key (kbd "M-o") td/windmove-map)
 #+end_src
 
 *** Syntax Support
@@ -2549,14 +2652,26 @@ cider
 (td/auto-mode '(("\\.clj\\'" . clojure-mode)))
 #+end_src
 
+**** Common Lisp
+
+The most important package to have handy for Common Lisp is the "slime" package.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+slime
+#+end_src
+
+#+begin_src elisp
+(setq inferior-lisp-program "sbcl")
+#+end_src
+
 **** CSS/SCSS
 
 #+begin_src elisp
-(add-hook 'css-mode-hook #'(lambda () (setq-local css-indent-offset 2
-                                                  tab-width 2)))
+(setq css-indent-offset 2
+      tab-width 2)
 #+end_src
 
-**** COMMENT Eglot
+**** Eglot
 Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be leaner, faster and less intense.
 
 #+begin_src elisp :noweb-ref packages :tangle no
@@ -2575,12 +2690,12 @@ eglot
 
   (defvar td/eglot-funcs
     (let ((map (make-sparse-keymap)))
-      (td/bind-keys '(("r" . eglot-rename)
-                      ("d" . eglot-find-typeDefinition)
-                      ("D" . eglot-find-declaration)
-                      ("f" . eglot-format)
-                      ("F" . eglot-format-buffer)
-                      ("R" . eglot-reconnect)) map)
+      (td/bind-keys '(("C-r"   . eglot-rename)
+                      ("C-d"   . eglot-find-typeDefinition)
+                      ("C-S-d" . eglot-find-declaration)
+                      ("C-f"   . eglot-format)
+                      ("C-S-f" . eglot-format-buffer)
+                      ("C-S-r" . eglot-reconnect)) map)
       map) "Custom keybinds for eglot functions. \\{td/eglot-funcs}")
   (fset 'td/eglot-funcs td/eglot-funcs)
   (define-key eglot-mode-map (kbd "C-c C-e") 'td/eglot-funcs)
@@ -2594,6 +2709,27 @@ eglot
               "Make sure Eldoc will show us all of the feedback at point."
               (setq-local eldoc-documentation-strategy
                           #'eldoc-documentation-compose))))
+#+end_src
+
+**** Eldoc
+
+#+begin_src elisp
+(setq eldoc-echo-area-use-multiline-p nil
+      eldoc-documentation-strategy 'eldoc-documentation-compose)
+#+end_src
+
+**** Eldoc Box
+
+#+begin_src elisp :noweb-ref packages :tangle no
+eldoc-box
+#+end_src
+
+#+begin_src elisp
+(autoload 'eldoc-box-help-at-point "eldoc-box.el"
+  "Activate pop-up for eldoc information for the thing at point."
+  t)
+
+(global-set-key (kbd "C-c M-h") #'eldoc-box-help-at-point)
 #+end_src
 
 **** Emmet
@@ -2612,7 +2748,7 @@ emmet-mode
               #'emmet-mode)
 #+end_src
 
-**** Flycheck
+**** COMMENT Flycheck
 
 #+begin_src elisp :noweb-ref packages :tangle no
 flycheck
@@ -2635,7 +2771,7 @@ go-mode
 (td/auto-mode '(("\\.go\\'" . go-mode)))
 #+end_src
 
-**** LSP Mode
+**** COMMENT LSP Mode
 
 I prefer a lighter weight LSP. I had enjoyed Eglot for some time. LSP-Mode has better features, however. I get fairly minimal feedback about the things I care about with inline flycheck messages.
 
@@ -2775,7 +2911,7 @@ pyvenv
 
 **** Rainbow Delimiters
 
-This comes in handier than you think it would. Especially with these (lisp '((config . files)))
+This comes in handier than you think it would. Especially with these 
 
 #+begin_src elisp :noweb-ref packages :tangle no
 rainbow-delimiters
@@ -2943,6 +3079,14 @@ yasnippet-snippets
 (global-set-key (kbd "C-c ,") #'yas-expand)
 (setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
 (yas-reload-all)
+#+end_src
+
+*** Load Customizer Settings
+
+Load the file we created for custom vars in the [[* General Settings][general settings]].
+
+#+begin_src elisp
+(load custom-file 'noerror 'nomessage)
 #+end_src
 
 ** About This Config
