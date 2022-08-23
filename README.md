@@ -1,49 +1,158 @@
-* Emacs Configuration
-:PROPERTIES:
-#+STARTUP: content
-#+OPTIONS: toc:nil H:6
-:END:
+# Emacs Configuration
 
-The following document is a literate program that will generate my =~/.emacs.d=. It is intended to be used in conjunction with a dotfile manager such as GNU Stow for symlinking back to the home directory. You could, however, tangle this file from the home directory and skip using stow.
 
-To read more about how this configuration is supposed to work, see my [[* Configuration Strategy][config strategy]].
+The following document is a literate program that will generate my `~/.emacs.d`. It is intended to be used in conjunction with a dotfile manager such as GNU Stow for symlinking back to the home directory. You could, however, tangle this file from the home directory and skip using stow.
 
-*Table of Contents*
+To read more about how this configuration is supposed to work, see my [config strategy](#orga9ea4aa).
 
-#+TOC: headlines 4 local
+**Table of Contents**
 
-** Configuration Strategy
+1.  [Configuration Strategy](#orga9ea4aa)
+    1.  [Tangling Files](#orgf983636)
+    2.  [Configuring Packages](#org912697a)
+2.  [Early Init](#org8743939)
+3.  [Init File Headers](#org3bd4730)
+4.  [General Settings](#orgfe5d1a6)
+5.  [Helper Functions](#org2e4336d)
+    1.  [Priority Mode](#org7872839)
+6.  [Keybinds](#org15bbd8f)
+7.  [Prog Mode](#org43c082c)
+8.  [Package Configuration](#org8459803)
+    1.  [Bootstrapping](#org4bd81a5)
+        1.  [Repositories](#org3272eb2)
+        2.  [Maintaining selected packages](#org448f788)
+        3.  [Quelpa](#orgc54a6d1)
+    2.  [Look & Feel](#org7d57bd3)
+        1.  [All The Icons](#orgfc207b3)
+        2.  [Dired](#org73cdcc7)
+        3.  [Diminish](#org3f70eb2)
+        4.  [Custom Theme](#orga9c02d8)
+        5.  [Font Setup](#org7e9c276)
+        6.  [Modeline](#org019168b)
+    3.  [Utility Packages](#org61156f0)
+        1.  [Avy](#orgfca52ab)
+        2.  [CTRLF](#orgbff9dd7)
+        3.  [Completions](#org6b78b38)
+            1.  [Cape](#org714b402)
+            2.  [Consult](#org741b2f3)
+            3.  [Corfu](#orga4900fe)
+            4.  [Fussy](#org21a68f7)
+            5.  [Kind-Icon](#org495234c)
+            6.  [Marginalia](#org7543959)
+            7.  [Savehist](#org368aae5)
+            8.  [TempEl](#org1009b90)
+            9.  [Vertico](#org707b9d5)
+        4.  [Dashboard](#orgf0bc610)
+        5.  [Diff-hl](#org35d3786)
+        6.  [Elfeed](#org55b01ac)
+        7.  [Surround](#orgc88c93a)
+        8.  [ERC](#org5c427e6)
+        9.  [Eshell](#org587b58e)
+        10. [Expand Region](#orgb626989)
+        11. [God Mode](#orgce490c9)
+            1.  [Functions](#org7714353)
+            2.  [Insert Ahead](#orgdf6d3e6)
+            3.  [Org Mode Newline Advice](#org57e1612)
+            4.  [Seeking Characters](#org8963d6e)
+            5.  [Cursor Indicator](#org9179535)
+            6.  [Keybindings](#orge5933a6)
+            7.  [Apply & Finish Setup](#org609d5b3)
+        12. [Goggles](#org7bd859d)
+        13. [Magit](#org8d7fc14)
+        14. [Multiple Cursors](#orgc047f4a)
+        15. [Org](#orgadca133)
+            1.  [Key Variables](#org3e191dd)
+            2.  [Functions](#org4633fda)
+            3.  [Apply Configuration](#org836d02c)
+            4.  [Extending Org Mode](#orgf22a5bb)
+            5.  [Custom Clock Table](#org0e65136)
+        16. [Ledger](#orgf4bb3de)
+        17. [Vterm](#org47affe8):guix:
+        18. [Notmuch](#org5921017)
+            1.  [Built In Mail Settings](#orgbc68cf1)
+            2.  [Notmuch](#org6162fcb)
+            3.  [org-mime](#orgd8c8726)
+            4.  [org-contacts](#org30d6c4f)
+        19. [Password Store](#org90f39e3)
+        20. [Sensitive Mode](#orga896b94)
+        21. [RG](#org35f7774)
+        22. [Visual Fill Column](#orgd9415e8)
+        23. [Which-key](#org9dc008c)
+        24. [Windmove](#org20cee40)
+    4.  [Syntax Support](#org9d8000c)
+        1.  [Clojure](#org5565163)
+        2.  [Common Lisp](#orga8e2dc0)
+        3.  [CSS/SCSS](#org5327f3d)
+        4.  [Eglot](#org3f118c5)
+        5.  [Eldoc](#orga996b72)
+        6.  [Eldoc Box](#org319203d)
+        7.  [Emmet](#org3f70099)
+        8.  [GoLang](#org0fde150)
+        9.  [Lua Mode](#orgefce1ed)
+        10. [Markdown](#org0f5dc13)
+        11. [Nim](#org7a30ddd)
+        12. [Paredit](#orgef2be86)
+        13. [PHP](#org32837bd)
+        14. [Prettier](#orgebe25cd)
+        15. [Python](#orgc91e18d)
+        16. [Rainbow Delimiters](#org81090af)
+        17. [Rainbow Mode](#orga84d3bb)
+        18. [Ruby](#org9a97304)
+        19. [Rust](#org1ba073d)
+        20. [Scheme](#org61fec98)
+        21. [Shopify Mode](#org9944b66)
+        22. [Svelte](#org9936150)
+        23. [Treesitter](#orgf8cad65)
+        24. [TypeScript & JavaScript](#orgd6fe255)
+        25. [VueJS](#org5b79876)
+        26. [Web Mode](#org257cce7)
+        27. [YAML](#orgd3be0e5)
+    5.  [Load Customizer Settings](#org6e991a0)
+9.  [About This Config](#org78da9e6)
+    1.  [Installation](#org37361df)
+    2.  [Licenses](#orgb0f4805)
+
+
+<a id="orga9ea4aa"></a>
+
+## Configuration Strategy
 
 The goal with this configuration is to generate simple, elisp output that will configure Emacs.
 
-In the past I have used plain elisp files. As they grow they become increasingly harder to follow. I switched org-babel and added that directly into my =init.el=. This works OK, but I never leveraged the full power of babel to create a tight configuration.
+In the past I have used plain elisp files. As they grow they become increasingly harder to follow. I switched org-babel and added that directly into my `init.el`. This works OK, but I never leveraged the full power of babel to create a tight configuration.
 
 At the time of my writing this, my configuration is somewhat convoluted. I aim to simplify the elisp output and make it easier to debug.
 
-*** Tangling Files
 
-I will be using =org-babel-tangle= to generate numerous files and to help separate concerns. Some files that this configuration should generate are the =early-init.el=, =init.el= and my =package-list.el=. Other files may be generated if it makes sense to document them here.
+<a id="orgf983636"></a>
 
-*** Configuring Packages
+### Tangling Files
 
-I will be using =noweb-ref= header arguments and the =noweb= feature to keep packages organized and separate from one-another. I want it to be a simple matter for me to exclude a package from both my =package-selected-packages= and my =init.el= by commenting out it's headline.
+I will be using `org-babel-tangle` to generate numerous files and to help separate concerns. Some files that this configuration should generate are the `early-init.el`, `init.el` and my `package-list.el`. Other files may be generated if it makes sense to document them here.
+
+
+<a id="org912697a"></a>
+
+### Configuring Packages
+
+I will be using `noweb-ref` header arguments and the `noweb` feature to keep packages organized and separate from one-another. I want it to be a simple matter for me to exclude a package from both my `package-selected-packages` and my `init.el` by commenting out it's headline.
 
 Each package will have 2 source blocks.
 
-The first block will add the package to the =td/selected-packages= variable by tangling the package name to the =emacs.d/package-list.el= file. This file is loaded early in =init.el=.
+The first block will add the package to the `td/selected-packages` variable by tangling the package name to the `emacs.d/package-list.el` file. This file is loaded early in `init.el`.
 
-The second block will contain the actual configuration for the package or built-in feature. This block will be evaluated later on in the =init.el= file.
+The second block will contain the actual configuration for the package or built-in feature. This block will be evaluated later on in the `init.el` file.
 
-** Early Init
-:PROPERTIES:
-:header-args+: :tangle .emacs.d/early-init.el :mkdirp yes
-:END:
+
+<a id="org8743939"></a>
+
+## Early Init
 
 This file is loaded before the initialization of emacs begins. It is sometimes helpful to pre-configure stuff in here.
 
-*Note:* The ~:PROPERTIES:~ drawer in this section flags org-babel to make sure that the ~.emacs.d/~ directory exists using the =:mkdirp yes= argument.
+**Note:** The `:PROPERTIES:` drawer in this section flags org-babel to make sure that the `.emacs.d/` directory exists using the `:mkdirp yes` argument.
 
-#+begin_src elisp
+```elisp
 ;;; early-init.el --- Emacs early-init setup.
 ;;
 ;;; Commentary:
@@ -51,26 +160,26 @@ This file is loaded before the initialization of emacs begins. It is sometimes h
 ;; file.
 ;;
 ;;; Code:
-#+end_src
+```
 
 We want the garbage collector to have no limit during the init sequence.
 
-#+begin_src elisp
+```elisp
 (setq gc-cons-threshold most-positive-fixnum)
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 ;;; early-init.el ends here
-#+end_src
+```
 
-** Init File Headers
-:PROPERTIES:
-:header-args: :tangle .emacs.d/init.el
-:END:
+
+<a id="org3bd4730"></a>
+
+## Init File Headers
 
 This generates the top of the init file, which will set up the lexical scope and describe to Emacs what the file does.
 
-#+begin_src elisp
+```elisp
 ;;; init.el --- Trev's Emacs config -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2022 Trevor Richards
@@ -102,16 +211,16 @@ This generates the top of the init file, which will set up the lexical scope and
 ;; details and documentation.
 ;;
 ;;; Code:
-#+end_src
+```
 
-** General Settings
-:PROPERTIES:
-:header-args: :tangle .emacs.d/init.el :comments link
-:END:
+
+<a id="orgfe5d1a6"></a>
+
+## General Settings
 
 Some general performance based improvements concerning large files, when to compile with the fancy new native-comp feature and reset the GC collection size after init.
 
-#+begin_src elisp
+```elisp
 (add-hook 'emacs-startup-hook
           (lambda ()
             (setq gc-cons-threshold (expt 2 23))))
@@ -119,11 +228,11 @@ Some general performance based improvements concerning large files, when to comp
 (setq read-process-output-max (* 1024 1024))
 (global-so-long-mode 1)
 (setq comp-deferred-compilation t)
-#+end_src
+```
 
 Clear out most of the GUI clutter, display relative line numbers, highlight the line I'm on, smaller left-only fringe, quick yes/no answers, some prog-mode QOL settings as well.
 
-#+begin_src elisp
+```elisp
 ;; Interface
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -141,11 +250,11 @@ Clear out most of the GUI clutter, display relative line numbers, highlight the 
 (global-auto-revert-mode 1)
 (fringe-mode '(4 . 0))
 (defalias 'yes-or-no-p 'y-or-n-p)
-#+end_src
+```
 
 Set up the dictionary and preferred browser.
 
-#+begin_src elisp
+```elisp
 ;; Spelling
 (setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd"
       ispell-program-name "aspell"
@@ -154,11 +263,11 @@ Set up the dictionary and preferred browser.
       ispell-alternate-dictionary (concat (getenv "HOME") "/Documents/wordlist"))
 ;; Browser
 (setq browse-url-generic-program "/usr/bin/firefox")
-#+end_src
+```
 
 I hate seeing project folders get all cluttered up. Let's move autosaves and backups somewhere else.
 
-#+begin_src elisp
+```elisp
 ;; Put autosave files (ie #foo#) and backup files (ie foo~) in ~/.emacs.d/.
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves/" t))
       backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
@@ -167,30 +276,30 @@ I hate seeing project folders get all cluttered up. Let's move autosaves and bac
 (make-directory "~/.emacs.d/autosaves/" t)
 
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
-#+end_src
+```
 
-Move custom variable settings to somewhere other that =init.el=.
+Move custom variable settings to somewhere other that `init.el`.
 
-#+begin_src elisp
+```elisp
 (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-#+end_src
+```
 
 Start the pinentry service
 
-#+begin_src elisp
+```elisp
 (pinentry-start)
-#+end_src
+```
 
-** Helper Functions
-:PROPERTIES:
-:header-args: :tangle .emacs.d/init.el :comments link
-:END:
 
-Many people configure their emacs with the help of macros such as =use-package=. I prefer to keep my init lower-level and simple. I have written some simple functions that will make configuration less repetative.
+<a id="org2e4336d"></a>
+
+## Helper Functions
+
+Many people configure their emacs with the help of macros such as `use-package`. I prefer to keep my init lower-level and simple. I have written some simple functions that will make configuration less repetative.
 
 Using my own functions for the things I want or need keeps my overall package load smaller.
 
-#+begin_src elisp
+```elisp
 (defun td/bind-keys (conses &optional mode-map)
   "Bind several keybinds using a list of `CONSES'.
 Binds will be global unless the optional `MODE-MAP' is specified."
@@ -214,17 +323,20 @@ Adds '-hook' onto the end of the symbols for brevity."
 (defun td/filter-nil (seq)
   "Filter out nil items from sequence `SEQ'."
   (seq-filter #'(lambda (item) item) seq))
-#+end_src
+```
 
 Create a mode for mapping high priority keybinds early on.
 
-*** Priority Mode
 
-Sometimes 3rd party packages like to take over my keyboard with their own keybinds. There are some keybinds that I prefer to always have access to without accidently triggering someone else's code first, then having to undo whatever that did, and use =M-x=.
+<a id="org7872839"></a>
 
-With Priority mode, I am creating an "emulation layer". This is similar to what some popular modal editing packages do (such as evil-mode). It makes sure that when my ~priority-mode~ is active, the keybinds assigned to it will always take priority over other minor-mode bindings.
+### Priority Mode
 
-#+begin_src elisp
+Sometimes 3rd party packages like to take over my keyboard with their own keybinds. There are some keybinds that I prefer to always have access to without accidently triggering someone else's code first, then having to undo whatever that did, and use `M-x`.
+
+With Priority mode, I am creating an "emulation layer". This is similar to what some popular modal editing packages do (such as evil-mode). It makes sure that when my `priority-mode` is active, the keybinds assigned to it will always take priority over other minor-mode bindings.
+
+```elisp
 (define-minor-mode priority-mode
   "A minor mode for short-listing keybindings.
 This will prevent other modes form overriding keys that I would prefer to
@@ -234,16 +346,16 @@ see bound."
   :keymap (make-sparse-keymap))
 (add-to-list 'emulation-mode-map-alists `((priority-mode . ,priority-mode-map)))
 (priority-mode)
-#+end_src
+```
 
-** Keybinds
-:PROPERTIES:
-:header-args: :tangle .emacs.d/init.el :comments link
-:END:
+
+<a id="org15bbd8f"></a>
+
+## Keybinds
 
 Change some of the built-in keybinds & bind some of the useful unbound functions.
 
-#+begin_src elisp
+```elisp
 (defun td/forward-chunk ()
   (interactive)
   (next-line 20))
@@ -255,18 +367,18 @@ Change some of the built-in keybinds & bind some of the useful unbound functions
 (td/bind-keys '(("M-j" . join-line)
                 ("M-n" . td/forward-chunk)
                 ("M-p" . td/backward-chunk)))
-#+end_src
+```
 
-** Prog Mode
-:PROPERTIES:
-:header-args: :tangle .emacs.d/init.el :comments link
-:END:
+
+<a id="org43c082c"></a>
+
+## Prog Mode
 
 A few settings that are useful in programming buffers.
 
 I am trying to respect the indent style of any file I come across, so I wrote some functions to help me with that.
 
-#+begin_src elisp
+```elisp
 (defun td/toggle-indent-tabs-mode ()
   "Toggle `indent-tabs-mode'."
   (interactive)
@@ -281,11 +393,11 @@ Set `indent-tabs-mode' accordingly."
         (setq indent-tabs-mode nil))
     (if (> tab-count space-count)
         (setq indent-tabs-mode t))))
-#+end_src
+```
 
 I need a setup hook that will trigger when prog-mode is activated.
 
-#+begin_src elisp
+```elisp
 (defun td/prog-mode-settings ()
   "A general set-up hook for prog-mode."
   (setq whitespace-style '(face tabs tab-mark trailing))
@@ -302,11 +414,11 @@ I need a setup hook that will trigger when prog-mode is activated.
   (td/infer-indentation-style)
   (whitespace-mode))
 (add-hook 'prog-mode-hook 'td/prog-mode-settings)
-#+end_src
+```
 
 I'd like to keep my tab style fixed at 2 spaces wherever possible. Specific programming modes can change this if they need to.
 
-#+begin_src elisp
+```elisp
 (setq indent-tabs-mode nil)
 (setq standard-indent 2)
 (setq backward-delete-char-untabify-method 'hungry)
@@ -314,36 +426,113 @@ I'd like to keep my tab style fixed at 2 spaces wherever possible. Specific prog
 (setq-default tab-width 2)
 (setq-default evil-shift-width 2)
 (setq-default electric-indent-inhibit t)
-#+end_src
+```
 
-** Package Configuration
-:PROPERTIES:
-:header-args: :tangle .emacs.d/init.el :comments link
-:END:
 
-In the following sections I will be configuring built-in packages as well as external packages via =package.el= and Quelpa. 
+<a id="org8459803"></a>
 
-*** Bootstrapping
-I am using the built-in =package.el= for my package needs. I am using Quelpa for developing/contributing upstream, or installing some obscure package from source.
+## Package Configuration
 
-**** Repositories
+In the following sections I will be configuring built-in packages as well as external packages via `package.el` and Quelpa.
 
-#+begin_src elisp
+
+<a id="org4bd81a5"></a>
+
+### Bootstrapping
+
+I am using the built-in `package.el` for my package needs. I am using Quelpa for developing/contributing upstream, or installing some obscure package from source.
+
+
+<a id="org3272eb2"></a>
+
+#### Repositories
+
+```elisp
 (require 'package)
 (dolist (repo '(("elpa" . "https://elpa.gnu.org/packages/")
                 ("melpa" . "https://melpa.org/packages/")
                 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
   (add-to-list 'package-archives repo))
-#+end_src
+```
 
-**** Maintaining selected packages
 
-Here we will generage the =~/.emacs.d/package-list.el= file using the =noweb= feature that comes with org-mode. 
+<a id="org448f788"></a>
 
-#+begin_src elisp :tangle .emacs.d/init.el :noweb yes
+#### Maintaining selected packages
+
+Here we will generage the `~/.emacs.d/package-list.el` file using the `noweb` feature that comes with org-mode.
+
+```elisp
 (defvar td/package-list
   (list
-   '<<packages>>)
+   'quelpa
+   'all-the-icons
+   'all-the-icons-dired
+   'diminish
+   'tangonov-theme
+   'avy
+   'ctrlf
+   'cape
+   'corfu-terminal
+   'consult
+   'consult-flycheck
+   'corfu
+   'pcmpl-args
+   'fussy
+   'kind-icon
+   'marginalia
+   'tempel
+   'vertico
+   'dashboard
+   'diff-hl
+   'elfeed
+   'elfeed-org
+   'capf-autosuggest
+   'eshell-syntax-highlighting
+   'expand-region
+   'god-mode
+   'goggles
+   'magit
+   'multiple-cursors
+   'org-alert
+   'org-chef
+   'ox-gfm
+   'ox-hugo
+   'org-present
+   'org-roam
+   'org-roam-ui
+   'ledger-mode
+   'notmuch
+   'org-mime
+   'org-contacts
+   'password-store
+   'rg
+   'visual-fill-column
+   'which-key
+   'clojure-mode
+   'cider
+   'sly
+   'eglot
+   'eldoc-box
+   'emmet-mode
+   'go-mode
+   'lua-mode
+   'markdown-mode
+   'nim-mode
+   'paredit
+   'php-mode
+   'prettier-js
+   'pyvenv
+   'rainbow-delimiters
+   'rainbow-mode
+   'inf-ruby
+   'rust-mode
+   'geiser-guile
+   'tree-sitter
+   'tree-sitter-langs
+   'typescript-mode
+   'web-mode
+   'yaml-mode)
   "Packages that are defined in init.el and are meant to be used.
 If `package-autoremove' wants to delete any of these, something is wrong.")
 
@@ -357,16 +546,20 @@ If `package-autoremove' wants to delete any of these, something is wrong.")
   (customize-save-variable 'package-selected-packages td/package-list))
 
 (add-hook 'after-init-hook #'td/save-package-list)
-#+end_src
+```
 
-**** Quelpa
+
+<a id="orgc54a6d1"></a>
+
+#### Quelpa
+
 Bootstrap Quelpa if it is missing, then define a macro for a more intuitive way to install missing packages from remotes.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 quelpa
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (unless (package-installed-p 'quelpa)
   (with-temp-buffer
     (url-insert-file-contents   "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
@@ -379,26 +572,36 @@ quelpa
 This should improve init by not looking for things we already have."
   `(unless (package-installed-p ',pkg)
      (quelpa '(,pkg ,@method))))
-#+end_src
+```
 
-*** Look & Feel
-**** All The Icons
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org7d57bd3"></a>
+
+### Look & Feel
+
+
+<a id="orgfc207b3"></a>
+
+#### All The Icons
+
+```elisp
 all-the-icons
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (require 'all-the-icons)
-#+end_src
+```
 
-**** Dired
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org73cdcc7"></a>
+
+#### Dired
+
+```elisp
 all-the-icons-dired
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (with-eval-after-load 'all-the-icons
   (setq all-the-icons-dired-monochrome nil)
   (add-hook
@@ -406,16 +609,20 @@ all-the-icons-dired
                         (when (display-graphic-p)
                           (all-the-icons-dired-mode))
                         (dired-hide-details-mode))))
-#+end_src
+```
 
-**** Diminish
-Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to make sure we have diminish early on.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org3f70eb2"></a>
+
+#### Diminish
+
+Output from the `minor-mode-alist`. Due to how lazy-loading works, we want to make sure we have diminish early on.
+
+```elisp
 diminish
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (defun tdm/diminish-lsp-lighter ()
   "Display the LSP status in the `mode-line-modes'."
   (let* ((lsp-up lsp--buffer-workspaces)
@@ -459,61 +666,38 @@ diminish
                       'meow-keypad-mode
                       'meow-beacon-mode))
     (diminish mode)))
-#+end_src
+```
 
-**** COMMENT Doom Themes
-Doom's themes are hard to beat. They're easy to install, highly customizable and hackable. Writing my own theme is easy.
 
-#+begin_src elisp :noweb-ref packages :tangle no
-doom-themes
-#+end_src
+<a id="orga9c02d8"></a>
 
-#+begin_src elisp
-(setq doom-themes-enable-bold t
-      doom-themes-enable-italic t
-      doom-themes-padded-modeline 1)
-(load-theme 'doom-material-dark-devel t)
-(enable-theme 'doom-material-dark-devel)
-(doom-themes-org-config)
-#+end_src
+#### Custom Theme
 
-**** COMMENT Custom Theme Devel
-I've written my own theme called "tangonov".
-
-#+begin_src elisp
-(add-to-list 'custom-theme-load-path "~/Projects/tangonov-theme/")
-(setq tangonov-selection-foregrounds nil)
-(defun td/load-theme (frame)
-  "Load the theme correctly for a `FRAME' if we're using emacsclient."
-  (select-frame frame)
-  (load-theme 'tangonov t))
-
-(if (daemonp)
-    (add-hook 'after-make-frame-functions #'td/load-theme)
-  (load-theme 'tangonov t))
-#+end_src
-
-**** Custom Theme
-
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 tangonov-theme
-#+end_src
-  
-#+begin_src elisp
+```
+
+```elisp
 (load-theme 'tangonov t)
-#+end_src
+```
 
-**** Font Setup
 
-#+begin_src elisp
+<a id="org7e9c276"></a>
+
+#### Font Setup
+
+```elisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 (add-to-list 'default-frame-alist '(font . "Hack 12"))
-#+end_src
+```
 
-**** Modeline
 
-#+begin_src elisp
+<a id="org019168b"></a>
+
+#### Modeline
+
+```elisp
 (defvar tdm/git-cached-status nil)
 (defvar tdm/git--last-update nil)
 
@@ -698,74 +882,64 @@ The modeline should fit the `window-width' with space between the lists."
                      (:eval (tdm/misc))
                      "  "
                      mode-line-modes))))))
-#+END_SRC
+```
 
-*** Utility Packages
+
+<a id="org61156f0"></a>
+
+### Utility Packages
 
 Packages that extend and augment emacs in a general way
 
-**** Avy
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="orgfca52ab"></a>
+
+#### Avy
+
+```elisp
 avy
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (define-key priority-mode-map (kbd "C-:") #'avy-goto-char-timer)
 (define-key isearch-mode-map (kbd "C-:") #'avy-isearch)
 (avy-setup-default)
-#+end_src
+```
 
-**** CTRLF
+
+<a id="orgbff9dd7"></a>
+
+#### CTRLF
 
 CTRLF greatly enhances isearch.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 ctrlf
-#+end_src
-  
-#+begin_src elisp
-(ctrlf-mode 1)
-#+end_src
+```
 
-**** Completions
+```elisp
+(ctrlf-mode 1)
+```
+
+
+<a id="org6b78b38"></a>
+
+#### Completions
+
 A combination of packages to enhance completions.
 
-***** COMMENT Company
-Completions at point/region.
 
-#+begin_src elisp :noweb-ref packages :tangle no
-company
-#+end_src
+<a id="org714b402"></a>
 
-#+begin_src elisp
-(defun td/company-prog-hook ()
-  "Completions for programming."
-  (setq-local company-backends
-              '(company-capf
-                company-yasnippet
-                company-dabbrv-code
-                company-files)))
+##### Cape
 
-(add-hook 'after-init-hook #'global-company-mode)
-(add-hook 'prog-mode-hook #'td/company-prog-hook)
-
-(setq company-backends '(company-capf
-                         company-yasnippet
-                         company-ispell
-                         company-files)
-      company-files-exclusions '(".git/")
-      company-idle-delay 0.3)
-#+end_src
-
-***** Cape
 Add completion at point functions for things like Corfu
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 cape
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (defun td/don-local-cape (comps &optional no-extend)
   "Create a hook function to set local capfs to include `COMPS'.
 If `NO-EXTEND' is non-nil, the global capfs will be discarded."
@@ -822,27 +996,30 @@ If `NO-EXTEND' is non-nil, the global capfs will be discarded."
                                    #'cape-dabbrev) t))
 
 (add-hook 'text-mode-hook (td/don-local-cape (list #'tempel-expand #'cape-dict)))
-#+end_src
+```
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 corfu-terminal
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (unless (display-graphic-p)
   (corfu-terminal-mode t))
-#+end_src
+```
 
-***** Consult
-I am currently giving consult a try as my completion-at-point solution, amongst many
-other better ways to reference things in Emacs.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org741b2f3"></a>
+
+##### Consult
+
+I am currently giving consult a try as my completion-at-point solution, amongst many other better ways to reference things in Emacs.
+
+```elisp
 consult
 consult-flycheck
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
   (require 'consult)
 
   (setq register-preview-delay 0
@@ -903,18 +1080,21 @@ consult-flycheck
         (lambda ()
           (when-let (project (project-current))
             (car (project-roots project)))))
-#+end_src
+```
 
-***** Corfu
+
+<a id="orga4900fe"></a>
+
+##### Corfu
 
 Drop-down style completions & related packages. I use Corfu everywhere, hence adding pcmpl-args, which is supposed to enhance eshell completions.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 corfu
 pcmpl-args
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (setq tab-always-indent 'complete)
 
 (setq corfu-auto t
@@ -950,102 +1130,111 @@ pcmpl-args
 (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
 
 (require 'pcmpl-args)
-#+end_src
+```
 
-***** Fussy
+
+<a id="org21a68f7"></a>
+
+##### Fussy
 
 A pretty good fuzzy completion style.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 fussy
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (add-to-list 'completion-styles 'fussy t)
 (setq completion-category-defaults nil
       completion-category-overrides nil)
-#+end_src
+```
 
-***** Kind-Icon
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org495234c"></a>
+
+##### Kind-Icon
+
+```elisp
 kind-icon
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (with-eval-after-load 'corfu
   (setq kind-icon-default-face 'corfu-default)
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-#+end_src
+```
 
-***** Marginalia
+
+<a id="org7543959"></a>
+
+##### Marginalia
+
 Better descriptions of symbols in the minibuffer.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 marginalia
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (marginalia-mode)
 (define-key minibuffer-local-map (kbd "M-A") #'marginalia-cycle)
-#+end_src
+```
 
-***** COMMENT Orderless
 
-A completion style that permits entering parts of completion names in any order.
+<a id="org368aae5"></a>
 
-#+begin_src elisp :noweb-ref packages :tangle no
-orderless
-#+end_src
-
-#+begin_src elisp
-(setq completion-styles '(orderless basic)
-      completion-category-defaults nil
-      completion-category-overrides
-      '((file (styles . (partial-completion)))))
-#+end_src
-
-***** Savehist
+##### Savehist
 
 Save history for Vertico to look at later.
 
-#+begin_src elisp
+```elisp
 (savehist-mode)
-#+end_src
+```
 
-***** TempEl
+
+<a id="org1009b90"></a>
+
+##### TempEl
+
 Snippet completions written in elisp.
 
-Note to self: This is intertwined with [[* Cape][cape]].
+Note to self: This is intertwined with [cape](#org714b402).
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 tempel
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (global-set-key (kbd "C-c M-t") #'tempel-insert)
-#+end_src
+```
 
-***** Vertico
+
+<a id="org707b9d5"></a>
+
+##### Vertico
+
 Mini-buffer completions back-end.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 vertico
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (with-eval-after-load 'consult
   (vertico-mode)
   (setq enable-recursive-minibuffers t))
-#+end_src
+```
 
-**** Dashboard
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="orgf0bc610"></a>
+
+#### Dashboard
+
+```elisp
 dashboard
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (setq dashboard-startup-banner 'logo
       dashboard-projects-backend 'project-el
       dashboard-items '((projects . 5)
@@ -1060,56 +1249,65 @@ dashboard
   (setq initial-buffer-choice
         (lambda () (get-buffer "*dashboard*"))))
 (dashboard-setup-startup-hook)
-#+end_src
+```
 
-**** Diff-hl
+
+<a id="org35d3786"></a>
+
+#### Diff-hl
 
 Show me the diffs in the fringe!
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 diff-hl
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (setq diff-hl-show-staged-changes nil)
 (global-diff-hl-mode)
 (with-eval-after-load 'magit
   (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
-#+end_src
+```
 
-**** Elfeed
+
+<a id="org55b01ac"></a>
+
+#### Elfeed
 
 RSS Reader :D
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 elfeed
 elfeed-org
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (global-set-key (kbd "<f6>") #'elfeed)
 
 (with-eval-after-load 'elfeed
   (elfeed-org)
   (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))
-#+end_src
+```
 
-**** Surround
+
+<a id="orgc88c93a"></a>
+
+#### Surround
 
 My attempt at writing a quick replacement for "vim surround". There are better solutions out there, but when they're unpredictable, I don't want to figure out why.
 
-This is a "dumb" solution. It just seeks backward for the start of a pair, then matches the surround with a forward sexp. If it's called with a neg-arg (eg: ~(surround -1)~) it will scan forward first and look back. If the point is not inside the bounds of a resulting backward scan, we fall back to forward.
+This is a "dumb" solution. It just seeks backward for the start of a pair, then matches the surround with a forward sexp. If it's called with a neg-arg (eg: `(surround -1)`) it will scan forward first and look back. If the point is not inside the bounds of a resulting backward scan, we fall back to forward.
 
 Ideally if the point is not inside the bounds of a found sexp, I should be scanning recursively in the same direction until it does. Maybe I'll implement this later.
 
-When a pair is not in ~surround-pairs~, it will fall-back to symmetrical pairs (a pair of the same char). When this happens, scanning forward, or backward, makes no difference.
+When a pair is not in `surround-pairs`, it will fall-back to symmetrical pairs (a pair of the same char). When this happens, scanning forward, or backward, makes no difference.
 
 It currently doesn't care about the scope of the scan, either, and doesn't care if the backward or forward sexp is 100 lines elsewhere.
 
 I should refine this.
 
-#+begin_src elisp
+```elisp
 (defvar surround-pairs '(("{" . "}")
                          ("(" . ")")
                          ("[" . "]")
@@ -1198,37 +1396,14 @@ for pair."
           ((eq method ?d) (surround--delete-pair bounds)))))
 
 (global-set-key (kbd "C-S-s") #'surround)
-#+end_src
+```
 
-**** COMMENT Ement
 
-A Matrix client for Emacs. Ement currenly has a few stray dependencies.
+<a id="org5c427e6"></a>
 
-#+begin_src elisp :noweb-ref packages :tangle no
-taxy
-taxy-magit-section
-ts
-#+end_src
+#### ERC
 
-#+begin_src elisp
-(defun td/matrix-connect ()
-  "Connect to Matrix via Ement & Pantalaimon."
-  (interactive)
-  (ement-connect
-   :user-id "@trevdev:matrix.org"
-   :password (password-store-get "Personal/matrix.org")
-   :uri-prefix "http://localhost:8009"))
-
-(quelpa-get plz :fetcher github :repo "alphapapa/plz.el")
-(quelpa-get ement :fetcher github :repo "alphapapa/ement.el")
-
-(add-to-list 'td/package-list 'plz)
-(add-to-list 'td/package-list 'ement)
-#+end_src
-
-**** ERC
-
-#+begin_src elisp
+```elisp
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat" "#emacs" "#guix" "#systemcrafters" "#stumpwm")))
 
@@ -1239,210 +1414,39 @@ ts
                              :nick "trevdev"
                              :password (password-store-get
                                         "Biz/libera.chat")))
-#+end_src
+```
 
-**** Eshell
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org587b58e"></a>
+
+#### Eshell
+
+```elisp
 capf-autosuggest
 eshell-syntax-highlighting
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (defun td/eshell-extras ()
   "Start extra features for eshell-mode"
   (eshell-syntax-highlighting-mode)
   (capf-autosuggest-mode))
 
 (add-hook 'eshell-mode-hook #'td/eshell-extras)
-#+end_src
+```
 
-**** COMMENT Evil
 
-#+begin_src elisp :noweb-ref packages :tangle no
-evil
-#+end_src
+<a id="orgb626989"></a>
 
-***** Keybinds
+#### Expand Region
 
-Evil requires a lot of key re-binding in order to get going. You may still find yourself using =M-x= from time to time, looking for some keybind and discovering it's something like =C-c C-x M-o q r s= and think "yeah, that's easy!" Just kidding. You'll want to create mode-specific (or global) leader, normal or motion mapping.
-
-#+begin_src elisp
-(defun td/evil-bind-keys ()
-  "Create some extra evil bindings."
-  (evil-set-leader 'normal (kbd "SPC"))
-  ;; Avy
-  (evil-define-key 'normal 'global (kbd "<leader>s") 'avy-goto-char-timer)
-  ;; General
-  (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
-  (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
-  (evil-define-key 'normal 'global (kbd "<leader>fb") 'consult-buffer)
-  (evil-define-key 'normal 'global (kbd "<leader>x") 'execute-extended-command)
-  ;; LSP
-  (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
-  ;; Org
-  (evil-define-key 'normal org-mode-map (kbd "<leader>ci") 'org-clock-in)
-  (evil-define-key 'normal org-mode-map (kbd "<leader>co") 'org-clock-out)
-  (evil-define-key 'normal org-mode-map (kbd "<leader>'") 'org-edit-special)
-  (evil-define-key 'normal org-src-mode-map (kbd "<leader>'") 'org-edit-special)
-  (evil-define-key 'normal 'global (kbd "<leader>a") 'org-agenda)
-  (evil-define-key 'normal 'global (kbd "<leader>i") 'td/eldoc-box-help)
-  (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
-  ;; Magit
-  (evil-define-key 'normal 'global (kbd "gs") 'magit))
-#+end_src
-
-***** Extending Evil Mode
-
-There are a lot of packages that make Evil better by extending it. Thankfully they are easy to set up.
-
-The following sub-headlines will be tangled into this block:
-
-#+begin_src elisp :tangle .emacs.d/init.el :noweb yes
-(with-eval-after-load 'evil
-  <<after-load-evil>>)
-#+end_src
-
-****** evil-lion
-
-Evil-lion is for making emac's built-in =align= function more "evil" friendly the motion =gl= (align right) or =gL= (align left). For example, =glp.= would left align all elements in a paragraph on a period character.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-lion
-#+end_src
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(evil-lion-mode)
-#+end_src
-
-****** evil-matchit
-
-The essential pair matching plugin for vim ported to evil-mode.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-matchit
-#+end_src
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(global-evil-matchit-mode 1)
-#+end_src
-
-****** evil-surround
-
-The essential pair swapping plugin by the venerable Tim Pope ported to evil-mode.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-surround
-#+end_src
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(global-evil-surround-mode 1)
-#+end_src
-
-****** evil-exchange
-
-Be able to swap two motion-selected areas with the =gx= motion.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-exchange
-#+end_src
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(evil-exchange-install)
-#+end_src
-
-****** evil-multiedit
-
-Multiedit is sorta like the venerable multiple cursors plugin, only it's vimish and frankly, not as good. It's still better than writing macros for everything.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-multiedit
-#+end_src
-
-Unfortunately, ~evil-multiedit-default-keybinds~ overrides common meta functions like delete-word (M-d). Theoretically, we would not be using these with evil anyway.
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(require 'evil-multiedit)
-(evil-multiedit-default-keybinds)
-#+end_src
-
-****** evil-goggles
-
-Get fancy highlights whenever I yank, kill or paste something.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-goggles
-#+end_src
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(evil-goggles-mode)
-#+end_src
-
-****** evil-commentary
-
-Make commenting code motion-friendly with the =gc= motion.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-commentary
-#+end_src
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(add-hook 'prog-mode-hook #'evil-commentary-mode)
-#+end_src
-
-****** evil-collection
-
-This package is _massive_. It is a collaborative, community effort to bring sane evil keybinds to as many major modes as possible. Its goal is to keep things consistent and as predictable as possible.
-
-It does add a lot of package bloat, however. Without it, many major modes dump you into "Emacs mode". If you're used to, and are okay with the occasional Emacs only interface, you might wanna skip this one.i
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-collection
-#+end_src
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(evil-collection-init)
-#+end_src
-
-****** evil-org
-
-Evil-org /greatly/ improves the org-mode experience in evil-mode Emacs.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-evil-org
-#+end_src
-
-#+begin_src elisp :noweb-ref after-load-evil :tangle no
-(with-eval-after-load 'org
-  (require 'evil-org)
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys)
-  (add-hook 'org-mode-hook #'evil-org-mode))
-#+end_src
-
-***** Apply Evil Configurations
-
-Here apply our evil configurations and set up our hooks.
-
-#+begin_src elisp
-(setq evil-want-keybinding nil
-      evil-want-C-u-scroll t)
-(require 'evil)
-(setq evil-visual-state-cursor 'hbar
-      evil-want-C-u-scroll t)
-(customize-save-variable 'evil-undo-system 'undo-redo)
-(td/evil-bind-keys)
-(evil-mode 1)
-#+end_src
-
-**** Expand Region
 It just makes selecting text between sexps easy.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 expand-region
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (require 'expand-region)
 (td/bind-keys '(("C-=" . er/expand-region)))
 (defvar er/keymap
@@ -1467,34 +1471,29 @@ expand-region
 
 (fset 'er/keymap er/keymap)
 (define-key priority-mode-map (kbd "C-,") er/keymap)
-#+end_src
+```
 
-**** COMMENT Exec Path
-It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
 
-#+begin_src elisp :noweb-ref packages :tangle no
-exec-path-from-shell
-#+end_src
+<a id="orgce490c9"></a>
 
-#+begin_src elisp
-(exec-path-from-shell-initialize)
-#+end_src
-
-**** God Mode
+#### God Mode
 
 God mode is an amazing package. It automatically translates key-chords into single-key bindings and toggled modifiers.
 
 Because it has its own keymap, I can add utility functions to god-mode. This turns it into sort of a pseudo-modal editing mode. However, unlike other modal packages, it does not require as much key re-binding, thanks to key-chord translation.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 god-mode
-#+end_src
+```
 
-***** Functions
+
+<a id="org7714353"></a>
+
+##### Functions
 
 These functions enhance editing while allowing me to "drop out" of god-mode in useful ways.
 
-#+begin_src elisp
+```elisp
 (defun god/eol-insert ()
   "Move the cursor to the end-of-line and exit god mode."
   (interactive)
@@ -1550,15 +1549,18 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   (save-excursion
     (next-line)
     (join-line)))
-#+end_src
+```
 
-***** Insert Ahead
+
+<a id="orgdf6d3e6"></a>
+
+##### Insert Ahead
 
 I want some way to intuitively leave god mode one character over from where I scanned to with seeking or moving forward and backward.
 
 This comes in handy because sometimes words separated by non-word characters can put you in a spot where if you could move just one character "over", you could be right where you want to land without having to move a whole word/thing over the mark and back again.
 
-#+begin_src elisp
+```elisp
 (defvar god/ahead-direction 1
   "A cached value of the presumed `god/insert-ahead' direction.")
 
@@ -1599,13 +1601,16 @@ A value of -1 is backward.'"
   (advice-add for-func :after
               #'(lambda (&rest args) (god/set-ahead-direction))
               '((name . "god/set-ahead-forward"))))
-#+end_src
+```
 
-***** Org Mode Newline Advice
 
-I would like to be able to perform special org-mode functions such as ~org-meta-return~ and ~org-insert-todo-heading~ and have ~god-local-mode~ turn off automatically.
+<a id="org57e1612"></a>
 
-#+begin_src elisp
+##### Org Mode Newline Advice
+
+I would like to be able to perform special org-mode functions such as `org-meta-return` and `org-insert-todo-heading` and have `god-local-mode` turn off automatically.
+
+```elisp
 (advice-add 'org-meta-return :after
             #'(lambda (&rest args) (god-local-mode -1))
             '(( name . "god/insert-after-org-meta-return")))
@@ -1613,13 +1618,16 @@ I would like to be able to perform special org-mode functions such as ~org-meta-
 (advice-add 'org-insert-todo-heading :after
             #'(lambda (&rest args) (god-local-mode -1))
             '(( name . "god/insert-after-org-new-heading")))
-#+end_src
+```
 
-***** Seeking Characters
 
-I envied Vim's ability to use =f= or =t= to quickly jump to, or just past a char target. I wrote my own solution. You can even repeat the last seek, or throw it into reverse with a negative argument.
+<a id="org8963d6e"></a>
 
-#+begin_src elisp
+##### Seeking Characters
+
+I envied Vim's ability to use `f` or `t` to quickly jump to, or just past a char target. I wrote my own solution. You can even repeat the last seek, or throw it into reverse with a negative argument.
+
+```elisp
 (defvar god/previous-seek-motion nil
   "The previous until/find motion performed by god-mode.")
 
@@ -1659,13 +1667,16 @@ Apply a neg-arg to go in `REVERSE'"
           (until (caddr god/previous-seek-motion))
           (ch (cadddr god/previous-seek-motion)))
       (funcall func (if (< reverse 0) (* num -1) num) until ch))))
-#+end_src
+```
 
-***** Cursor Indicator
+
+<a id="org9179535"></a>
+
+##### Cursor Indicator
 
 I like having a thick bar for "emacs mode" and a box for god-mode.
 
-#+begin_src elisp
+```elisp
 (setq cursor-type '(bar . 4))
 
 (defun god/cursor-toggle ()
@@ -1673,13 +1684,16 @@ I like having a thick bar for "emacs mode" and a box for god-mode.
   (setq cursor-type (if (bound-and-true-p god-local-mode)
                         'box
                       '(bar . 4))))
-#+end_src
+```
 
-***** Keybindings
+
+<a id="orge5933a6"></a>
+
+##### Keybindings
 
 Declare key-bindings to be applied in the next section.
 
-#+begin_src elisp
+```elisp
 (defvar god/keybinds '(("h" . backward-char)
                        ("j" . next-line)
                        ("k" . previous-line)
@@ -1694,6 +1708,8 @@ Declare key-bindings to be applied in the next section.
                        ("F" . forward-symbol)
                        ("g" . avy-goto-char-timer)
                        ("f" . forward-word)
+                       ("u" . undo)
+                       ("U" . undo-redo)
                        ("I" . god/insert-ahead)
                        ("i" . god-local-mode)
                        ("J" . god/pull-line)
@@ -1707,17 +1723,20 @@ Declare key-bindings to be applied in the next section.
                        ("q" . quit-window)
                        ("z" . repeat)
                        ("," . er/keymap)))
-#+end_src
+```
 
-***** Apply & Finish Setup
 
-I want god mode to be available to me everywhere. To do this, ~god-exempt-major-modes~ needs to be unset before loading =god-mode=.
+<a id="org609d5b3"></a>
 
-I would prefer to keep god mode on, or off, on a buffer-to-buffer basis. I use ~god-local-mode~ for this.
+##### Apply & Finish Setup
+
+I want god mode to be available to me everywhere. To do this, `god-exempt-major-modes` needs to be unset before loading `god-mode`.
+
+I would prefer to keep god mode on, or off, on a buffer-to-buffer basis. I use `god-local-mode` for this.
 
 God has no intermediary mode for non-editing buffers. I feel like it's better to have to turn it on explicitly for quicker navigation or firing off commands.
 
-#+begin_src elisp
+```elisp
 (setq god-mode-enable-function-key-translation nil
       god-exempt-major-modes '(vterm-mode)
       god-exempt-predicates nil
@@ -1744,155 +1763,49 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
 
 (add-hook 'post-command-hook #'god/cursor-toggle)
 (add-hook 'god-local-mode-hook #'corfu-quit)
-#+end_src
+```
 
-**** Goggles
+
+<a id="org7bd859d"></a>
+
+#### Goggles
 
 Extra feedback for text changes.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 goggles
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/add-hooks '(text-mode prog-mode) #'goggles-mode)
 (setq-default goggles-pulse t)
-#+end_src
+```
 
-**** COMMENT Meow
-Meow is a pretty special and ambitious modal editing project. It takes inspiration from Vim, Kakuone and god-mode to create a selection first, complete modal experience.
 
-#+begin_src elisp :noweb-ref packages :tangle no
-meow
-#+end_src
+<a id="org8d7fc14"></a>
 
-#+begin_src elisp
-(defun meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty
-        meow-expand-hint-remove-delay 2.0
-        meow-expand-exclude-mode-list '())
-  (dolist (state '((notmuch-hello-mode . motion)
-                   (notmuch-search-mode . motion)
-                   (notmuch-tree-mode . motion)
-                   (notmuch-show-mode . motion)))
-    (add-to-list 'meow-mode-state-list state))
-  (meow-motion-overwrite-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("<escape>" . ignore))
-  (meow-leader-define-key
-   ;; SPC j/k will run the original command in MOTION state.
-   '("j" . "H-j")
-   '("k" . "H-k")
-   ;; Use SPC (0-9) for digit arguments.
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet)
-   '("w" . td/windmove-map)
-   '("H" . eldoc-box-help-at-point)
-   ;; Custom keybinds
-   (cons "P" project-prefix-map))
-  (meow-normal-define-key
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
-   '("[" . meow-beginning-of-thing)
-   '("]" . meow-end-of-thing)
-   '("a" . meow-append)
-   '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("c" . meow-change)
-   '("d" . meow-delete)
-   '("D" . meow-backward-delete)
-   '("e" . meow-next-word)
-   '("E" . meow-next-symbol)
-   '("f" . meow-find)
-   '("g" . meow-cancel-selection)
-   '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   '("i" . meow-insert)
-   '("I" . meow-open-above)
-   '("j" . meow-next)
-   '("J" . meow-next-expand)
-   '("k" . meow-prev)
-   '("K" . meow-prev-expand)
-   '("l" . meow-right)
-   '("L" . meow-right-expand)
-   '("m" . meow-join)
-   '("n" . meow-search)
-   '("o" . meow-block)
-   '("O" . meow-to-block)
-   '("p" . meow-yank)
-   '("q" . meow-quit)
-   '("Q" . meow-goto-line)
-   '("r" . meow-replace)
-   '("R" . meow-swap-grab)
-   '("s" . meow-kill)
-   '("t" . meow-till)
-   '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
-   '("v" . meow-visit)
-   '("w" . meow-mark-word)
-   '("W" . meow-mark-symbol)
-   '("x" . meow-line)
-   '("X" . meow-goto-line)
-   '("y" . meow-save)
-   '("Y" . meow-sync-grab)
-   '("z" . meow-pop-selection)
-   '("'" . repeat)
-   '("<escape>" . ignore)
-   '("S" . surround)
-   '("P" . td/backward-chunk)
-   '("N" . td/forward-chunk)
-   '("=" . er/expand-region)))
-
-(require 'meow)
-(meow-setup)
-(meow-global-mode 1)
-(add-hook 'meow-insert-exit-hook #'corfu-quit)
-#+end_src
-
-**** Magit
+#### Magit
 
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 magit
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (global-set-key (kbd "C-c g") #'magit-status)
-#+end_src
+```
 
-**** Multiple Cursors
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="orgc047f4a"></a>
+
+#### Multiple Cursors
+
+```elisp
 multiple-cursors
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/bind-keys '(("C-S-l"   . mc/edit-lines)
                 ("C->"     . mc/mark-next-like-this)
                 ("C-<"     . mc/mark-previous-like-this)
@@ -1903,17 +1816,23 @@ multiple-cursors
                 ("C-M-n"   . mc/insert-numbers)
                 ("C-M-a"   . mc/insert-letters))
               priority-mode-map)
-#+end_src
+```
 
-**** Org
+
+<a id="orgadca133"></a>
+
+#### Org
 
 The greatest part of using Emacs is org-mode. It handles my agenda, my todo list, helps me prioritize tasks, track time and invoice clients.
 
-***** Key Variables
+
+<a id="org3e191dd"></a>
+
+##### Key Variables
 
 I am using tags to help sort contexts within my agenda. Some people use categories for that. I technically do that, too, but I also use separate files. Filenames are categories by default, so there is less to configure when you use separate files.
 
-#+begin_src elisp
+```elisp
 (defvar td/tag-list
   '((:startgroup)
     ("@home" . ?H)
@@ -1923,28 +1842,28 @@ I am using tags to help sort contexts within my agenda. Some people use categori
     ("gurps" . ?g)
     ("idea"  . ?i))
   "The tags for org headlines.")
-#+end_src
+```
 
 Next are my TODO key words. They are meant to be used as such:
 
-- =TODO= A generic task or actionable thing.
-- =NEXT= A planned task, something I am setting my mind to until it is done. There should be very few of these types of tasks so that I am setting achievable goals
-- =WAIT= The task that is held up by some pre-requesite or external factor
-- =LOW= The task is a "maybe/someday" task. I'd like to see it done, but it's not a priority right now.
-- =DONE= The task is completed
-- =PASS= The task has been "passed along" or "delegated" to someone else. Considered 'done', just not by myself
-- =CANC= The task has been cancelled or ended before completion
+-   `TODO` A generic task or actionable thing.
+-   `NEXT` A planned task, something I am setting my mind to until it is done. There should be very few of these types of tasks so that I am setting achievable goals
+-   `WAIT` The task that is held up by some pre-requesite or external factor
+-   `LOW` The task is a "maybe/someday" task. I'd like to see it done, but it's not a priority right now.
+-   `DONE` The task is completed
+-   `PASS` The task has been "passed along" or "delegated" to someone else. Considered 'done', just not by myself
+-   `CANC` The task has been cancelled or ended before completion
 
-#+begin_src elisp
+```elisp
 (defvar td/todo-keywords
   '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@/!)" "LOW(l)"
               "|" "DONE(d!)" "PASS(p@)" "CANC(k@)"))
   "A sequence of keywords for Org headlines.")
-#+end_src
+```
 
-My org agenda commands & stuck projects. Currently a work in progress! I am reading David Allen's "[[https://gettingthingsdone.com/][Getting Things Done]]." I am attempting to shape my agenda to suit that system.
+My org agenda commands & stuck projects. Currently a work in progress! I am reading David Allen's "[Getting Things Done](https://gettingthingsdone.com/)." I am attempting to shape my agenda to suit that system.
 
-#+begin_src elisp
+```elisp
 (defvar td/org-agenda-commands
   '(("d" "Dashboard: Get things done!"
      ((agenda "" ((org-agenda-span 7)))
@@ -1971,11 +1890,11 @@ My org agenda commands & stuck projects. Currently a work in progress! I am read
      )
     )
   "Custom commands for Org Agenda.")
-#+end_src
+```
 
-Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [[*Extending Org Mode][extensions]] for how I extend org-mode.
+Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [extensions](#orgf22a5bb) for how I extend org-mode.
 
-#+begin_src elisp
+```elisp
 (defvar td/capture-templates
   '(("t" "Todo" entry (file+headline "~/Org/agenda.org" "Inbox")
      "* TODO %^{Title: }\n:PROPERTIES:\n:date: %U\n:END:\n%?"
@@ -1986,14 +1905,18 @@ Capture templates! These help me collect information into Org files. Currently I
   "Base org-capture-templates.")
 
 (global-set-key (kbd "C-c M-a") #'org-capture)
-#+end_src
+```
 
 I usually stick to monospace sized fonts with the exception of Org files. I like the first 3 levels to be slightly larger than the rest, and progressively smaller. This helps me create a sense of urgency at the lower-level headers and it also improves readability.
 
-***** Functions
+
+<a id="org4633fda"></a>
+
+##### Functions
+
 Some fairly self-explanatory utility functions.
 
-#+begin_src elisp
+```elisp
 (defvar td/org-scale-levels-enable nil
   "Whether or levels are scaled.")
 
@@ -2015,11 +1938,14 @@ Some fairly self-explanatory utility functions.
 
 (defun td/org-append-templates (templates)
   (setq org-capture-templates (append org-capture-templates templates)))
-#+end_src
+```
 
-***** Apply Configuration
 
-#+begin_src elisp
+<a id="org836d02c"></a>
+
+##### Apply Configuration
+
+```elisp
 (add-hook 'org-mode-hook #'td/org-hook)
 (global-set-key (kbd "C-c a") #'org-agenda)
 
@@ -2062,20 +1988,25 @@ Some fairly self-explanatory utility functions.
                                      (direction . right)
                                      (window-width . 0.50)
                                      (window-height . fit-window-to-buffer)))
-#+end_src
+```
 
-***** Extending Org Mode
+
+<a id="orgf22a5bb"></a>
+
+##### Extending Org Mode
+
 Extending org-mode with some interesting packages.
 
-****** org-alert
+
+###### org-alert
 
 Libnotify alerts for Agenda alerts.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 org-alert
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (with-eval-after-load 'org
   (require 'org-alert)
   (setq alert-default-style 'libnotify
@@ -2083,17 +2014,18 @@ org-alert
         org-alert-notify-cutoff 60
         org-alert-notification-title "Org Agenda")
   (org-alert-enable))
-#+end_src
+```
 
-****** org-chef
 
-[[https://github.com/Chobbes/org-chef][Org-chef]] is a must have if you enjoy cooking. You can just use =M-x org-chef-insert-recipe= in whatever cookbook file, or the capture templates.
+###### org-chef
 
-#+begin_src elisp :noweb-ref packages :tangle no
+[Org-chef](https://github.com/Chobbes/org-chef) is a must have if you enjoy cooking. You can just use `M-x org-chef-insert-recipe` in whatever cookbook file, or the capture templates.
+
+```elisp
 org-chef
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/org-append-templates
  '(("r" "Recipe" entry (file "~/Projects/cookbook/src/cookbook.org")
     "%(org-chef-get-recipe-from-url)"
@@ -2103,60 +2035,46 @@ org-chef
     (eval (concat "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n"
             "  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n"
             "  :END:\n** Ingredients\n   %?\n** Directions\n\n")))))
-#+end_src
+```
 
-****** ox-gfm
+
+###### ox-gfm
 
 Get access to Github Flavored Markdown
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 ox-gfm
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (with-eval-after-load 'ox
   (require 'ox-gfm))
-#+end_src
+```
 
-****** ox-hugo
+
+###### ox-hugo
 
 I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 ox-hugo
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (with-eval-after-load 'ox
   (require 'ox-hugo))
-#+end_src
+```
 
-****** COMMENT org-modern
 
-#+begin_src lisp :noweb-ref packages :tangle no
-org-modern
-#+end_src
-
-#+begin_src lisp
-(setq org-pretty-entities t
-      org-ellipsis "…"
-      org-agenda-current-time-string "⭠ now ────────────────────────────"
-      org-hide-emphasis-markers t
-      org-auto-align-tags nil
-      org-tags-column 0
-      org-auto-align-tags nil)
-(global-org-modern-mode)
-#+end_src
-
-****** org-present
+###### org-present
 
 A tiny package for presenting with org-mode.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 org-present
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (setq org-present-text-scale 5)
 (with-eval-after-load 'org-present
   (add-hook 'org-present-mode-hook
@@ -2178,17 +2096,18 @@ org-present
   (td/bind-keys '(("C-c C-p C-c" . org-present-show-cursor)
                   ("C-c C-p C-h" . org-present-hide-cursor))
                 org-present-mode-keymap))
-#+end_src
+```
 
-****** org-roam
+
+###### org-roam
 
 Org roam is an incredible thought capture system, inspired by roam research. I'm not sure this one's for me, but I am giving it a try.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 org-roam
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (defvar td/roam-capture-templates
   '(("d" "default" plain "%?"
      :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
@@ -2231,28 +2150,32 @@ org-roam
                                      (window-height . fit-window-to-buffer)))
 (with-eval-after-load 'org-roam
   (org-roam-db-autosync-mode))
-#+end_src
+```
 
-****** org-roam-ui
+
+###### org-roam-ui
 
 A fancy, web-based user interface for reviewing your org-roam notes and how they connect to one-another.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 org-roam-ui
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (setq org-roam-ui-sync-theme t
       org-roam-ui-follow t
       org-roam-ui-update-on-save t
       org-roam-ui-open-on-start t)
-#+end_src
+```
 
-***** Custom Clock Table
+
+<a id="org0e65136"></a>
+
+##### Custom Clock Table
 
 I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting billable hours and invoicing.
 
-#+begin_src elisp
+```elisp
 (defcustom td/billable-rate 80
   "The billable rate for calculating 'td/custom-clocktable"
   :type `integer
@@ -2371,56 +2294,65 @@ I wanted a neat and tidy way to lay out the hours that I've worked, vs how much 
       (setq-local org-duration-format '(("h" . nil) (special . 2)))
     (setq-local org-duration-format '((special . h:mm))))
   (org-ctrl-c-ctrl-c))
-#+end_src
+```
 
 Here's an example:
-#+BEGIN: clocktable :scope ("clocktable-example.org") :maxlevel 3 :properties ("Comment" "Effort") :formatter td/custom-clocktable
-#+CAPTION: Clock summary at [2022-03-03 Thu 13:08]
+
 | Task              | Est   | Time   | Billable | Comment                |
-|-------------------+-------+--------+----------+------------------------|
+|----------------- |----- |------ |-------- |---------------------- |
 | Client            |       | 8.00h  | $520.00  |                        |
 | — Task B          |       | 2.00h  | $130.00  | This is taking a while |
 | — Task A          |       | 6.00h  | $390.00  |                        |
-|-------------------+-------+--------+----------+------------------------|
 | Client B          |       | 12.43h | $807.95  |                        |
 | — Special Project |       | 12.00h | $780.00  |                        |
 | —— Task C         | 9.00h | 8.00h  | $520.00  |                        |
 | —— Task D         |       | 4.00h  | $260.00  |                        |
 | — Unrelated Task  |       | 0.43h  | $27.95   |                        |
-|-------------------+-------+--------+----------+------------------------|
 | Totals            |       | 20.43h | $1327.95 |                        |
-#+END
 
-**** Ledger
+
+<a id="orgf4bb3de"></a>
+
+#### Ledger
+
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 ledger-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (setq ledger-use-native-highlighting t)
-#+end_src
+```
 
-**** Vterm                                                          :guix:
+
+<a id="org47affe8"></a>
+
+#### Vterm     :guix:
 
 A "normal" terminal for Emacs. This package is currently installed by the guix system.
 
-#+begin_src elisp
+```elisp
 (td/bind-keys '(("C-c v t" . multi-vterm)
                 ("C-c v n" . multi-vterm-next)
                 ("C-c v p" . multi-vterm-prev)
                 ("C-c v d" . multi-vterm-dedicated-toggle)
                 ("C-c v P" . multi-vterm-project)))
-#+end_src
+```
 
-**** Notmuch
+
+<a id="org5921017"></a>
+
+#### Notmuch
 
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
 
-***** Built In Mail Settings
 
-#+begin_src elisp
+<a id="orgbc68cf1"></a>
+
+##### Built In Mail Settings
+
+```elisp
 (setq send-mail-function 'sendmail-send-it
       sendmail-program "~/.guix-home/profile/bin/msmtp"
       message-directory "~/.local/share/mail"
@@ -2429,15 +2361,18 @@ Notmuch is a really impressive way to read and organize mail via tagging files. 
       message-sendmail-envelope-from 'header
       message-signature-directory "~/.local/share/mail/signatures"
       message-signature-file "default")
-#+end_src
+```
 
-***** Notmuch
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org6162fcb"></a>
+
+##### Notmuch
+
+```elisp
 notmuch
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (require 'notmuch)
 
 (setq notmuch-fcc-dirs
@@ -2506,17 +2441,20 @@ notmuch
             (list "-a" "default")))))
 
 (add-hook 'notmuch-mua-send-hook #'td/specify-msmtp-account)
-#+end_src
+```
 
-***** org-mime
+
+<a id="orgd8c8726"></a>
+
+##### org-mime
 
 Edit messages using org-mode.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 org-mime
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (autoload 'org-mime-edit-mail-in-org-mode "org-mime"
   "Edit a message in org-mode"
   t)
@@ -2527,54 +2465,52 @@ org-mime
 (td/bind-keys '(("C-c C-o" . org-mime-edit-mail-in-org-mode)
                 ("C-c C-h" . org-mime-htmlize))
               message-mode-map)
-#+end_src
+```
 
-***** org-contacts
+
+<a id="org30d6c4f"></a>
+
+##### org-contacts
 
 Organize contacts with org-mode.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 org-contacts
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (quelpa-get org-contacts
             :fetcher git
             :url "https://repo.or.cz/org-contacts.git")
 
 (require 'org-contacts)
 (setq org-contacts-files '("~/Org/contacts.org"))
-#+end_src
-
-**** COMMENT Pulsar
-
-#+begin_src elisp :noweb-ref packages :tangle no
-pulsar
-#+end_src
+```
 
 
-#+begin_src elisp
-(setq pulsar-iterations 5)
-#+end_src
+<a id="org90f39e3"></a>
 
-**** Password Store
+#### Password Store
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 password-store
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/bind-keys '(("C-c p c" . password-store-copy)
                 ("C-c p f" . password-store-copy-field)
                 ("C-c p i" . password-store-insert)
                 ("C-c p g" . password-store-generate)))
-#+end_src
+```
 
-**** Sensitive Mode
 
-Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21.html][Anirudh Sasikumar]]. It has been adapted to accomodate undo-tree. This prevents emacs from generating unencrypted backups & autosave data from =.gpg= files.
+<a id="orga896b94"></a>
 
-#+begin_src elisp
+#### Sensitive Mode
+
+Inspired from a script written by [Anirudh Sasikumar](https://anirudhsasikumar.net/blog/2005.01.21.html). It has been adapted to accomodate undo-tree. This prevents emacs from generating unencrypted backups & autosave data from `.gpg` files.
+
+```elisp
 (define-minor-mode sensitive-mode
   "A minor-mode for preventing auto-saves and back-ups for encrypted files."
   :global nil
@@ -2595,27 +2531,33 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
         (auto-save-mode 1))
     (when (bound-and-true-p global-undo-tree-mode)
       (undo-tree-mode 1))))
-#+end_src
+```
 
-**** RG
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org35f7774"></a>
+
+#### RG
+
+```elisp
 rg
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (rg-enable-default-bindings)
-#+end_src
+```
 
-**** Visual Fill Column
+
+<a id="orgd9415e8"></a>
+
+#### Visual Fill Column
 
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 visual-fill-column
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (defun td/visual-fill-setup ()
   "Center the column 100 characters wide."
   (setq-local visual-fill-column-width 100
@@ -2626,24 +2568,31 @@ visual-fill-column
   (define-key org-mode-map (kbd "C-c v") #'visual-fill-column-mode))
 
 (add-hook 'org-mode-hook #'td/visual-fill-setup)
-#+end_src
+```
 
-**** Which-key
+
+<a id="org9dc008c"></a>
+
+#### Which-key
+
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 which-key
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (which-key-mode)
-#+end_src
+```
 
-**** Windmove
+
+<a id="org20cee40"></a>
+
+#### Windmove
 
 Set up a keymap for wind-move and bind it to a prefix that's easy to hit.
 
-#+begin_src elisp
+```elisp
 (defvar td/windmove-map
   (let ((map (make-sparse-keymap)))
     (td/bind-keys '(("e"   . windmove-right)
@@ -2674,46 +2623,64 @@ Set up a keymap for wind-move and bind it to a prefix that's easy to hit.
 (fset 'td/windmove-map td/windmove-map)
 
 (global-set-key (kbd "M-o") td/windmove-map)
-#+end_src
+```
 
-*** Syntax Support
+
+<a id="org9d8000c"></a>
+
+### Syntax Support
+
 This section is for syntax highlighting and language specific tooling.
 
-**** Clojure
+
+<a id="org5565163"></a>
+
+#### Clojure
+
 This configuration includes clojure-mode and cider.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 clojure-mode
 cider
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/auto-mode '(("\\.clj\\'" . clojure-mode)))
-#+end_src
+```
 
-**** Common Lisp
+
+<a id="orga8e2dc0"></a>
+
+#### Common Lisp
 
 The most important package to have handy for Common Lisp is the "slime" package.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 sly
-#+end_src
+```
 
-**** CSS/SCSS
 
-#+begin_src elisp
+<a id="org5327f3d"></a>
+
+#### CSS/SCSS
+
+```elisp
 (setq css-indent-offset 2
       tab-width 2)
-#+end_src
+```
 
-**** Eglot
-Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be leaner, faster and less intense.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org3f118c5"></a>
+
+#### Eglot
+
+Eglot - the rival LSP client to the infamous `lsp-mode`. Eglot claims to be leaner, faster and less intense.
+
+```elisp
 eglot
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
                '(php-mode . ("intelephense" "--stdio")))
@@ -2744,168 +2711,134 @@ eglot
               "Make sure Eldoc will show us all of the feedback at point."
               (setq-local eldoc-documentation-strategy
                           #'eldoc-documentation-compose))))
-#+end_src
+```
 
-**** Eldoc
 
-#+begin_src elisp
+<a id="orga996b72"></a>
+
+#### Eldoc
+
+```elisp
 (setq eldoc-echo-area-use-multiline-p nil
       eldoc-documentation-strategy 'eldoc-documentation-compose)
-#+end_src
+```
 
-**** Eldoc Box
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org319203d"></a>
+
+#### Eldoc Box
+
+```elisp
 eldoc-box
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (autoload 'eldoc-box-help-at-point "eldoc-box.el"
   "Activate pop-up for eldoc information for the thing at point."
   t)
 
 (global-set-key (kbd "C-c M-h") #'eldoc-box-help-at-point)
-#+end_src
+```
 
-**** Emmet
-~.Emmet[data-love="true"]~
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org3f70099"></a>
+
+#### Emmet
+
+`.Emmet[data-love="true"]`
+
+```elisp
 emmet-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (setq emmet-expand-jsx-className t)
 (td/add-hooks '(sgml-mode
                 css-mode
                 web-mode
                 svelte-mode)
               #'emmet-mode)
-#+end_src
+```
 
-**** COMMENT Flycheck
 
-#+begin_src elisp :noweb-ref packages :tangle no
-flycheck
-#+end_src
+<a id="org0fde150"></a>
 
-#+begin_src elisp
-(td/add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
-(global-set-key (kbd "C-c f") #'flycheck-mode)
-(with-eval-after-load 'flycheck
-  (setq flycheck-checker-error-threshold 1000))
-#+end_src
+#### GoLang
 
-**** GoLang
-
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 go-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/auto-mode '(("\\.go\\'" . go-mode)))
-#+end_src
+```
 
-**** COMMENT LSP Mode
 
-I prefer a lighter weight LSP. I had enjoyed Eglot for some time. LSP-Mode has better features, however. I get fairly minimal feedback about the things I care about with inline flycheck messages.
+<a id="orgefce1ed"></a>
 
-#+begin_src elisp :noweb-ref packages :tangle no
-lsp-mode
-lsp-ui
-consult-lsp
-#+end_src
+#### Lua Mode
 
-#+begin_src elisp
-(td/add-hooks '(css-mode
-                scss-mode
-                html-mode
-                js-mode
-                json-mode
-                python-mode
-                php-mode
-                ruby-mode
-                rust-mode
-                scss-mode
-                svelte-mode
-                typescript-mode
-                vue-mode
-                yaml-mode)
-              #'lsp)
-(add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-
-(setq lsp-keymap-prefix "C-c C-l")
-(setq lsp-log-io nil
-      lsp-modeline-code-actions-segments '(count)
-      lsp-signature-doc-lines 1
-      lsp-enable-folding nil
-      lsp-clients-typescript-server-args '("--stdio"
-                                           "--tsserver-log-file"
-                                           "/dev/stderr")
-      lsp-keep-workspace-alive nil)
-
-(with-eval-after-load 'lsp-mode
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection
-                                     "theme-check-language-server")
-                    :activation-fn (lsp-activate-on "shopify")
-                    :server-id 'theme-check))
-  (add-to-list
-   'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'")
-  (add-to-list 'lsp-language-id-configuration
-               '(shopify-mode . "shopify")))
-#+end_src
-
-**** Lua Mode
-
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 lua-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/auto-mode '(("\\.lua\\'" . #'lua-mode)))
-#+end_src
+```
 
-**** Markdown
+
+<a id="org0f5dc13"></a>
+
+#### Markdown
+
 The free software documentation language of the Internet.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 markdown-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/auto-mode '(("README\\.md\\'" . gfm-mode)
                 ("\\.md\\'" . markdown-mode)
                 ("\\.markdown\\'" . markdown-mode)))
-#+end_src
+```
 
-**** Nim
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org7a30ddd"></a>
+
+#### Nim
+
+```elisp
 nim-mode
-#+end_src
+```
 
-**** Paredit
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="orgef2be86"></a>
+
+#### Paredit
+
+```elisp
 paredit
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/add-hooks '(lisp-mode
                 scheme-mode
                 clojure-mode
                 emacs-lisp-mode)
               #'enable-paredit-mode)
-#+end_src
+```
 
-**** PHP
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org32837bd"></a>
+
+#### PHP
+
+```elisp
 php-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (defun td/get-intelephense-key ()
   "Get my intelephense license key."
   (with-temp-buffer
@@ -2926,57 +2859,75 @@ php-mode
                 "superglobals" "sybase" "sysvmsg" "sysvsem" "sysvshm" "tidy"
                 "tokenizer" "wddx" "xml" "xmlreader" "xmlrpc" "xmlwriter"
                 "Zend OPcache" "zip" "zlib" "wordpress"]))
-#+end_src
+```
 
-**** Prettier
+
+<a id="orgebe25cd"></a>
+
+#### Prettier
 
 An opinionated way to clean up my web-dev code quickly.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 prettier-js
-#+end_src
+```
 
-**** Python
+
+<a id="orgc91e18d"></a>
+
+#### Python
 
 <3 Python
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 pyvenv
-#+end_src
+```
 
-**** Rainbow Delimiters
 
-This comes in handier than you think it would. Especially with these 
+<a id="org81090af"></a>
 
-#+begin_src elisp :noweb-ref packages :tangle no
+#### Rainbow Delimiters
+
+This comes in handier than you think it would. Especially with these
+
+```elisp
 rainbow-delimiters
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-#+end_src
+```
 
-**** Rainbow Mode
+
+<a id="orga84d3bb"></a>
+
+#### Rainbow Mode
 
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 rainbow-mode
-#+end_src
+```
 
-**** Ruby
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org9a97304"></a>
+
+#### Ruby
+
+```elisp
 inf-ruby
-#+end_src
+```
 
-**** Rust
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="org1ba073d"></a>
+
+#### Rust
+
+```elisp
 rust-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (defun td/rust-run-args (s)
   (interactive "sOptional Args:")
   (rust--compile (concat "%s run " s) rust-cargo-bin))
@@ -2985,23 +2936,29 @@ rust-mode
   (td/bind-keys '(("C-c c r" . rust-run)
                   ("C-c c a r" . td/rust-run-args))
                 rust-mode-map))
-#+end_src
+```
 
-**** Scheme
+
+<a id="org61fec98"></a>
+
+#### Scheme
 
 There are many dialects of Scheme. I am choosing to organize mine in this subcategory.
 
 Guile: GNU Ubiquitous Intelligent Language for Extensions
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 geiser-guile
-#+end_src
+```
 
-**** Shopify Mode
 
-This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [[https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors][theme-check-language-server]].
+<a id="org9944b66"></a>
 
-#+begin_src elisp
+#### Shopify Mode
+
+This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp to tell emacs to use s/css-mode for css liquid, then register an LSP client for the [theme-check-language-server](https://shopify.dev/themes/tools/theme-check#using-theme-check-in-other-editors).
+
+```elisp
 (define-derived-mode shopify-mode web-mode "Shopify"
   "Use web mode to highlight shopify liquid files")
 (provide 'shopify-mode)
@@ -3014,29 +2971,35 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
               electric-pair-text-pairs electric-pair-pairs))
 (add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
 (add-to-list 'org-src-lang-modes '("liquid" . shopify))
-#+end_src
+```
 
-**** Svelte
 
-Fake-out a "svelte-mode" for the purposes of activating with the svelte-language-server. I'm extending web-mode because it highlights =.svelte= files well.
+<a id="org9936150"></a>
 
-#+begin_src elisp
+#### Svelte
+
+Fake-out a "svelte-mode" for the purposes of activating with the svelte-language-server. I'm extending web-mode because it highlights `.svelte` files well.
+
+```elisp
 (define-derived-mode svelte-mode web-mode "Svelte"
   "I just want web-mode highlighting with .svelte files")
 (provide 'svelte-mode)
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
-#+end_src
+```
 
-**** Treesitter
+
+<a id="orgf8cad65"></a>
+
+#### Treesitter
 
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 tree-sitter
 tree-sitter-langs
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (defun td/start-tree-sitter ()
   "Fires up tree-sitter for select modes"
   (tree-sitter-mode)
@@ -3047,37 +3010,46 @@ tree-sitter-langs
                 css-mode
                 rust-mode)
               #'td/start-tree-sitter)
-#+end_src
+```
 
-**** TypeScript & JavaScript
 
-#+begin_src elisp :noweb-ref packages :tangle no
+<a id="orgd6fe255"></a>
+
+#### TypeScript & JavaScript
+
+```elisp
 typescript-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (setq js-indent-level 2)
 (setq typescript-indent-level 2)
-#+end_src
+```
 
-**** VueJS
 
-#+begin_src elisp
+<a id="org5b79876"></a>
+
+#### VueJS
+
+```elisp
 (define-derived-mode vue-mode web-mode "VueJS"
   "I just want web-mode highlighting with .svelte files")
 (provide 'vue-mode)
 (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))
-#+end_src
+```
 
-**** Web Mode
+
+<a id="org257cce7"></a>
+
+#### Web Mode
 
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 web-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/auto-mode '(("\\.html\\'" . web-mode)))
 (setq web-mode-markup-indent-offset tab-width
       web-mode-code-markup-indent-offset tab-width
@@ -3087,45 +3059,40 @@ web-mode
       web-mode-enable-auto-indentation nil
       web-mode-enable-auto-pairing nil)
 (add-to-list 'org-src-lang-modes '("html" . web))
-#+end_src
+```
 
-**** YAML
+
+<a id="orgd3be0e5"></a>
+
+#### YAML
 
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+```elisp
 yaml-mode
-#+end_src
+```
 
-#+begin_src elisp
+```elisp
 (td/auto-mode '(("\\.yml\\'" . yaml-mode)))
-#+end_src
+```
 
-**** COMMENT Yasnippet
-Snippets! They're helpful.
 
-#+begin_src elisp :noweb-ref packages :tangle no
-yasnippet
-yasnippet-snippets
-#+end_src
+<a id="org6e991a0"></a>
 
-#+begin_src elisp
-(require 'yasnippet)
-(global-set-key (kbd "C-c ,") #'yas-expand)
-(setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
-(yas-reload-all)
-#+end_src
+### Load Customizer Settings
 
-*** Load Customizer Settings
+Load the file we created for custom vars in the [general settings](#orgfe5d1a6).
 
-Load the file we created for custom vars in the [[* General Settings][general settings]].
-
-#+begin_src elisp
+```elisp
 (load custom-file 'noerror 'nomessage)
-#+end_src
+```
 
-** About This Config
-This literate configuration is a labour of love from a man who changes his mind and mixes things up /often/.
+
+<a id="org78da9e6"></a>
+
+## About This Config
+
+This literate configuration is a labour of love from a man who changes his mind and mixes things up *often*.
 
 I'm not sure it will ever be finished or perfect. At times, things may clunk. I will do my best to clunk them in another branch.
 
@@ -3133,22 +3100,24 @@ If you like this config the way you found it, make sure that you fork it or make
 
 If you like it enough to drop me a tip, feel free to do so:
 
-[[https://ko-fi.com/Y8Y34UWHH][https://ko-fi.com/img/githubbutton_sm.svg]]
-[[https://liberapay.com/trev.dev/donate][https://liberapay.com/assets/widgets/donate.svg]]
-BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
+[![img](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y34UWHH) [![img](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/trev.dev/donate) BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
 
-*** Installation
+
+<a id="org37361df"></a>
+
+### Installation
 
 If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
 
-1. Clone this repository to =~/.config/emacs=.
-2. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
+1.  Clone this repository to `~/.config/emacs`.
+2.  Make sure you clear out any existing configs in `~/.emacs.d` and `rm -rf ~/.emacs.d/elpa` to clear your existing packages.
 
-3. Symlink =init.el=, =early-init.el= and =config.el= into your =~/.emacs.d/= directory.
-4. Run emacs for the first time.
+3.  Symlink `init.el`, `early-init.el` and `config.el` into your `~/.emacs.d/` directory.
+4.  Run emacs for the first time.
 
-*** Licenses
 
-- For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0
+<a id="orgb0f4805"></a>
 
-  
+### Licenses
+
+-   For the [bell sound](inspectorj_bell.wav): "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0
