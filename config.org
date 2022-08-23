@@ -750,6 +750,7 @@ The modeline should fit the `window-width' with space between the lists."
                   ;; Left
                   (format-mode-line
                    '(" "
+                     (:eval (tdm/evil-state))
                      (:eval (tdm/status-flag buffer-read-only 'error))
                      (:eval (tdm/status-flag (buffer-modified-p) 'warning))
                      (:eval (if (not (eq
@@ -1332,16 +1333,11 @@ eshell-syntax-highlighting
 
 #+begin_src elisp :noweb-ref packages :tangle no
 evil
-evil-surround
-evil-matchit
-evil-exchange
-evil-lion
-evil-commentary
-evil-collection
-evil-goggles
-evil-multiedit
-evil-org
 #+end_src
+
+***** Keybinds
+
+Evil requires a lot of key re-binding in order to get going. You may still find yourself using =M-x= from time to time, looking for some keybind and discovering it's something like =C-c C-x M-o q r s= and think "yeah, that's easy!" Just kidding. You'll want to create mode-specific (or global) leader, normal or motion mapping.
 
 #+begin_src elisp
 (defun td/evil-bind-keys ()
@@ -1366,7 +1362,141 @@ evil-org
   (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
   ;; Magit
   (evil-define-key 'normal 'global (kbd "gs") 'magit))
+#+end_src
 
+***** Extending Evil Mode
+
+There are a lot of packages that make Evil better by extending it. Thankfully they are easy to set up.
+
+The following sub-headlines will be tangled into this block:
+
+#+begin_src elisp :tangle .emacs.d/init.el :noweb yes
+(with-eval-after-load 'evil
+  <<after-load-evil>>)
+#+end_src
+
+****** evil-lion
+
+Evil-lion is for making emac's built-in =align= function more "evil" friendly the motion =gl= (align right) or =gL= (align left). For example, =glp.= would left align all elements in a paragraph on a period character.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-lion
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(evil-lion-mode)
+#+end_src
+
+****** evil-matchit
+
+The essential pair matching plugin for vim ported to evil-mode.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-matchit
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(global-evil-matchit-mode 1)
+#+end_src
+
+****** evil-surround
+
+The essential pair swapping plugin by the venerable Tim Pope ported to evil-mode.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-surround
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(global-evil-surround-mode 1)
+#+end_src
+
+****** evil-exchange
+
+Be able to swap two motion-selected areas with the =gx= motion.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-exchange
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(evil-exchange-install)
+#+end_src
+
+****** evil-multiedit
+
+Multiedit is sorta like the venerable multiple cursors plugin, only it's vimish and frankly, not as good. It's still better than writing macros for everything.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-multiedit
+#+end_src
+
+Unfortunately, ~evil-multiedit-default-keybinds~ overrides common meta functions like delete-word (M-d). Theoretically, we would not be using these with evil anyway.
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(require 'evil-multiedit)
+(evil-multiedit-default-keybinds)
+#+end_src
+
+****** evil-goggles
+
+Get fancy highlights whenever I yank, kill or paste something.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-goggles
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(evil-goggles-mode)
+#+end_src
+
+****** evil-commentary
+
+Make commenting code motion-friendly with the =gc= motion.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-commentary
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(add-hook 'prog-mode-hook #'evil-commentary-mode)
+#+end_src
+
+****** evil-collection
+
+This package is _massive_. It is a collaborative, community effort to bring sane evil keybinds to as many major modes as possible. Its goal is to keep things consistent and as predictable as possible.
+
+It does add a lot of package bloat, however. Without it, many major modes dump you into "Emacs mode". If you're used to, and are okay with the occasional Emacs only interface, you might wanna skip this one.i
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-collection
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(evil-collection-init)
+#+end_src
+
+****** evil-org
+
+Evil-org /greatly/ improves the org-mode experience in evil-mode Emacs.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-org
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(with-eval-after-load 'org
+  (require 'evil-org)
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys)
+  (add-hook 'org-mode-hook #'evil-org-mode))
+#+end_src
+
+***** Apply Evil Configurations
+
+Here apply our evil configurations and set up our hooks.
+
+#+begin_src elisp
 (setq evil-want-keybinding nil
       evil-want-C-u-scroll t)
 (require 'evil)
@@ -1375,28 +1505,9 @@ evil-org
 (customize-save-variable 'evil-undo-system 'undo-redo)
 (td/evil-bind-keys)
 (evil-mode 1)
-
-(with-eval-after-load 'evil
-  (require 'evil-multiedit)
-  (global-evil-surround-mode 1)
-  (global-evil-matchit-mode 1)
-  (evil-multiedit-default-keybinds)
-  (evil-lion-mode)
-  (evil-exchange-install)
-  (evil-collection-init)
-  (evil-goggles-mode))
-
-(with-eval-after-load 'evil
-  (add-hook 'prog-mode-hook #'evil-commentary-mode))
-
-(with-eval-after-load 'org
-  (require 'evil-org)
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys)
-  (add-hook 'org-mode-hook #'evil-org-mode))
 #+end_src
 
-**** Expand Region
+**** COMMENT Expand Region
 It just makes selecting text between sexps easy.
 
 #+begin_src elisp :noweb-ref packages :tangle no
