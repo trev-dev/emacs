@@ -3139,11 +3139,9 @@ BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
 
 If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
 
-1. Clone this repository to =~/.config/emacs=.
-2. Make sure you clear out any existing configs in =~/.emacs.d= and =rm -rf ~/.emacs.d/elpa= to clear your existing packages.
-
-3. Symlink =init.el=, =early-init.el= and =config.el= into your =~/.emacs.d/= directory.
-4. Run emacs for the first time.
+1. Clone this repository somewhere.
+2. Tangle config.org. The resulting configuration files should be output to =.emacs.d/*.el=
+3. Symlink, copy or move the config files to wherever you want to start your init.
 
 *** Licenses
 
