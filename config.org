@@ -1540,10 +1540,6 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   (newline-and-indent)
   (god-local-mode -1))
 
-(defun god/disable-then-do ()
-  (interactive)
-  (message "%s" (char-to-string last-command-event)))
-
 (defun god/pull-line ()
   "Pull a line up from below the currnet line and join them."
   (interactive)
@@ -1608,11 +1604,11 @@ I would like to be able to perform special org-mode functions such as ~org-meta-
 #+begin_src elisp
 (advice-add 'org-meta-return :after
             #'(lambda (&rest args) (god-local-mode -1))
-            '(( name . "god/insert-after-org-meta-return")))
+            '((name . "god/insert-after-org-meta-return")))
 
 (advice-add 'org-insert-todo-heading :after
             #'(lambda (&rest args) (god-local-mode -1))
-            '(( name . "god/insert-after-org-new-heading")))
+            '((name . "god/insert-after-org-new-heading")))
 #+end_src
 
 ***** Seeking Characters
