@@ -1694,6 +1694,8 @@ Declare key-bindings to be applied in the next section.
                        ("F" . forward-symbol)
                        ("g" . avy-goto-char-timer)
                        ("f" . forward-word)
+                       ("u" . undo)
+                       ("U" . undo-redo)
                        ("I" . god/insert-ahead)
                        ("i" . god-local-mode)
                        ("J" . god/pull-line)
