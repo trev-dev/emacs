@@ -1507,7 +1507,7 @@ Here apply our evil configurations and set up our hooks.
 (evil-mode 1)
 #+end_src
 
-**** COMMENT Expand Region
+**** Expand Region
 It just makes selecting text between sexps easy.
 
 #+begin_src elisp :noweb-ref packages :tangle no
