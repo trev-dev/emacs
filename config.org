@@ -2657,11 +2657,7 @@ cider
 The most important package to have handy for Common Lisp is the "slime" package.
 
 #+begin_src elisp :noweb-ref packages :tangle no
-slime
-#+end_src
-
-#+begin_src elisp
-(setq inferior-lisp-program "sbcl")
+sly
 #+end_src
 
 **** CSS/SCSS
