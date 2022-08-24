@@ -1609,6 +1609,10 @@ I would like to be able to perform special org-mode functions such as ~org-meta-
 (advice-add 'org-insert-todo-heading :after
             #'(lambda (&rest args) (god-local-mode -1))
             '((name . "god/insert-after-org-new-heading")))
+
+(advice-add 'org-insert-heading-respect-content :after
+            #'(lambda (&rest args) (god-local-mode -1))
+            '((name . "god/insert-after-org-new-heading")))
 #+end_src
 
 ***** Seeking Characters
