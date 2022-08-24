@@ -1392,7 +1392,7 @@ evil-commentary
 (add-hook 'prog-mode-hook #'evil-commentary-mode)
 #+end_src
 
-****** evil-collection
+****** COMMENT evil-collection
 
 This package is _massive_. It is a collaborative, community effort to bring sane evil keybinds to as many major modes as possible. Its goal is to keep things consistent and as predictable as possible.
 
