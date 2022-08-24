@@ -1375,6 +1375,8 @@ evil-goggles
 #+end_src
 
 #+begin_src elisp :noweb-ref after-load-evil :tangle no
+(setq evil-goggles-pulse nil)
+(setq evil-goggles-duration 0.100)
 (evil-goggles-mode)
 #+end_src
 
@@ -1425,8 +1427,7 @@ evil-org
 Here apply our evil configurations and set up our hooks.
 
 #+begin_src elisp
-(setq evil-want-keybinding nil
-      evil-want-C-u-scroll t)
+(setq evil-want-C-u-scroll t)
 (require 'evil)
 (setq evil-visual-state-cursor 'hbar
       evil-want-C-u-scroll t)
