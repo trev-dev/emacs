@@ -1557,9 +1557,8 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
 (defun god/pull-line ()
   "Pull a line up from below the currnet line and join them."
   (interactive)
-  (save-excursion
-    (next-line)
-    (join-line)))
+  (next-line)
+  (join-line))
 #+end_src
 
 ***** Insert Ahead
@@ -1734,17 +1733,15 @@ I would prefer to keep god mode on, or off, on a buffer-to-buffer basis. I use ~
 God has no intermediary mode for non-editing buffers. I feel like it's better to have to turn it on explicitly for quicker navigation or firing off commands.
 
 #+begin_src elisp
-(setq god-mode-enable-function-key-translation nil
-      god-exempt-major-modes '(vterm-mode)
-      god-exempt-predicates nil
-      god-mode-alist '((nil . "C-")
+(setq god-mode-enable-function-key-translation nil)
+(setq god-mode-alist '((nil . "C-")
                        ("m" . "M-")
                        ("M" . "C-M-")))
 
 (require 'god-mode)
 (require 'god-mode-isearch)
 
-(global-set-key (kbd "<escape>") #'god-mode-all)
+(global-set-key (kbd "<escape>") #'god-local-mode)
 (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
 (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
 
@@ -1760,6 +1757,7 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
 
 (add-hook 'post-command-hook #'god/cursor-toggle)
 (add-hook 'god-local-mode-hook #'corfu-quit)
+(god-mode)
 #+end_src
 
 **** Goggles
