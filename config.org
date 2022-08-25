@@ -440,6 +440,7 @@ diminish
                 ("eldoc" 'eldoc-mode)
                 ("flymake" 'flymake-mode)
                 ("flycheck" 'flycheck-mode)
+                ("evil-org" 'evil-org-mode)
                 ("lsp-mode" 'lsp-mode '(:eval (tdm/diminish-lsp-lighter)))
                 ("tree-sitter" 'tree-sitter-mode "TS")
                 ("god-mode" 'god-local-mode tdm/diminish-god-lighter)
