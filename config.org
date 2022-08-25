@@ -1276,7 +1276,7 @@ Evil requires a lot of key re-binding in order to get going. You may still find 
   ;; General
   (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
-  (evil-define-key 'normal 'global (kbd "<leader>fb") 'consult-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>b") 'consult-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>x") 'execute-extended-command)
   ;; LSP
   (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
@@ -1339,6 +1339,18 @@ evil-surround
 (global-evil-surround-mode 1)
 #+end_src
 
+****** evil-snipe
+
+#+begin_src elisp :noweb-ref packages :tangle no
+evil-snipe
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no
+(evil-snipe-mode 1)
+(evil-snipe-override-mode t)
+(add-hook 'magit-mode-hook #'turn-off-evil-snipe-override-mode)
+#+end_src
+
 ****** evil-exchange
 
 Be able to swap two motion-selected areas with the =gx= motion.
@@ -1375,8 +1387,8 @@ evil-goggles
 #+end_src
 
 #+begin_src elisp :noweb-ref after-load-evil :tangle no
-(setq evil-goggles-pulse nil)
-(setq evil-goggles-duration 0.100)
+(setq evil-goggles-pulse (not (daemonp)))
+(setq evil-goggles-duration (if (daemonp) 0.100 0.200))
 (evil-goggles-mode)
 #+end_src
 
@@ -1430,7 +1442,8 @@ Here apply our evil configurations and set up our hooks.
 (setq evil-want-C-u-scroll t)
 (require 'evil)
 (setq evil-visual-state-cursor 'hbar
-      evil-want-C-u-scroll t)
+      evil-insert-state-cursor '(bar . 4))
+(evil-set-initial-state 'dashboard-mode 'emacs)
 (customize-save-variable 'evil-undo-system 'undo-redo)
 (td/evil-bind-keys)
 (evil-mode 1)
