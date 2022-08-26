@@ -2640,6 +2640,18 @@ rg
 (rg-enable-default-bindings)
 #+end_src
 
+**** Transpose Mark
+
+A simple package for highlighting a marked area or region prior to transposing it with some other marked area or region. It makes the built-in =transpose-region= sane.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+transpose-mark
+#+end_src
+
+#+begin_src elisp
+(global-set-key (kbd "C-c t") #'transpose-mark)
+#+end_src
+
 **** Visual Fill Column
 
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
