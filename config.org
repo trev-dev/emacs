@@ -1746,6 +1746,12 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
 (require 'god-mode)
 (require 'god-mode-isearch)
 
+(dolist (mode '(notmuch-hello-mode
+                notmuch-search-mode
+                notmuch-show-mode))
+  (add-to-list 'god-exempt-major-modes mode))
+
+(global-set-key (kbd "C-c g") #'god-mode)
 (global-set-key (kbd "<escape>") #'god-local-mode)
 (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
 (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
@@ -1916,7 +1922,7 @@ magit
 #+end_src
 
 #+begin_src elisp
-(global-set-key (kbd "C-c g") #'magit-status)
+(global-set-key (kbd "C-c m") #'magit-status)
 #+end_src
 
 **** Multiple Cursors
@@ -2057,7 +2063,7 @@ Some fairly self-explanatory utility functions.
 (global-set-key (kbd "C-c a") #'org-agenda)
 
 (with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-c t") #'org-table-export))
+  (define-key org-mode-map (kbd "C-c e t") #'org-table-export))
 
 (with-eval-after-load 'ox
   (require 'ox-md nil t))
