@@ -2770,15 +2770,17 @@ eglot
 
   (defvar td/eglot-funcs
     (let ((map (make-sparse-keymap)))
-      (td/bind-keys '(("C-r"   . eglot-rename)
-                      ("C-d"   . eglot-find-typeDefinition)
-                      ("C-S-d" . eglot-find-declaration)
-                      ("C-f"   . eglot-format)
-                      ("C-S-f" . eglot-format-buffer)
-                      ("C-S-r" . eglot-reconnect)) map)
-      map) "Custom keybinds for eglot functions. \\{td/eglot-funcs}")
+      (td/bind-keys '(("r"   . eglot-rename)
+                      ("d"   . eglot-find-typeDefinition)
+                      ("S-d" . eglot-find-declaration)
+                      ("f"   . eglot-format)
+                      ("S-f" . eglot-format-buffer)
+                      ("S-r" . eglot-reconnect))
+                    map)
+      map)
+    "Custom keybinds for eglot functions. \\{td/eglot-funcs}")
   (fset 'td/eglot-funcs td/eglot-funcs)
-  (define-key eglot-mode-map (kbd "C-c C-e") 'td/eglot-funcs)
+  (define-key eglot-mode-map (kbd "C-c e") 'td/eglot-funcs)
 
   (setq eglot-events-buffer-size 0
         eglot-send-changes-idle-time 0.7
