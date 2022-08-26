@@ -686,7 +686,7 @@ The modeline should fit the `window-width' with space between the lists."
                   ;; Left
                   (format-mode-line
                    '(" "
-                     (:eval (tdm/evil-state))
+                     (:eval (tdm/meow-state))
                      (:eval (tdm/status-flag buffer-read-only 'error))
                      (:eval (tdm/status-flag (buffer-modified-p) 'warning))
                      (:eval (if (not (eq
