@@ -423,12 +423,6 @@ diminish
                   '(:inherit warning :weight bold))))
     `(:propertize " LSP" face ,color)))
 
-(defvar tdm/diminish-god-lighter
-  '(:propertize
-    " God" face
-    (:inherit warning :weight bold))
-  "Display god-mode state in the `mode-line-modes'.")
-
 (dolist (mode '(("company" 'company-mode)
                 ("hideshow" 'hs-minor-mode)
                 ("undo-tree" 'undo-tree-mode)
@@ -443,7 +437,7 @@ diminish
                 ("evil-org" 'evil-org-mode)
                 ("lsp-mode" 'lsp-mode '(:eval (tdm/diminish-lsp-lighter)))
                 ("tree-sitter" 'tree-sitter-mode "TS")
-                ("god-mode" 'god-local-mode tdm/diminish-god-lighter)
+                ("god-mode" 'god-local-mode)
                 ("beacon" 'beacon-mode)
                 ("evil-goggles" 'evil-goggles-mode)
                 ("evil-commentary" 'evil-commentary-mode)
@@ -590,6 +584,18 @@ tangonov-theme
                           (emacs . ,(tdm/modal-face
                                      "<E>" '(:foreground "#C792EA")))))
 
+(require 'svg-lib)
+(add-to-list 'svg-lib-icon-collections
+             (cons "local" "file:///home/trevdev/.config/emacs/%s.svg"))
+
+(defun tdm/god-mode-icon ()
+  "Retrieve the hammer of the gods."
+  (svg-lib-icon "mjolnir"
+                `(:collection "local"
+                              :stroke 0
+                              :foreground ,(face-foreground 'warning)
+                              :background ,(face-background 'mode-line))))
+
 (defun tdm/meow-state ()
   "Retrieve the meow-state for the mode-line."
   (when (featurep 'meow)
@@ -606,8 +612,8 @@ tangonov-theme
   "Get the god-mode state for the mode-line."
   (when (featurep 'god-mode)
     (format "%s " (if god-local-mode
-                      (tdm/modal-face "<G>" '(:foreground "#FFCA41"))
-                    (tdm/modal-face "<E>" '(:foreground "#C792EA"))))))
+                      (propertize "God" 'display (tdm/god-mode-icon))
+                    ""))))
 
 (defun tdm/status-flag (on face)
   "Produce a status flag based on some `PRED'icate test and give it a `FACE'."
@@ -694,7 +700,8 @@ The modeline should fit the `window-width' with space between the lists."
                      (:eval (tdm/buffer-position))))
                   ;; Right
                   (format-mode-line
-                   '((:eval (tdm/macro-indicator))
+                   '((:eval (tdm/god-state))
+                     (:eval (tdm/macro-indicator))
                      (:eval (tdm/vc))
                      (:eval (tdm/misc))
                      "  "
