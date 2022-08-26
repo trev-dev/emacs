@@ -1517,23 +1517,26 @@ god-mode
 These functions enhance editing while allowing me to "drop out" of god-mode in useful ways.
 
 #+begin_src elisp
+(defun god/exit-god-local (&rest args)
+  (god-local-mode -1))
+
 (defun god/eol-insert ()
   "Move the cursor to the end-of-line and exit god mode."
   (interactive)
   (end-of-line)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/boi-insert ()
   "Move the cursor `back-to-indentation' and exit god mode."
   (interactive)
   (back-to-indentation)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/forward-insert ()
   "Move the cursor over one char and exit god mode."
   (interactive)
   (forward-char)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/change ()
   "Kill char/region and exit god mode."
@@ -1541,7 +1544,7 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
     (zap-to-char 1 (char-after)))
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/backward-symbol (num)
   "Move backward `NUM' symbols."
@@ -1553,14 +1556,14 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   (interactive)
   (beginning-of-line)
   (split-line)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/open-below ()
   "Open a new line below the current line, put the point there."
   (interactive)
   (end-of-line)
   (newline-and-indent)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/pull-line ()
   "Pull a line up from below the currnet line and join them."
@@ -1604,7 +1607,7 @@ A value of -1 is backward.'"
                      search-backward-regexp))
   (advice-add back-func :after
               #'(lambda (&rest args) (god/set-ahead-direction -1))
-              '((name . "god/set-ahead-backward"))))
+              (function 'god/set-ahead-backward)))
 
 (dolist (for-func '(forward-char
                     forward-word
@@ -1615,7 +1618,7 @@ A value of -1 is backward.'"
                     search-forward-regexp))
   (advice-add for-func :after
               #'(lambda (&rest args) (god/set-ahead-direction))
-              '((name . "god/set-ahead-forward"))))
+              (function 'god/set-ahead-forward)))
 #+end_src
 
 ***** Org Mode Newline Advice
@@ -1624,16 +1627,16 @@ I would like to be able to perform special org-mode functions such as ~org-meta-
 
 #+begin_src elisp
 (advice-add 'org-meta-return :after
-            #'(lambda (&rest args) (god-local-mode -1))
-            '((name . "god/insert-after-org-meta-return")))
+            #'god/exit-god-local
+            (function 'god/insert-after-org-meta-return))
 
 (advice-add 'org-insert-todo-heading :after
-            #'(lambda (&rest args) (god-local-mode -1))
-            '((name . "god/insert-after-org-new-heading")))
+            #'god/exit-god-local
+            (function 'god/insert-after-org-new-heading))
 
 (advice-add 'org-insert-heading-respect-content :after
-            #'(lambda (&rest args) (god-local-mode -1))
-            '((name . "god/insert-after-org-new-heading")))
+            #'god/exit-god-local
+            (function 'god/insert-after-org-heading-respect-content))
 #+end_src
 
 ***** Seeking Characters
