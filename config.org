@@ -1790,19 +1790,27 @@ meow
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty
         meow-expand-hint-remove-delay 2.0
         meow-expand-exclude-mode-list '())
-  (dolist (state '((notmuch-hello-mode . motion)
+  (dolist (state '((notmuch-hello-mode  . motion)
                    (notmuch-search-mode . motion)
-                   (notmuch-tree-mode . motion)
-                   (notmuch-show-mode . motion)))
+                   (notmuch-tree-mode   . motion)
+                   (notmuch-show-mode   . motion)))
     (add-to-list 'meow-mode-state-list state))
   (meow-motion-overwrite-define-key
+   '("h" . meow-left)
    '("j" . meow-next)
    '("k" . meow-prev)
+   '("l" . meow-right)
+   '("e" . forward-word)
+   '("b" . backward-word)
    '("<escape>" . ignore))
   (meow-leader-define-key
-   ;; SPC j/k will run the original command in MOTION state.
+   ;; Set up fallbacks for motion state.
+   '("h" . "H-h")
    '("j" . "H-j")
    '("k" . "H-k")
+   '("l" . "H-l")
+   '("e" . "H-e")
+   '("b" . "H-b")
    ;; Use SPC (0-9) for digit arguments.
    '("1" . meow-digit-argument)
    '("2" . meow-digit-argument)
@@ -1817,7 +1825,7 @@ meow
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet)
    '("w" . td/windmove-map)
-   '("H" . eldoc-box-help-at-point)
+   '("H" . display-local-help)
    ;; Custom keybinds
    (cons "P" project-prefix-map))
   (meow-normal-define-key
@@ -1887,9 +1895,13 @@ meow
    '("S" . surround)
    '("P" . td/backward-chunk)
    '("N" . td/forward-chunk)
-   '("=" . er/expand-region)))
+   '("=" . er/expand-region)
+   '(":" . avy-goto-char-timer)))
 
 (require 'meow)
+(setq meow-use-cursor-position-hack t
+      meow-cursor-type-region-cursor '(bar . 4)
+      meow-cursor-type-insert '(bar . 4))
 (meow-setup)
 (meow-global-mode 1)
 (add-hook 'meow-insert-exit-hook #'corfu-quit)
