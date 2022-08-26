@@ -399,6 +399,7 @@ all-the-icons-dired
 #+end_src
 
 #+begin_src elisp
+(setq dired-dwim-target t)
 (with-eval-after-load 'all-the-icons
   (setq all-the-icons-dired-monochrome nil)
   (add-hook
