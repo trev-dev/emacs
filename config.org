@@ -2800,7 +2800,7 @@ eglot
       eldoc-documentation-strategy 'eldoc-documentation-compose)
 #+end_src
 
-**** Eldoc Box
+**** COMMENT Eldoc Box
 
 #+begin_src elisp :noweb-ref packages :tangle no
 eldoc-box
@@ -2811,7 +2811,7 @@ eldoc-box
   "Activate pop-up for eldoc information for the thing at point."
   t)
 
-(global-set-key (kbd "C-c M-h") #'eldoc-box-help-at-point)
+(global-set-key (kbd "C-c h") #'eldoc-box-help-at-point)
 #+end_src
 
 **** Emmet
