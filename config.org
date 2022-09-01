@@ -2547,6 +2547,14 @@ notmuch
 (add-hook 'notmuch-mua-send-hook #'td/specify-msmtp-account)
 #+end_src
 
+***** ol-notmuch
+
+This adds the ability to create links to notmuch messages in org-mode
+
+#+begin_src elisp :noweb-ref packages :tangle no
+ol-notmuch
+#+end_src
+
 ***** org-mime
 
 Edit messages using org-mode.
