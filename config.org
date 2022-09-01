@@ -1767,7 +1767,10 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
   (which-key-enable-god-mode-support))
 
 (add-hook 'post-command-hook #'god/cursor-toggle)
-(add-hook 'god-local-mode-hook #'corfu-quit)
+
+(when (commandp 'corfu-quit)
+  (add-hook 'god-local-mode-hook #'corfu-quit))
+
 (god-mode)
 #+end_src
 
