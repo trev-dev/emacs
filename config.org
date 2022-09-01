@@ -509,6 +509,10 @@ tangonov-theme
 
 **** Modeline
 
+#+begin_src elisp :noweb-ref packages :tangle no
+svg-lib
+#+end_src
+
 #+begin_src elisp
 (defvar tdm/git-cached-status nil)
 (defvar tdm/git--last-update nil)
@@ -974,6 +978,19 @@ fussy
       completion-category-overrides nil)
 #+end_src
 
+***** Icomplete mode
+
+#+begin_src elisp
+(icomplete-mode 1)
+(setq icomplete-show-matches-on-no-input t)
+(td/bind-keys '(("C-n"   . icomplete-forward-completions)
+                ("C-p"   . icomplete-backward-completions)
+                ("RET"   . icomplete-force-complete-and-exit)
+                ("C-j"   . icomplete-ret)
+                ("C-c v" . icomplete-vertical-mode))
+              icomplete-minibuffer-map)
+#+end_src
+
 ***** Kind-Icon
 
 #+begin_src elisp :noweb-ref packages :tangle no
@@ -984,33 +1001,6 @@ kind-icon
 (with-eval-after-load 'corfu
   (setq kind-icon-default-face 'corfu-default)
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-#+end_src
-
-***** Marginalia
-Better descriptions of symbols in the minibuffer.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-marginalia
-#+end_src
-
-#+begin_src elisp
-(marginalia-mode)
-(define-key minibuffer-local-map (kbd "M-A") #'marginalia-cycle)
-#+end_src
-
-***** COMMENT Orderless
-
-A completion style that permits entering parts of completion names in any order.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-orderless
-#+end_src
-
-#+begin_src elisp
-(setq completion-styles '(orderless basic)
-      completion-category-defaults nil
-      completion-category-overrides
-      '((file (styles . (partial-completion)))))
 #+end_src
 
 ***** Savehist
@@ -1032,19 +1022,6 @@ tempel
 
 #+begin_src elisp
 (global-set-key (kbd "C-c M-t") #'tempel-insert)
-#+end_src
-
-***** Vertico
-Mini-buffer completions back-end.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-vertico
-#+end_src
-
-#+begin_src elisp
-(with-eval-after-load 'consult
-  (vertico-mode)
-  (setq enable-recursive-minibuffers t))
 #+end_src
 
 **** Dashboard
