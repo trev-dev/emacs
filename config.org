@@ -2243,8 +2243,8 @@ org-roam
                         "#+TITLE: %<%a, %b %d %Y>\n"))))
 
 (defvar td/roam-display-template
-  (concat "${title:*} "
-          (propertize "${tags:28}" 'face 'org-tag)))
+  (concat "${title} "
+          (propertize "${tags}" 'face 'org-tag)))
 
 (td/bind-keys '(("C-c r t" . org-roam-buffer-toggle)
                 ("C-c r f" . org-roam-node-find)
