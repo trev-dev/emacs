@@ -1925,6 +1925,19 @@ magit
 (global-set-key (kbd "C-c m") #'magit-status)
 #+end_src
 
+**** Mastodon
+
+Toot.
+
+#+begin_src elisp :noweb-ref packages :tangle no
+mastodon
+#+end_src
+
+#+begin_src elisp
+(setq mastodon-instance-url "https://mastodon.technology"
+      mastodon-active-user "trevdev")
+#+end_src
+
 **** Multiple Cursors
 
 #+begin_src elisp :noweb-ref packages :tangle no
