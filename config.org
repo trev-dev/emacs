@@ -3167,6 +3167,8 @@ yasnippet-snippets
 (global-set-key (kbd "C-c ,") #'yas-expand)
 (setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
 (yas-reload-all)
+(add-hook 'prog-mode-hook #'yas-minor-mode)
+(add-hook 'text-mode-hook #'yas-minor-mode)
 #+end_src
 
 *** Load Customizer Settings
