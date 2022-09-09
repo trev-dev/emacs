@@ -912,12 +912,6 @@ A Matrix client for Emacs. Ement currenly has a few stray dependencies.
    :user-id "@trevdev:matrix.org"
    :password (password-store-get "Personal/matrix.org")
    :uri-prefix "http://localhost:8009"))
-
-(quelpa-get plz :fetcher github :repo "alphapapa/plz.el")
-(quelpa-get ement :fetcher github :repo "alphapapa/ement.el")
-
-(add-to-list 'td/package-list 'plz)
-(add-to-list 'td/package-list 'ement)
 #+end_src
 
 **** ERC
