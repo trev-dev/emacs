@@ -2207,7 +2207,8 @@ notmuch
                              ("d" ("+deleted" "-inbox") "Delete"))
       notmuch-show-logo nil
       notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full
-      notmuch-hello-thousands-separator ",")
+      notmuch-hello-thousands-separator ","
+      mml-secure-openpgp-encrypt-to-self t)
 
 (global-set-key (kbd "<f5>") #'notmuch)
 
