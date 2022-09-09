@@ -817,6 +817,28 @@ dashboard
 (dashboard-setup-startup-hook)
 #+end_src
 
+**** Docker
+
+Numerous packages related to docker.
+
+***** docker.el
+
+#+begin_src elisp :noweb-ref packages :tangle no
+docker
+#+end_src
+
+***** dockerfile-mode
+
+#+begin_src elisp :noweb-ref packages :tangle no
+dockerfile-mode
+#+end_src
+
+***** docker-compose-mode
+
+#+begin_src elisp :noweb-ref packages :tangle no
+docker-compose-mode
+#+end_src
+
 **** Diff-hl
 
 Show me the diffs in the fringe!
