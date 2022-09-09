@@ -3,117 +3,119 @@
 
 The following document is a literate program that will generate my `~/.emacs.d`. It is intended to be used in conjunction with a dotfile manager such as GNU Stow for symlinking back to the home directory. You could, however, tangle this file from the home directory and skip using stow.
 
-To read more about how this configuration is supposed to work, see my [config strategy](#org6295672).
+To read more about how this configuration is supposed to work, see my [config strategy](#orgf31f286).
 
 **Table of Contents**
 
-1.  [Configuration Strategy](#org6295672)
-    1.  [Tangling Files](#orge605170)
-    2.  [Configuring Packages](#org7dbd41b)
-2.  [Early Init](#org4888d61)
-3.  [Init File Headers](#orgdf1f1b2)
-4.  [General Settings](#org8ec129b)
-5.  [Helper Functions](#org29eebb2)
-    1.  [Priority Mode](#orgd5229f7)
-6.  [Keybinds](#org85e1607)
-7.  [Prog Mode](#org743aaa9)
-8.  [Package Configuration](#org6cb540c)
-    1.  [Bootstrapping](#org9c6ad8c)
-        1.  [Repositories](#org073f7e8)
-        2.  [Maintaining selected packages](#orge50e6f7)
-        3.  [Quelpa](#org6ab3085)
-    2.  [Look & Feel](#orga25570a)
-        1.  [All The Icons](#org65b1e51)
-        2.  [Dired](#org58af203)
-        3.  [Diminish](#org4e23164)
-        4.  [Custom Theme](#orgce1c43c)
-        5.  [Font Setup](#org258b65a)
-        6.  [Modeline](#org98dc871)
-    3.  [Utility Packages](#org9741e49)
-        1.  [Avy](#org6fb1fd4)
-        2.  [CTRLF](#org36c8af6)
-        3.  [Completions](#orgf8f22c5)
-            1.  [Cape](#org1c4f19e)
-            2.  [Consult](#org41636f3)
-            3.  [Corfu](#org561f111)
-            4.  [Fussy](#orge94f252)
-            5.  [Kind-Icon](#org6026003)
-            6.  [Marginalia](#org0b4a8bb)
-            7.  [Savehist](#org72754b3)
-            8.  [TempEl](#org87e60db)
-            9.  [Vertico](#org612190b)
-        4.  [Dashboard](#org7f82336)
-        5.  [Diff-hl](#orgf779f48)
-        6.  [Elfeed](#org06d85c9)
-        7.  [Surround](#orgda59bcf)
-        8.  [ERC](#org0fdb0ed)
-        9.  [Eshell](#org3384f1b)
-        10. [Expand Region](#orgdd33a0a)
-        11. [God Mode](#orge743755)
-            1.  [Functions](#org1857d14)
-            2.  [Insert Ahead](#orgd084905)
-            3.  [Org Mode Newline Advice](#org2462356)
-            4.  [Seeking Characters](#org4d72ca6)
-            5.  [Cursor Indicator](#orgac39169)
-            6.  [Keybindings](#org73dc584)
-            7.  [Apply & Finish Setup](#orgba3bf68)
-        12. [Goggles](#orgd3abddd)
-        13. [Magit](#org4c11dfa)
-        14. [Multiple Cursors](#orgddb3094)
-        15. [Org](#orgde09f37)
-            1.  [Key Variables](#org75f75ed)
-            2.  [Functions](#org5b841eb)
-            3.  [Apply Configuration](#org7cb8bb5)
-            4.  [Extending Org Mode](#orgd8318e6)
-            5.  [Custom Clock Table](#org429f8cb)
-        16. [Ledger](#orgc4f2f2e)
-        17. [Vterm](#org60a40c3):guix:
-        18. [Notmuch](#org406badd)
-            1.  [Built In Mail Settings](#org8d77534)
-            2.  [Notmuch](#org87e7497)
-            3.  [org-mime](#org2ff58b1)
-            4.  [org-contacts](#orgc17e144)
-        19. [Password Store](#org1219773)
-        20. [Sensitive Mode](#org70cffe1)
-        21. [RG](#org3d118a8)
-        22. [Visual Fill Column](#org330c0c4)
-        23. [Which-key](#org7287c57)
-        24. [Windmove](#org4d282eb)
-    4.  [Syntax Support](#org113a830)
-        1.  [Clojure](#org86100c5)
-        2.  [Common Lisp](#orge51cb28)
-        3.  [CSS/SCSS](#org22a9399)
-        4.  [Eglot](#org3e77fed)
-        5.  [Eldoc](#orgf1e2c3b)
-        6.  [Eldoc Box](#org566ffff)
-        7.  [Emmet](#org2f6640b)
-        8.  [GoLang](#orge3f707c)
-        9.  [Lua Mode](#orgb3f7081)
-        10. [Markdown](#orgf76b6ce)
-        11. [Nim](#orged0968e)
-        12. [Paredit](#org631651a)
-        13. [PHP](#orgf23f861)
-        14. [Prettier](#org3587ae1)
-        15. [Python](#orgf871173)
-        16. [Rainbow Delimiters](#org3026418)
-        17. [Rainbow Mode](#orgd5d861d)
-        18. [Ruby](#orgb00386c)
-        19. [Rust](#org6f89698)
-        20. [Scheme](#org53f5973)
-        21. [Shopify Mode](#org43eb35e)
-        22. [Svelte](#orgcb67f27)
-        23. [Treesitter](#org848b8bc)
-        24. [TypeScript & JavaScript](#org4c1c99f)
-        25. [VueJS](#org7004dc7)
-        26. [Web Mode](#org13aa50a)
-        27. [YAML](#org9fc16ea)
-    5.  [Load Customizer Settings](#org991b107)
-9.  [About This Config](#org6508ba8)
-    1.  [Installation](#orgd63c4c1)
-    2.  [Licenses](#orgdf2956e)
+1.  [Configuration Strategy](#orgf31f286)
+    1.  [Tangling Files](#orgc923805)
+    2.  [Configuring Packages](#org83d1ea0)
+2.  [Early Init](#orge3873b9)
+3.  [Init File Headers](#org4feabff)
+4.  [General Settings](#orgdb57bef)
+5.  [Helper Functions](#org59e5068)
+    1.  [Priority Mode](#org4e87dba)
+6.  [Keybinds](#org3a4c313)
+7.  [Prog Mode](#orga21344a)
+8.  [Package Configuration](#orgedf21e8)
+    1.  [Bootstrapping](#org2ab2094)
+        1.  [Repositories](#orgd297d3d)
+        2.  [Maintaining selected packages](#org7935464)
+        3.  [Quelpa](#org0773c83)
+    2.  [Look & Feel](#org611a650)
+        1.  [All The Icons](#org8752b6a)
+        2.  [Dired](#orge4e70b7)
+        3.  [Diminish](#org29a40c9)
+        4.  [Custom Theme](#orgd1d151e)
+        5.  [Font Setup](#org84d6ca5)
+        6.  [Modeline](#org7658815)
+    3.  [Utility Packages](#orgdcb4b02)
+        1.  [Avy](#orgafe68ae)
+        2.  [CTRLF](#orgb4525c6)
+        3.  [Completions](#orgc9a32df)
+            1.  [Company](#org46a391b)
+            2.  [Icomplete mode](#org0fb19aa)
+            3.  [Savehist](#org1996871)
+        4.  [Dashboard](#orgc4152a9)
+        5.  [Docker](#org472aa57)
+            1.  [docker.el](#org6b6c055)
+            2.  [dockerfile-mode](#orgd54260a)
+            3.  [docker-compose-mode](#org7b5db9c)
+        6.  [Diff-hl](#org41f709a)
+        7.  [Elfeed](#orgef5184e)
+        8.  [EMMS](#org0cf75f5)
+        9.  [Surround](#orgb1a3b87)
+        10. [ERC](#org424afeb)
+        11. [Eshell](#org4e00441)
+        12. [Expand Region](#org35e0b85)
+        13. [God Mode](#orgcd2dd8d)
+            1.  [Functions](#org1ff88c7)
+            2.  [Insert Ahead](#orgfe6a35e)
+            3.  [Org Mode Newline Advice](#org4deb83d)
+            4.  [Seeking Characters](#org2b9dd6f)
+            5.  [Cursor Indicator](#org9102451)
+            6.  [Keybindings](#orgf6ca4e1)
+            7.  [Apply & Finish Setup](#org0f77c18)
+        14. [Goggles](#org1136be5)
+        15. [Imenu](#org281c78c)
+        16. [Magit](#org024e8a8)
+        17. [Mastodon](#org63b476c)
+        18. [Multiple Cursors](#orgc55e023)
+        19. [Org](#org407b10f)
+            1.  [Key Variables](#orgb07e1c1)
+            2.  [Functions](#org8fb1f6a)
+            3.  [Apply Configuration](#orge1b8566)
+            4.  [Extending Org Mode](#orgf16b310)
+        20. [Ledger](#org8ab21ea)
+        21. [Vterm](#org3729e6a):guix:
+        22. [Notmuch](#org39b248e)
+            1.  [Built In Mail Settings](#org77f36de)
+            2.  [Notmuch](#orgbfde97a)
+            3.  [ol-notmuch](#org2f6c851)
+            4.  [org-mime](#orgaf02e74)
+            5.  [org-contacts](#org5b53364)
+        23. [Password Store](#orgcda93ff)
+        24. [Sensitive Mode](#org023be08)
+        25. [RG](#orgde2126d)
+        26. [Transpose Mark](#org3913298)
+        27. [Visual Fill Column](#orgb7007f0)
+        28. [Which-key](#org7560d28)
+        29. [Windmove](#org39d7c38)
+    4.  [Syntax Support](#orgf2bbfa2)
+        1.  [Clojure](#org80860ed)
+        2.  [Common Lisp](#org03fdffe)
+        3.  [CSS/SCSS](#orgcd4b986)
+        4.  [Emmet](#org60ecaf3)
+        5.  [Flycheck](#orgb88ef9d)
+        6.  [GoLang](#org06fb2fa)
+        7.  [LSP Mode](#org2a1777a)
+        8.  [Lua Mode](#org5c45bf4)
+        9.  [Markdown](#org999c8ab)
+        10. [Nim](#org2ad3e47)
+        11. [Paredit](#org182562a)
+        12. [PHP](#org6d8879e)
+        13. [Prettier](#orgb744344)
+        14. [Python](#org654dc6d)
+        15. [Rainbow Delimiters](#org7c1ef74)
+        16. [Rainbow Mode](#org0855c07)
+        17. [Ruby](#orgbbafcdf)
+        18. [Rust](#org4ead11c)
+        19. [Scheme](#orgd7b1314)
+        20. [Shopify Mode](#org9936c95)
+        21. [Svelte](#orgfea6cbf)
+        22. [Treesitter](#org4f9d89b)
+        23. [TypeScript & JavaScript](#orgcfe626d)
+        24. [VueJS](#org622404a)
+        25. [Web Mode](#org6119c48)
+        26. [YAML](#org6dc87aa)
+        27. [Yasnippet](#orgfcb625c)
+    5.  [Load Customizer Settings](#orgfea57f4)
+9.  [About This Config](#orgd7e91bc)
+    1.  [Installation](#org2b853ac)
+    2.  [Licenses](#orgeea8086)
 
 
-<a id="org6295672"></a>
+<a id="orgf31f286"></a>
 
 ## Configuration Strategy
 
@@ -124,14 +126,14 @@ In the past I have used plain elisp files. As they grow they become increasingly
 At the time of my writing this, my configuration is somewhat convoluted. I aim to simplify the elisp output and make it easier to debug.
 
 
-<a id="orge605170"></a>
+<a id="orgc923805"></a>
 
 ### Tangling Files
 
 I will be using `org-babel-tangle` to generate numerous files and to help separate concerns. Some files that this configuration should generate are the `early-init.el`, `init.el` and my `package-list.el`. Other files may be generated if it makes sense to document them here.
 
 
-<a id="org7dbd41b"></a>
+<a id="org83d1ea0"></a>
 
 ### Configuring Packages
 
@@ -144,7 +146,7 @@ The first block will add the package to the `td/selected-packages` variable by t
 The second block will contain the actual configuration for the package or built-in feature. This block will be evaluated later on in the `init.el` file.
 
 
-<a id="org4888d61"></a>
+<a id="orge3873b9"></a>
 
 ## Early Init
 
@@ -173,7 +175,7 @@ We want the garbage collector to have no limit during the init sequence.
 ```
 
 
-<a id="orgdf1f1b2"></a>
+<a id="org4feabff"></a>
 
 ## Init File Headers
 
@@ -214,7 +216,7 @@ This generates the top of the init file, which will set up the lexical scope and
 ```
 
 
-<a id="org8ec129b"></a>
+<a id="orgdb57bef"></a>
 
 ## General Settings
 
@@ -257,9 +259,7 @@ Set up the dictionary and preferred browser.
 ```elisp
 ;; Spelling
 (setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd"
-      ispell-program-name "aspell"
       ispell-dictionary "en"
-      ispell-library-directory "~/.guix-home/profile/lib/aspell"
       ispell-alternate-dictionary (concat (getenv "HOME") "/Documents/wordlist"))
 ;; Browser
 (setq browse-url-generic-program "/usr/bin/firefox")
@@ -291,7 +291,7 @@ Start the pinentry service
 ```
 
 
-<a id="org29eebb2"></a>
+<a id="org59e5068"></a>
 
 ## Helper Functions
 
@@ -328,7 +328,7 @@ Adds '-hook' onto the end of the symbols for brevity."
 Create a mode for mapping high priority keybinds early on.
 
 
-<a id="orgd5229f7"></a>
+<a id="org4e87dba"></a>
 
 ### Priority Mode
 
@@ -349,7 +349,7 @@ see bound."
 ```
 
 
-<a id="org85e1607"></a>
+<a id="org3a4c313"></a>
 
 ## Keybinds
 
@@ -370,7 +370,7 @@ Change some of the built-in keybinds & bind some of the useful unbound functions
 ```
 
 
-<a id="org743aaa9"></a>
+<a id="orga21344a"></a>
 
 ## Prog Mode
 
@@ -429,21 +429,21 @@ I'd like to keep my tab style fixed at 2 spaces wherever possible. Specific prog
 ```
 
 
-<a id="org6cb540c"></a>
+<a id="orgedf21e8"></a>
 
 ## Package Configuration
 
 In the following sections I will be configuring built-in packages as well as external packages via `package.el` and Quelpa.
 
 
-<a id="org9c6ad8c"></a>
+<a id="org2ab2094"></a>
 
 ### Bootstrapping
 
 I am using the built-in `package.el` for my package needs. I am using Quelpa for developing/contributing upstream, or installing some obscure package from source.
 
 
-<a id="org073f7e8"></a>
+<a id="orgd297d3d"></a>
 
 #### Repositories
 
@@ -456,7 +456,7 @@ I am using the built-in `package.el` for my package needs. I am using Quelpa for
 ```
 
 
-<a id="orge50e6f7"></a>
+<a id="org7935464"></a>
 
 #### Maintaining selected packages
 
@@ -470,29 +470,25 @@ Here we will generage the `~/.emacs.d/package-list.el` file using the `noweb` fe
    'all-the-icons-dired
    'diminish
    'tangonov-theme
+   'svg-lib
    'avy
    'ctrlf
-   'cape
-   'corfu-terminal
-   'consult
-   'consult-flycheck
-   'corfu
-   'pcmpl-args
-   'fussy
-   'kind-icon
-   'marginalia
-   'tempel
-   'vertico
+   'company
    'dashboard
+   'docker
+   'dockerfile-mode
+   'docker-compose-mode
    'diff-hl
    'elfeed
    'elfeed-org
+   'emms
    'capf-autosuggest
    'eshell-syntax-highlighting
    'expand-region
    'god-mode
    'goggles
    'magit
+   'mastodon
    'multiple-cursors
    'org-alert
    'org-chef
@@ -503,19 +499,22 @@ Here we will generage the `~/.emacs.d/package-list.el` file using the `noweb` fe
    'org-roam-ui
    'ledger-mode
    'notmuch
+   'ol-notmuch
    'org-mime
    'org-contacts
    'password-store
    'rg
+   'transpose-mark
    'visual-fill-column
    'which-key
    'clojure-mode
    'cider
    'sly
-   'eglot
-   'eldoc-box
    'emmet-mode
+   'flycheck
    'go-mode
+   'lsp-mode
+   'lsp-ui
    'lua-mode
    'markdown-mode
    'nim-mode
@@ -532,7 +531,9 @@ Here we will generage the `~/.emacs.d/package-list.el` file using the `noweb` fe
    'tree-sitter-langs
    'typescript-mode
    'web-mode
-   'yaml-mode)
+   'yaml-mode
+   'yasnippet
+   'yasnippet-snippets)
   "Packages that are defined in init.el and are meant to be used.
 If `package-autoremove' wants to delete any of these, something is wrong.")
 
@@ -549,7 +550,7 @@ If `package-autoremove' wants to delete any of these, something is wrong.")
 ```
 
 
-<a id="org6ab3085"></a>
+<a id="org0773c83"></a>
 
 #### Quelpa
 
@@ -575,12 +576,12 @@ This should improve init by not looking for things we already have."
 ```
 
 
-<a id="orga25570a"></a>
+<a id="org611a650"></a>
 
 ### Look & Feel
 
 
-<a id="org65b1e51"></a>
+<a id="org8752b6a"></a>
 
 #### All The Icons
 
@@ -593,7 +594,7 @@ all-the-icons
 ```
 
 
-<a id="org58af203"></a>
+<a id="orge4e70b7"></a>
 
 #### Dired
 
@@ -602,6 +603,7 @@ all-the-icons-dired
 ```
 
 ```elisp
+(setq dired-dwim-target t)
 (with-eval-after-load 'all-the-icons
   (setq all-the-icons-dired-monochrome nil)
   (add-hook
@@ -612,7 +614,7 @@ all-the-icons-dired
 ```
 
 
-<a id="org4e23164"></a>
+<a id="org29a40c9"></a>
 
 #### Diminish
 
@@ -630,12 +632,6 @@ diminish
                   '(:inherit warning :weight bold))))
     `(:propertize " LSP" face ,color)))
 
-(defvar tdm/diminish-god-lighter
-  '(:propertize
-    " God" face
-    (:inherit warning :weight bold))
-  "Display god-mode state in the `mode-line-modes'.")
-
 (dolist (mode '(("company" 'company-mode)
                 ("hideshow" 'hs-minor-mode)
                 ("undo-tree" 'undo-tree-mode)
@@ -647,9 +643,10 @@ diminish
                 ("eldoc" 'eldoc-mode)
                 ("flymake" 'flymake-mode)
                 ("flycheck" 'flycheck-mode)
+                ("evil-org" 'evil-org-mode)
                 ("lsp-mode" 'lsp-mode '(:eval (tdm/diminish-lsp-lighter)))
                 ("tree-sitter" 'tree-sitter-mode "TS")
-                ("god-mode" 'god-local-mode tdm/diminish-god-lighter)
+                ("god-mode" 'god-local-mode)
                 ("beacon" 'beacon-mode)
                 ("evil-goggles" 'evil-goggles-mode)
                 ("evil-commentary" 'evil-commentary-mode)
@@ -669,7 +666,7 @@ diminish
 ```
 
 
-<a id="orgce1c43c"></a>
+<a id="orgd1d151e"></a>
 
 #### Custom Theme
 
@@ -682,7 +679,7 @@ tangonov-theme
 ```
 
 
-<a id="org258b65a"></a>
+<a id="org84d6ca5"></a>
 
 #### Font Setup
 
@@ -693,35 +690,44 @@ tangonov-theme
 ```
 
 
-<a id="org98dc871"></a>
+<a id="org7658815"></a>
 
 #### Modeline
 
 ```elisp
-(defvar tdm/git-cached-status nil)
-(defvar tdm/git--last-update nil)
+svg-lib
+```
 
-(defun tdm/git-dirty? ()
-  "Return t if local repository is dirty."
-  (if (and
-       tdm/git--last-update
-       (< (float-time
-           (time-subtract (current-time) tdm/git--last-update))
-          1.0))
-      tdm/git-cached-status
-    (setq tdm/git--last-update (current-time))
+```elisp
+(defvar-local tdm/git-cached-status nil
+  "The buffer's last known workspace status.")
+
+(defun tdm/git-cache-status (&rest args)
+  "Set local buffer's git cache status.
+Accepts 'ARGS' but does not use them."
+  (when-let ((buffer (and (project-current)
+                          (member (buffer-file-name)
+                                  (project-files (project-current)))
+                          (buffer-file-name))))
     (setq tdm/git-cached-status
-          (with-temp-buffer
-            (vc-git-command t 0 nil "status" "--porcelain")
-            (> (buffer-size) 0)))))
+          (vc-state-refresh buffer 'git))))
+
+(add-hook 'after-save-hook #'tdm/git-cache-status)
+
+(add-to-list 'window-buffer-change-functions #'tdm/git-cache-status)
+
+(defvar tdm/git-status-plist '(unregistered ("  ⁈" . (:foreground "#C792EA"))
+                               edited ("  ±" . (:foreground "#82AAFF"))
+                               up-to-date ("  ✔" . success)
+                               ignored ("  ।" . warning)))
 
 (defun tdm/vc ()
   "Get the git status for the current buffer."
-  (when-let (vc vc-mode)
-    (let* ((dirty (tdm/git-dirty?))
-           (icon (if dirty "  ±" "  ✔"))
-           (color (if dirty '(:foreground "#82AAFF") 'success)))
-      `(:propertize ,(concat icon " " (substring vc 5)) face ,color))))
+  (when-let ((styles (plist-get tdm/git-status-plist tdm/git-cached-status)))
+    (let* ((icon (car styles))
+           (color (cdr styles))
+           (branch (if vc-mode (substring vc-mode 5) "untracked")))
+      `(:propertize ,(concat icon " " branch) face ,color))))
 
 (defcustom td/custom-project-name nil
   "A custom directory-local name for a project.el project."
@@ -773,6 +779,18 @@ tangonov-theme
                           (emacs . ,(tdm/modal-face
                                      "<E>" '(:foreground "#C792EA")))))
 
+(require 'svg-lib)
+(add-to-list 'svg-lib-icon-collections
+             (cons "local" "file:///home/trevdev/.config/emacs/%s.svg"))
+
+(defun tdm/god-mode-icon ()
+  "Retrieve the hammer of the gods."
+  (svg-lib-icon "mjolnir"
+                `(:collection "local"
+                              :stroke 0
+                              :foreground ,(face-foreground 'warning)
+                              :background ,(face-background 'mode-line))))
+
 (defun tdm/meow-state ()
   "Retrieve the meow-state for the mode-line."
   (when (featurep 'meow)
@@ -789,8 +807,8 @@ tangonov-theme
   "Get the god-mode state for the mode-line."
   (when (featurep 'god-mode)
     (format "%s " (if god-local-mode
-                      (tdm/modal-face "<G>" '(:foreground "#FFCA41"))
-                    (tdm/modal-face "<E>" '(:foreground "#C792EA"))))))
+                      (propertize "God" 'display (tdm/god-mode-icon))
+                    ""))))
 
 (defun tdm/status-flag (on face)
   "Produce a status flag based on some `PRED'icate test and give it a `FACE'."
@@ -862,7 +880,7 @@ The modeline should fit the `window-width' with space between the lists."
                   ;; Left
                   (format-mode-line
                    '(" "
-                     (:eval (tdm/evil-state))
+                     (:eval (tdm/meow-state))
                      (:eval (tdm/status-flag buffer-read-only 'error))
                      (:eval (tdm/status-flag (buffer-modified-p) 'warning))
                      (:eval (if (not (eq
@@ -877,7 +895,9 @@ The modeline should fit the `window-width' with space between the lists."
                      (:eval (tdm/buffer-position))))
                   ;; Right
                   (format-mode-line
-                   '((:eval (tdm/macro-indicator))
+                   '((:eval (tdm/god-state))
+                     (:eval (tdm/macro-indicator))
+                     (:eval (tdm/flycheck))
                      (:eval (tdm/vc))
                      (:eval (tdm/misc))
                      "  "
@@ -885,14 +905,14 @@ The modeline should fit the `window-width' with space between the lists."
 ```
 
 
-<a id="org9741e49"></a>
+<a id="orgdcb4b02"></a>
 
 ### Utility Packages
 
 Packages that extend and augment emacs in a general way
 
 
-<a id="org6fb1fd4"></a>
+<a id="orgafe68ae"></a>
 
 #### Avy
 
@@ -907,7 +927,7 @@ avy
 ```
 
 
-<a id="org36c8af6"></a>
+<a id="orgb4525c6"></a>
 
 #### CTRLF
 
@@ -922,266 +942,60 @@ ctrlf
 ```
 
 
-<a id="orgf8f22c5"></a>
+<a id="orgc9a32df"></a>
 
 #### Completions
 
 A combination of packages to enhance completions.
 
 
-<a id="org1c4f19e"></a>
+<a id="org46a391b"></a>
 
-##### Cape
+##### Company
 
-Add completion at point functions for things like Corfu
+Completions at point/region.
 
 ```elisp
-cape
+company
 ```
 
 ```elisp
-(defun td/don-local-cape (comps &optional no-extend)
-  "Create a hook function to set local capfs to include `COMPS'.
-If `NO-EXTEND' is non-nil, the global capfs will be discarded."
-  `(lambda ()
-     (setq-local completion-at-point-functions
-                 (if ,no-extend
-                     ',comps
-                   ',(cl-union comps completion-at-point-functions)))))
+(defun td/company-prog-hook ()
+  "Completions for programming."
+  (setq-local company-backends
+              '(company-capf :with
+                             company-yasnippet
+                             company-dabbrv-code
+                             company-files))
+  (company-mode))
 
-(setq cape-dict-file (concat
-                      (getenv "HOME")
-                      "/Documents/wordlist"))
-(defvar td/capes
-  (let ((map (make-sparse-keymap)))
-    (td/bind-keys '(("p" . completion-at-point)
-                    ("t" . complete-tag)
-                    ("d" . cape-dabbrev)
-                    ("h" . cape-history)
-                    ("f" . cape-file)
-                    ("k" . cape-keyword)
-                    ("s" . cape-symbol)
-                    ("a" . cape-abbrev)
-                    ("i" . cape-ispell)
-                    ("l" . cape-line)
-                    ("w" . cape-dict)
-                    ("&" . cape-sgml)
-                    ("t" . tempel-expand)
-                    ("r" . cape-rfc1345)) map)
-    map) "Keymap for the various cape completion functions. \\{td/capes}")
-(fset 'td/capes td/capes)
+(defun td/company-text-hook ()
+  "Completions for writing."
+  (company-mode))
 
-  (global-set-key (kbd "C-c M-p") 'td/capes)
+(add-hook 'prog-mode-hook #'td/company-prog-hook)
+(add-hook 'text-mode-hook #'td/company-text-hook)
 
-(add-hook 'prog-mode-hook (td/don-local-cape (list (cape-super-capf
-                                                    #'cape-keyword
-                                                    #'tempel-expand)
-                                                   #'cape-file
-                                                   #'cape-dabbrev)))
-
-(add-hook 'emacs-lisp-mode-hook (td/don-local-cape
-                                 (list (cape-super-capf
-                                        #'cape-symbol
-                                        #'cape-keyword
-                                        #'tempel-expand)
-                                       #'cape-file
-                                       #'cape-dabbrev) t))
-
-(add-hook 'geiser-mode-hook (td/don-local-cape
-                             (list #'geiser-capf--for-module
-                                   #'geiser-capf--for-symbol
-                                   #'geiser-capf--for-filename
-                                   #'tempel-expand
-                                   #'cape-file
-                                   #'cape-dabbrev) t))
-
-(add-hook 'text-mode-hook (td/don-local-cape (list #'tempel-expand #'cape-dict)))
+(setq company-files-exclusions '(".git/")
+      company-idle-delay 0.3)
 ```
+
+
+<a id="org0fb19aa"></a>
+
+##### Icomplete mode
 
 ```elisp
-corfu-terminal
-```
-
-```elisp
-(unless (display-graphic-p)
-  (corfu-terminal-mode t))
-```
-
-
-<a id="org41636f3"></a>
-
-##### Consult
-
-I am currently giving consult a try as my completion-at-point solution, amongst many other better ways to reference things in Emacs.
-
-```elisp
-consult
-consult-flycheck
-```
-
-```elisp
-  (require 'consult)
-
-  (setq register-preview-delay 0
-        register-preview-function #'consult-register-format
-        xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  (td/bind-keys '(("C-c h" . consult-history)
-                  ("C-c M-x" . consult-mode-command)
-                  ;; ("C-c k" . consult-kmacro)
-                  ;; C-x bindings (ctl-x-map)
-                  ("C-x M-:" . consult-complex-command)
-                  ("C-x C-b" . consult-buffer)
-
-                  ("C-x r b" . consult-bookmark)
-                  ;; Custom M-# bindings for fast register access
-                  ("M-#" . consult-register-load)
-                  ("M-'" . consult-register-store)
-                  ("C-M-#" . consult-register)
-                  ("M-g f" . consult-flymake) ; or flymake?
-                  ("M-g o" . consult-outline)
-                  ("M-g m" . consult-mark)
-                  ("M-g k" . consult-global-mark)
-                  ("M-g i" . consult-imenu)
-                  ("M-g I" . consult-imenu-multi)
-                  ;; M-s bindings (search-map)
-                  ("M-s d" . consult-find)
-                  ("M-s D" . consult-locate)
-                  ("M-s g" . consult-grep)
-                  ("M-s G" . consult-git-grep)
-                  ("M-s r" . consult-ripgrep)
-                  ("M-s l" . consult-line)
-                  ("M-s L" . consult-line-multi)
-                  ("M-s m" . consult-multi-occur)
-                  ("M-s k" . consult-keep-lines)
-                  ("M-s u" . consult-focus-lines)
-                  ;; Isearch integration
-                  ("M-s e" . consult-isearch-history)))
-
-  (with-eval-after-load 'org
-    (define-key org-mode-map (kbd "M-g o") #'consult-org-heading))
-
-  (define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
-  (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
-  (consult-customize
-   consult-theme
-   :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-recent-file consult--source-project-recent-file
-   consult--source-bookmark
-   :preview-key (kbd "M-."))
-  (setq consult-narrow-key "<"
-        consult-project-root-function
-        (lambda ()
-          (when-let (project (project-current))
-            (car (project-roots project)))))
+(icomplete-mode 1)
+(setq icomplete-show-matches-on-no-input t)
+(td/bind-keys '(("C-n"        . icomplete-forward-completions)
+                ("C-p"        . icomplete-backward-completions)
+                ("S-<return>" . icomplete-force-complete-and-exit))
+              icomplete-minibuffer-map)
 ```
 
 
-<a id="org561f111"></a>
-
-##### Corfu
-
-Drop-down style completions & related packages. I use Corfu everywhere, hence adding pcmpl-args, which is supposed to enhance eshell completions.
-
-```elisp
-corfu
-pcmpl-args
-```
-
-```elisp
-(setq tab-always-indent 'complete)
-
-(setq corfu-auto t
-      corfu-quit-no-match t)
-(global-corfu-mode)
-
-(defun corfu-enable-in-minibuffer ()
-  "Enable Corfu in the minibuffer if `completion-at-point' is bound."
-  (when (where-is-internal #'completion-at-point (list (current-local-map)))
-    (corfu-mode 1)))
-
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (setq-local corfu-auto nil)
-            (corfu-mode)))
-
-(defun corfu-send-shell (&rest _)
-  "Send completion candidate when inside comint/eshell."
-  (cond
-   ((and (derived-mode-p 'eshell-mode) (fboundp 'eshell-send-input))
-    (eshell-send-input))
-   ((and (derived-mode-p 'comint-mode)  (fboundp 'comint-send-input))
-    (comint-send-input))))
-(advice-add #'corfu-insert :after #'corfu-send-shell)
-
-;; Silence the pcomplete capf, no errors or messages!
-(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-
-;; Ensure that pcomplete does not write to the buffer
-;; and behaves as a pure `completion-at-point-function'.
-(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
-
-(add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
-
-(require 'pcmpl-args)
-```
-
-
-<a id="orge94f252"></a>
-
-##### Fussy
-
-A pretty good fuzzy completion style.
-
-```elisp
-fussy
-```
-
-```elisp
-(add-to-list 'completion-styles 'fussy t)
-(setq completion-category-defaults nil
-      completion-category-overrides nil)
-```
-
-
-<a id="org6026003"></a>
-
-##### Kind-Icon
-
-```elisp
-kind-icon
-```
-
-```elisp
-(with-eval-after-load 'corfu
-  (setq kind-icon-default-face 'corfu-default)
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-```
-
-
-<a id="org0b4a8bb"></a>
-
-##### Marginalia
-
-Better descriptions of symbols in the minibuffer.
-
-```elisp
-marginalia
-```
-
-```elisp
-(marginalia-mode)
-(define-key minibuffer-local-map (kbd "M-A") #'marginalia-cycle)
-```
-
-
-<a id="org72754b3"></a>
+<a id="org1996871"></a>
 
 ##### Savehist
 
@@ -1192,41 +1006,7 @@ Save history for Vertico to look at later.
 ```
 
 
-<a id="org87e60db"></a>
-
-##### TempEl
-
-Snippet completions written in elisp.
-
-Note to self: This is intertwined with [cape](#org1c4f19e).
-
-```elisp
-tempel
-```
-
-```elisp
-(global-set-key (kbd "C-c M-t") #'tempel-insert)
-```
-
-
-<a id="org612190b"></a>
-
-##### Vertico
-
-Mini-buffer completions back-end.
-
-```elisp
-vertico
-```
-
-```elisp
-(with-eval-after-load 'consult
-  (vertico-mode)
-  (setq enable-recursive-minibuffers t))
-```
-
-
-<a id="org7f82336"></a>
+<a id="orgc4152a9"></a>
 
 #### Dashboard
 
@@ -1252,7 +1032,41 @@ dashboard
 ```
 
 
-<a id="orgf779f48"></a>
+<a id="org472aa57"></a>
+
+#### Docker
+
+Numerous packages related to docker.
+
+
+<a id="org6b6c055"></a>
+
+##### docker.el
+
+```elisp
+docker
+```
+
+
+<a id="orgd54260a"></a>
+
+##### dockerfile-mode
+
+```elisp
+dockerfile-mode
+```
+
+
+<a id="org7b5db9c"></a>
+
+##### docker-compose-mode
+
+```elisp
+docker-compose-mode
+```
+
+
+<a id="org41f709a"></a>
 
 #### Diff-hl
 
@@ -1271,7 +1085,7 @@ diff-hl
 ```
 
 
-<a id="org06d85c9"></a>
+<a id="orgef5184e"></a>
 
 #### Elfeed
 
@@ -1291,7 +1105,38 @@ elfeed-org
 ```
 
 
-<a id="orgda59bcf"></a>
+<a id="org0cf75f5"></a>
+
+#### EMMS
+
+Emacs Multi-Media System
+
+```elisp
+emms
+```
+
+```elisp
+(defun td/start-emms ()
+  "Start up emms."
+  (interactive)
+  (require 'emms-setup)
+  (require 'emms-player-mpd)
+
+  (emms-all)
+
+  (setq emms-player-mpd-server-port "6600"
+        emms-player-mpd-music-directory "~/Music"
+        emms-player-mpd-server-name "localhost")
+
+  (add-to-list 'emms-player-list 'emms-player-mpd)
+  (add-to-list 'emms-info-functions 'emms-info-mpd)
+
+  (emms-mode-line-mode -1)
+  (emms-player-mpd-connect))
+```
+
+
+<a id="orgb1a3b87"></a>
 
 #### Surround
 
@@ -1399,7 +1244,7 @@ for pair."
 ```
 
 
-<a id="org0fdb0ed"></a>
+<a id="org424afeb"></a>
 
 #### ERC
 
@@ -1417,7 +1262,7 @@ for pair."
 ```
 
 
-<a id="org3384f1b"></a>
+<a id="org4e00441"></a>
 
 #### Eshell
 
@@ -1436,7 +1281,7 @@ eshell-syntax-highlighting
 ```
 
 
-<a id="orgdd33a0a"></a>
+<a id="org35e0b85"></a>
 
 #### Expand Region
 
@@ -1474,7 +1319,7 @@ expand-region
 ```
 
 
-<a id="orge743755"></a>
+<a id="orgcd2dd8d"></a>
 
 #### God Mode
 
@@ -1487,30 +1332,33 @@ god-mode
 ```
 
 
-<a id="org1857d14"></a>
+<a id="org1ff88c7"></a>
 
 ##### Functions
 
 These functions enhance editing while allowing me to "drop out" of god-mode in useful ways.
 
 ```elisp
+(defun god/exit-god-local (&rest args)
+  (god-local-mode -1))
+
 (defun god/eol-insert ()
   "Move the cursor to the end-of-line and exit god mode."
   (interactive)
   (end-of-line)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/boi-insert ()
   "Move the cursor `back-to-indentation' and exit god mode."
   (interactive)
   (back-to-indentation)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/forward-insert ()
   "Move the cursor over one char and exit god mode."
   (interactive)
   (forward-char)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/change ()
   "Kill char/region and exit god mode."
@@ -1518,7 +1366,7 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
     (zap-to-char 1 (char-after)))
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/backward-symbol (num)
   "Move backward `NUM' symbols."
@@ -1530,25 +1378,24 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   (interactive)
   (beginning-of-line)
   (split-line)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/open-below ()
   "Open a new line below the current line, put the point there."
   (interactive)
   (end-of-line)
   (newline-and-indent)
-  (god-local-mode -1))
+  (god/exit-god-local))
 
 (defun god/pull-line ()
   "Pull a line up from below the currnet line and join them."
   (interactive)
-  (save-excursion
-    (next-line)
-    (join-line)))
+  (next-line)
+  (join-line))
 ```
 
 
-<a id="orgd084905"></a>
+<a id="orgfe6a35e"></a>
 
 ##### Insert Ahead
 
@@ -1585,7 +1432,7 @@ A value of -1 is backward.'"
                      search-backward-regexp))
   (advice-add back-func :after
               #'(lambda (&rest args) (god/set-ahead-direction -1))
-              '((name . "god/set-ahead-backward"))))
+              (function 'god/set-ahead-backward)))
 
 (dolist (for-func '(forward-char
                     forward-word
@@ -1596,11 +1443,11 @@ A value of -1 is backward.'"
                     search-forward-regexp))
   (advice-add for-func :after
               #'(lambda (&rest args) (god/set-ahead-direction))
-              '((name . "god/set-ahead-forward"))))
+              (function 'god/set-ahead-forward)))
 ```
 
 
-<a id="org2462356"></a>
+<a id="org4deb83d"></a>
 
 ##### Org Mode Newline Advice
 
@@ -1608,16 +1455,20 @@ I would like to be able to perform special org-mode functions such as `org-meta-
 
 ```elisp
 (advice-add 'org-meta-return :after
-            #'(lambda (&rest args) (god-local-mode -1))
-            '((name . "god/insert-after-org-meta-return")))
+            #'god/exit-god-local
+            (function 'god/insert-after-org-meta-return))
 
 (advice-add 'org-insert-todo-heading :after
-            #'(lambda (&rest args) (god-local-mode -1))
-            '((name . "god/insert-after-org-new-heading")))
+            #'god/exit-god-local
+            (function 'god/insert-after-org-new-heading))
+
+(advice-add 'org-insert-heading-respect-content :after
+            #'god/exit-god-local
+            (function 'god/insert-after-org-heading-respect-content))
 ```
 
 
-<a id="org4d72ca6"></a>
+<a id="org2b9dd6f"></a>
 
 ##### Seeking Characters
 
@@ -1666,7 +1517,7 @@ Apply a neg-arg to go in `REVERSE'"
 ```
 
 
-<a id="orgac39169"></a>
+<a id="org9102451"></a>
 
 ##### Cursor Indicator
 
@@ -1683,46 +1534,40 @@ I like having a thick bar for "emacs mode" and a box for god-mode.
 ```
 
 
-<a id="org73dc584"></a>
+<a id="orgf6ca4e1"></a>
 
 ##### Keybindings
 
 Declare key-bindings to be applied in the next section.
 
 ```elisp
-(defvar god/keybinds '(("h" . backward-char)
-                       ("j" . next-line)
-                       ("k" . previous-line)
-                       ("l" . forward-char)
-                       (";" . god/repeat-seek)
+(defvar god/keybinds '((";" . god/repeat-seek)
                        ("A" . god/boi-insert)
                        ("B" . god/backward-symbol)
-                       ("b" . backward-word)
                        ("C" . god/change)
                        ("D" . delete-backward-char)
                        ("E" . god/eol-insert)
                        ("F" . forward-symbol)
                        ("g" . avy-goto-char-timer)
-                       ("f" . forward-word)
-                       ("u" . undo)
-                       ("U" . undo-redo)
                        ("I" . god/insert-ahead)
                        ("i" . god-local-mode)
                        ("J" . god/pull-line)
                        ("O" . god/open-above)
                        ("o" . god/open-below)
-                       ("w" . td/windmove-map)
+                       ("W" . td/windmove-map)
                        ("T" . god/seek)
                        ("t" . god/seek-until)
                        ("P" . td/backward-chunk)
                        ("N" . td/forward-chunk)
+                       ("(" . kmacro-start-macro)
+                       (")" . kmacro-end-or-call-macro)
                        ("q" . quit-window)
                        ("z" . repeat)
                        ("," . er/keymap)))
 ```
 
 
-<a id="orgba3bf68"></a>
+<a id="org0f77c18"></a>
 
 ##### Apply & Finish Setup
 
@@ -1733,17 +1578,21 @@ I would prefer to keep god mode on, or off, on a buffer-to-buffer basis. I use `
 God has no intermediary mode for non-editing buffers. I feel like it's better to have to turn it on explicitly for quicker navigation or firing off commands.
 
 ```elisp
-(setq god-mode-enable-function-key-translation nil
-      god-exempt-major-modes '(vterm-mode)
-      god-exempt-predicates nil
-      god-mode-alist '((nil . "C-")
+(setq god-mode-enable-function-key-translation nil)
+(setq god-mode-alist '((nil . "C-")
                        ("m" . "M-")
                        ("M" . "C-M-")))
 
 (require 'god-mode)
 (require 'god-mode-isearch)
 
-(global-set-key (kbd "<escape>") #'god-mode-all)
+(dolist (mode '(notmuch-hello-mode
+                notmuch-search-mode
+                notmuch-show-mode))
+  (add-to-list 'god-exempt-major-modes mode))
+
+(global-set-key (kbd "C-c g") #'god-mode)
+(global-set-key (kbd "<escape>") #'god-local-mode)
 (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
 (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
 
@@ -1758,11 +1607,15 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
   (which-key-enable-god-mode-support))
 
 (add-hook 'post-command-hook #'god/cursor-toggle)
-(add-hook 'god-local-mode-hook #'corfu-quit)
+
+(when (commandp 'corfu-quit)
+  (add-hook 'god-local-mode-hook #'corfu-quit))
+
+(god-mode)
 ```
 
 
-<a id="orgd3abddd"></a>
+<a id="org1136be5"></a>
 
 #### Goggles
 
@@ -1778,7 +1631,16 @@ goggles
 ```
 
 
-<a id="org4c11dfa"></a>
+<a id="org281c78c"></a>
+
+#### Imenu
+
+```elisp
+(global-set-key (kbd "C-c i") #'imenu)
+```
+
+
+<a id="org024e8a8"></a>
 
 #### Magit
 
@@ -1789,11 +1651,29 @@ magit
 ```
 
 ```elisp
-(global-set-key (kbd "C-c g") #'magit-status)
+(global-set-key (kbd "C-c m") #'magit-status)
 ```
 
 
-<a id="orgddb3094"></a>
+<a id="org63b476c"></a>
+
+#### Mastodon
+
+Toot.
+
+```elisp
+mastodon
+```
+
+```elisp
+(setq mastodon-instance-url "https://mastodon.technology"
+      mastodon-active-user "trevdev"
+      mastodon-tl--show-avatars t
+      mastodon-media--avatar-height 30)
+```
+
+
+<a id="orgc55e023"></a>
 
 #### Multiple Cursors
 
@@ -1815,14 +1695,14 @@ multiple-cursors
 ```
 
 
-<a id="orgde09f37"></a>
+<a id="org407b10f"></a>
 
 #### Org
 
 The greatest part of using Emacs is org-mode. It handles my agenda, my todo list, helps me prioritize tasks, track time and invoice clients.
 
 
-<a id="org75f75ed"></a>
+<a id="orgb07e1c1"></a>
 
 ##### Key Variables
 
@@ -1888,11 +1768,11 @@ My org agenda commands & stuck projects. Currently a work in progress! I am read
   "Custom commands for Org Agenda.")
 ```
 
-Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [extensions](#orgd8318e6) for how I extend org-mode.
+Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [extensions](#orgf16b310) for how I extend org-mode.
 
 ```elisp
 (defvar td/capture-templates
-  '(("t" "Todo" entry (file+headline "~/Org/agenda.org" "Inbox")
+  '(("t" "Todo" entry (file "~/Org/agenda/inbox.org")
      "* TODO %^{Title: }\n:PROPERTIES:\n:date: %U\n:END:\n%?"
      :empty-lines 1)
     ("c" "Contact" entry (file+headline "~/Org/contacts.org" "Other")
@@ -1906,7 +1786,7 @@ Capture templates! These help me collect information into Org files. Currently I
 I usually stick to monospace sized fonts with the exception of Org files. I like the first 3 levels to be slightly larger than the rest, and progressively smaller. This helps me create a sense of urgency at the lower-level headers and it also improves readability.
 
 
-<a id="org5b841eb"></a>
+<a id="org8fb1f6a"></a>
 
 ##### Functions
 
@@ -1937,7 +1817,7 @@ Some fairly self-explanatory utility functions.
 ```
 
 
-<a id="org7cb8bb5"></a>
+<a id="orge1b8566"></a>
 
 ##### Apply Configuration
 
@@ -1946,7 +1826,7 @@ Some fairly self-explanatory utility functions.
 (global-set-key (kbd "C-c a") #'org-agenda)
 
 (with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-c t") #'org-table-export))
+  (define-key org-mode-map (kbd "C-c e t") #'org-table-export))
 
 (with-eval-after-load 'ox
   (require 'ox-md nil t))
@@ -1964,12 +1844,13 @@ Some fairly self-explanatory utility functions.
       org-agenda-tags-column -80
       org-duration-format '(("h" . nil) (special . 2))
       org-clock-total-time-cell-format "%s"
-      org-agenda-files '("~/Org")
+      org-agenda-files '("~/Org/agenda")
       org-tag-alist td/tag-list
       org-todo-keywords td/todo-keywords
-      org-refile-use-outline-path t
+      org-refile-use-outline-path 'file
       org-refile-allow-creating-parent-nodes t
-      org-refile-targets '((org-agenda-files :maxlevel . 4))
+      org-refile-targets '((org-agenda-files :maxlevel . 4)
+                           ("contacts.org" :maxlevel . 1))
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
       org-timer-default-timer "25"
       org-agenda-custom-commands td/org-agenda-commands
@@ -1987,7 +1868,7 @@ Some fairly self-explanatory utility functions.
 ```
 
 
-<a id="orgd8318e6"></a>
+<a id="orgf16b310"></a>
 
 ##### Extending Org Mode
 
@@ -2119,8 +2000,8 @@ org-roam
                         "#+TITLE: %<%a, %b %d %Y>\n"))))
 
 (defvar td/roam-display-template
-  (concat "${title:*} "
-          (propertize "${tags:28}" 'face 'org-tag)))
+  (concat "${title} "
+          (propertize "${tags}" 'face 'org-tag)))
 
 (td/bind-keys '(("C-c r t" . org-roam-buffer-toggle)
                 ("C-c r f" . org-roam-node-find)
@@ -2165,149 +2046,7 @@ org-roam-ui
 ```
 
 
-<a id="org429f8cb"></a>
-
-##### Custom Clock Table
-
-I wanted a neat and tidy way to lay out the hours that I've worked, vs how much effort they should have taken & what that time should be worth when I invoice. I feel like this table is more useful for reporting billable hours and invoicing.
-
-```elisp
-(defcustom td/billable-rate 80
-  "The billable rate for calculating 'td/custom-clocktable"
-  :type `integer
-  :group 'org)
-
-(defun td/custom-clocktable-indent (level)
-  "Create an indent based on org LEVEL"
-  (if (= level 1) ""
-    (concat (make-string (1- level) ?—) " ")
-    ))
-
-(defun td/custom-clocktable-get-prop (key props)
-  "Get a specific value using a KEY from a list of PROPS"
-  (cdr (assoc key props)))
-
-(defun td/minutes-to-billable (minutes &optional rate)
-  "Get the amount in dollers that a number of MINUTES is worth"
-  (let* ((hours (/ (round (* (/ minutes 60.0) 100)) 100.0))
-         (amount (* hours (cond ((numberp rate) rate)
-                                ((numberp td/billable-rate) td/billable-rate)
-                                (0))))
-         (billable (/ (round (* amount 100)) 100.0)))
-    billable))
-
-(defun td/emph-str (string &optional emph)
-  "Emphasize a STRING if EMPH is set"
-  (if emph
-      (format "*%s*" string)
-    string))
-
-(defun td/custom-clocktable (ipos tables params)
-  "An attempt to clock my voltage time, my way"
-  (let* ((lang (or (plist-get params :lang) "en"))
-         (block (plist-get params :block))
-         (emph (plist-get params :emphasize))
-         (header (plist-get params :header))
-         (properties (or (plist-get params :properties) '()))
-         (comments-on (member "Comment" properties))
-         (formula (plist-get params :formula))
-         (rate (plist-get params :rate))
-         (has-formula (cond ((and formula (stringp formula))
-                             t)
-                            (formula (user-error "Invalid :formula param"))))
-         (effort-on (member "Effort" properties)))
-    (goto-char ipos)
-
-    (insert-before-markers
-     (or header
-         ;; Format the standard header.
-         (format "#+CAPTION: %s %s%s\n"
-                 (org-clock--translate "Clock summary at" lang)
-                 (format-time-string (org-time-stamp-format t t))
-                 (if block
-                     (let ((range-text
-                            (nth 2 (org-clock-special-range
-                                    block nil t
-                                    (plist-get params :wstart)
-                                    (plist-get params :mstart)))))
-                       (format ", for %s." range-text))
-                   "")))
-     "| Task " (if effort-on "| Est" "")
-     "| Time | Billable"
-     (if comments-on "| Comment" "") "\n")
-    (let '(total-time (apply #'+ (mapcar #'cadr tables)))
-      (when (and total-time (> total-time 0))
-        (pcase-dolist (`(, file-name , file-time , entries) tables)
-          (when (and file-time (> file-time 0))
-            (pcase-dolist (`(,level ,headline ,tgs ,ts ,time ,props) entries)
-              (insert-before-markers
-               (if (= level 1) "|-\n|" "|")
-               (td/custom-clocktable-indent level)
-               (concat (td/emph-str headline (and emph (= level 1))) "|")
-               (if-let* (effort-on
-                         (eft (td/custom-clocktable-get-prop "Effort" props))
-                         (formatted-eft (org-duration-from-minutes
-                                         (org-duration-to-minutes eft))))
-                   (concat (td/emph-str formatted-eft (and emph (= level 1)))
-                           "|")
-                 (if effort-on "|"
-                   ""))
-               (concat (td/emph-str
-                        (org-duration-from-minutes time)
-                        (and emph (= level 1))) "|")
-               (concat (td/emph-str
-                        (format "$%.2f" (td/minutes-to-billable time rate))
-                        (and emph (= level 1))) "|")
-               (if-let* (comments-on
-                         (comment
-                          (td/custom-clocktable-get-prop "Comment" props)))
-                   (concat comment "\n")
-                 "\n")))))
-        (let ((cols-adjust
-               (if (member "Effort" properties)
-                   2
-                 1)))
-          (insert-before-markers
-           (concat "|-\n| "
-                   (td/emph-str "Totals" emph)
-                   (make-string cols-adjust ?|))
-           (concat (td/emph-str
-                    (format "%s" (org-duration-from-minutes total-time)) emph)
-                   "|")
-           (concat (td/emph-str
-                    (format "$%.2f" (td/minutes-to-billable total-time rate))
-                    emph) "|" ))
-          (when has-formula
-            (insert "\n#+TBLFM: " formula)))))
-    (goto-char ipos)
-    (skip-chars-forward "^|")
-    (org-table-align)
-    (when has-formula (org-table-recalculate 'all))))
-
-(defun td/clocktable-format-toggle ()
-  (interactive)
-  (if (equal org-duration-format '((special . h:mm)))
-      (setq-local org-duration-format '(("h" . nil) (special . 2)))
-    (setq-local org-duration-format '((special . h:mm))))
-  (org-ctrl-c-ctrl-c))
-```
-
-Here's an example:
-
-| Task              | Est   | Time   | Billable | Comment                |
-|----------------- |----- |------ |-------- |---------------------- |
-| Client            |       | 8.00h  | $520.00  |                        |
-| — Task B          |       | 2.00h  | $130.00  | This is taking a while |
-| — Task A          |       | 6.00h  | $390.00  |                        |
-| Client B          |       | 12.43h | $807.95  |                        |
-| — Special Project |       | 12.00h | $780.00  |                        |
-| —— Task C         | 9.00h | 8.00h  | $520.00  |                        |
-| —— Task D         |       | 4.00h  | $260.00  |                        |
-| — Unrelated Task  |       | 0.43h  | $27.95   |                        |
-| Totals            |       | 20.43h | $1327.95 |                        |
-
-
-<a id="orgc4f2f2e"></a>
+<a id="org8ab21ea"></a>
 
 #### Ledger
 
@@ -2322,7 +2061,7 @@ ledger-mode
 ```
 
 
-<a id="org60a40c3"></a>
+<a id="org3729e6a"></a>
 
 #### Vterm     :guix:
 
@@ -2337,14 +2076,14 @@ A "normal" terminal for Emacs. This package is currently installed by the guix s
 ```
 
 
-<a id="org406badd"></a>
+<a id="org39b248e"></a>
 
 #### Notmuch
 
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
 
 
-<a id="org8d77534"></a>
+<a id="org77f36de"></a>
 
 ##### Built In Mail Settings
 
@@ -2360,7 +2099,7 @@ Notmuch is a really impressive way to read and organize mail via tagging files. 
 ```
 
 
-<a id="org87e7497"></a>
+<a id="orgbfde97a"></a>
 
 ##### Notmuch
 
@@ -2422,7 +2161,8 @@ notmuch
                              ("d" ("+deleted" "-inbox") "Delete"))
       notmuch-show-logo nil
       notmuch-mua-user-agent-function 'notmuch-mua-user-agent-full
-      notmuch-hello-thousands-separator ",")
+      notmuch-hello-thousands-separator ","
+      mml-secure-openpgp-encrypt-to-self t)
 
 (global-set-key (kbd "<f5>") #'notmuch)
 
@@ -2440,7 +2180,18 @@ notmuch
 ```
 
 
-<a id="org2ff58b1"></a>
+<a id="org2f6c851"></a>
+
+##### ol-notmuch
+
+This adds the ability to create links to notmuch messages in org-mode
+
+```elisp
+ol-notmuch
+```
+
+
+<a id="orgaf02e74"></a>
 
 ##### org-mime
 
@@ -2464,7 +2215,7 @@ org-mime
 ```
 
 
-<a id="orgc17e144"></a>
+<a id="org5b53364"></a>
 
 ##### org-contacts
 
@@ -2484,7 +2235,7 @@ org-contacts
 ```
 
 
-<a id="org1219773"></a>
+<a id="orgcda93ff"></a>
 
 #### Password Store
 
@@ -2500,7 +2251,7 @@ password-store
 ```
 
 
-<a id="org70cffe1"></a>
+<a id="org023be08"></a>
 
 #### Sensitive Mode
 
@@ -2530,7 +2281,7 @@ Inspired from a script written by [Anirudh Sasikumar](https://anirudhsasikumar.n
 ```
 
 
-<a id="org3d118a8"></a>
+<a id="orgde2126d"></a>
 
 #### RG
 
@@ -2543,7 +2294,22 @@ rg
 ```
 
 
-<a id="org330c0c4"></a>
+<a id="org3913298"></a>
+
+#### Transpose Mark
+
+A simple package for highlighting a marked area or region prior to transposing it with some other marked area or region. It makes the built-in `transpose-region` sane.
+
+```elisp
+transpose-mark
+```
+
+```elisp
+(global-set-key (kbd "C-c t") #'transpose-mark)
+```
+
+
+<a id="orgb7007f0"></a>
 
 #### Visual Fill Column
 
@@ -2567,7 +2333,7 @@ visual-fill-column
 ```
 
 
-<a id="org7287c57"></a>
+<a id="org7560d28"></a>
 
 #### Which-key
 
@@ -2582,7 +2348,7 @@ which-key
 ```
 
 
-<a id="org4d282eb"></a>
+<a id="org39d7c38"></a>
 
 #### Windmove
 
@@ -2622,14 +2388,14 @@ Set up a keymap for wind-move and bind it to a prefix that's easy to hit.
 ```
 
 
-<a id="org113a830"></a>
+<a id="orgf2bbfa2"></a>
 
 ### Syntax Support
 
 This section is for syntax highlighting and language specific tooling.
 
 
-<a id="org86100c5"></a>
+<a id="org80860ed"></a>
 
 #### Clojure
 
@@ -2645,7 +2411,7 @@ cider
 ```
 
 
-<a id="orge51cb28"></a>
+<a id="org03fdffe"></a>
 
 #### Common Lisp
 
@@ -2656,7 +2422,7 @@ sly
 ```
 
 
-<a id="org22a9399"></a>
+<a id="orgcd4b986"></a>
 
 #### CSS/SCSS
 
@@ -2666,78 +2432,7 @@ sly
 ```
 
 
-<a id="org3e77fed"></a>
-
-#### Eglot
-
-Eglot - the rival LSP client to the infamous `lsp-mode`. Eglot claims to be leaner, faster and less intense.
-
-```elisp
-eglot
-```
-
-```elisp
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(php-mode . ("intelephense" "--stdio")))
-  (add-to-list 'eglot-server-programs
-               '(svelte-mode . ("svelteserver" "--stdio")))
-  (add-to-list 'eglot-server-programs
-               '(shopify-mode
-                 . ("theme-check-language-server" "--stdio")))
-
-  (defvar td/eglot-funcs
-    (let ((map (make-sparse-keymap)))
-      (td/bind-keys '(("C-r"   . eglot-rename)
-                      ("C-d"   . eglot-find-typeDefinition)
-                      ("C-S-d" . eglot-find-declaration)
-                      ("C-f"   . eglot-format)
-                      ("C-S-f" . eglot-format-buffer)
-                      ("C-S-r" . eglot-reconnect)) map)
-      map) "Custom keybinds for eglot functions. \\{td/eglot-funcs}")
-  (fset 'td/eglot-funcs td/eglot-funcs)
-  (define-key eglot-mode-map (kbd "C-c C-e") 'td/eglot-funcs)
-
-  (setq eglot-events-buffer-size 0
-        eglot-send-changes-idle-time 0.7
-        eglot-autoshutdown t)
-
-  (add-hook 'eglot-managed-mode-hook
-            (lambda ()
-              "Make sure Eldoc will show us all of the feedback at point."
-              (setq-local eldoc-documentation-strategy
-                          #'eldoc-documentation-compose))))
-```
-
-
-<a id="orgf1e2c3b"></a>
-
-#### Eldoc
-
-```elisp
-(setq eldoc-echo-area-use-multiline-p nil
-      eldoc-documentation-strategy 'eldoc-documentation-compose)
-```
-
-
-<a id="org566ffff"></a>
-
-#### Eldoc Box
-
-```elisp
-eldoc-box
-```
-
-```elisp
-(autoload 'eldoc-box-help-at-point "eldoc-box.el"
-  "Activate pop-up for eldoc information for the thing at point."
-  t)
-
-(global-set-key (kbd "C-c M-h") #'eldoc-box-help-at-point)
-```
-
-
-<a id="org2f6640b"></a>
+<a id="org60ecaf3"></a>
 
 #### Emmet
 
@@ -2757,7 +2452,23 @@ emmet-mode
 ```
 
 
-<a id="orge3f707c"></a>
+<a id="orgb88ef9d"></a>
+
+#### Flycheck
+
+```elisp
+flycheck
+```
+
+```elisp
+(td/add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
+(global-set-key (kbd "C-c f") #'flycheck-mode)
+(with-eval-after-load 'flycheck
+  (setq flycheck-checker-error-threshold 1000))
+```
+
+
+<a id="org06fb2fa"></a>
 
 #### GoLang
 
@@ -2770,7 +2481,60 @@ go-mode
 ```
 
 
-<a id="orgb3f7081"></a>
+<a id="org2a1777a"></a>
+
+#### LSP Mode
+
+I prefer a lighter weight LSP. I had enjoyed Eglot for some time. LSP-Mode has better features, however. I get fairly minimal feedback about the things I care about with inline flycheck messages.
+
+```elisp
+lsp-mode
+lsp-ui
+```
+
+```elisp
+(td/add-hooks '(css-mode
+                scss-mode
+                html-mode
+                js-mode
+                json-mode
+                python-mode
+                php-mode
+                ruby-mode
+                rust-mode
+                scss-mode
+                svelte-mode
+                typescript-mode
+                vue-mode
+                yaml-mode)
+              #'lsp)
+(add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+
+(setq lsp-keymap-prefix "C-c l")
+(setq lsp-log-io nil
+      lsp-modeline-code-actions-segments '(count)
+      lsp-signature-doc-lines 1
+      lsp-enable-folding nil
+      lsp-clients-typescript-server-args '("--stdio"
+                                           "--tsserver-log-file"
+                                           "/dev/stderr")
+      lsp-keep-workspace-alive nil)
+
+(with-eval-after-load 'lsp-mode
+  (define-key lsp-mode-map (kbd "C-S-H") #'lsp-ui-doc-glance)
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection
+                                     "theme-check-language-server")
+                    :activation-fn (lsp-activate-on "shopify")
+                    :server-id 'theme-check))
+  (add-to-list
+   'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'")
+  (add-to-list 'lsp-language-id-configuration
+               '(shopify-mode . "shopify")))
+```
+
+
+<a id="org5c45bf4"></a>
 
 #### Lua Mode
 
@@ -2783,7 +2547,7 @@ lua-mode
 ```
 
 
-<a id="orgf76b6ce"></a>
+<a id="org999c8ab"></a>
 
 #### Markdown
 
@@ -2800,7 +2564,7 @@ markdown-mode
 ```
 
 
-<a id="orged0968e"></a>
+<a id="org2ad3e47"></a>
 
 #### Nim
 
@@ -2809,7 +2573,7 @@ nim-mode
 ```
 
 
-<a id="org631651a"></a>
+<a id="org182562a"></a>
 
 #### Paredit
 
@@ -2826,7 +2590,7 @@ paredit
 ```
 
 
-<a id="orgf23f861"></a>
+<a id="org6d8879e"></a>
 
 #### PHP
 
@@ -2858,7 +2622,7 @@ php-mode
 ```
 
 
-<a id="org3587ae1"></a>
+<a id="orgb744344"></a>
 
 #### Prettier
 
@@ -2869,7 +2633,7 @@ prettier-js
 ```
 
 
-<a id="orgf871173"></a>
+<a id="org654dc6d"></a>
 
 #### Python
 
@@ -2880,7 +2644,7 @@ pyvenv
 ```
 
 
-<a id="org3026418"></a>
+<a id="org7c1ef74"></a>
 
 #### Rainbow Delimiters
 
@@ -2895,7 +2659,7 @@ rainbow-delimiters
 ```
 
 
-<a id="orgd5d861d"></a>
+<a id="org0855c07"></a>
 
 #### Rainbow Mode
 
@@ -2906,7 +2670,7 @@ rainbow-mode
 ```
 
 
-<a id="orgb00386c"></a>
+<a id="orgbbafcdf"></a>
 
 #### Ruby
 
@@ -2915,7 +2679,7 @@ inf-ruby
 ```
 
 
-<a id="org6f89698"></a>
+<a id="org4ead11c"></a>
 
 #### Rust
 
@@ -2935,7 +2699,7 @@ rust-mode
 ```
 
 
-<a id="org53f5973"></a>
+<a id="orgd7b1314"></a>
 
 #### Scheme
 
@@ -2948,7 +2712,7 @@ geiser-guile
 ```
 
 
-<a id="org43eb35e"></a>
+<a id="org9936c95"></a>
 
 #### Shopify Mode
 
@@ -2970,7 +2734,7 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
 ```
 
 
-<a id="orgcb67f27"></a>
+<a id="orgfea6cbf"></a>
 
 #### Svelte
 
@@ -2984,7 +2748,7 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 ```
 
 
-<a id="org848b8bc"></a>
+<a id="org4f9d89b"></a>
 
 #### Treesitter
 
@@ -3009,7 +2773,7 @@ tree-sitter-langs
 ```
 
 
-<a id="org4c1c99f"></a>
+<a id="orgcfe626d"></a>
 
 #### TypeScript & JavaScript
 
@@ -3023,7 +2787,7 @@ typescript-mode
 ```
 
 
-<a id="org7004dc7"></a>
+<a id="org622404a"></a>
 
 #### VueJS
 
@@ -3035,7 +2799,7 @@ typescript-mode
 ```
 
 
-<a id="org13aa50a"></a>
+<a id="org6119c48"></a>
 
 #### Web Mode
 
@@ -3058,7 +2822,7 @@ web-mode
 ```
 
 
-<a id="org9fc16ea"></a>
+<a id="org6dc87aa"></a>
 
 #### YAML
 
@@ -3073,18 +2837,39 @@ yaml-mode
 ```
 
 
-<a id="org991b107"></a>
+<a id="orgfcb625c"></a>
+
+#### Yasnippet
+
+Snippets! They're helpful.
+
+```elisp
+yasnippet
+yasnippet-snippets
+```
+
+```elisp
+(require 'yasnippet)
+(global-set-key (kbd "C-c ,") #'yas-expand)
+(setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
+(yas-reload-all)
+(add-hook 'prog-mode-hook #'yas-minor-mode)
+(add-hook 'text-mode-hook #'yas-minor-mode)
+```
+
+
+<a id="orgfea57f4"></a>
 
 ### Load Customizer Settings
 
-Load the file we created for custom vars in the [general settings](#org8ec129b).
+Load the file we created for custom vars in the [general settings](#orgdb57bef).
 
 ```elisp
 (load custom-file 'noerror 'nomessage)
 ```
 
 
-<a id="org6508ba8"></a>
+<a id="orgd7e91bc"></a>
 
 ## About This Config
 
@@ -3099,7 +2884,7 @@ If you like it enough to drop me a tip, feel free to do so:
 [![img](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y34UWHH) [![img](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/trev.dev/donate) BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
 
 
-<a id="orgd63c4c1"></a>
+<a id="org2b853ac"></a>
 
 ### Installation
 
@@ -3110,7 +2895,7 @@ If you've decided to fork this repository and wish to use it as-is, here are the
 3.  Symlink, copy or move the config files to wherever you want to start your init.
 
 
-<a id="orgdf2956e"></a>
+<a id="orgeea8086"></a>
 
 ### Licenses
 
