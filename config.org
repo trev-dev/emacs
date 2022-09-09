@@ -2540,7 +2540,6 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
                                           liquid-electric-pairs)
               electric-pair-text-pairs electric-pair-pairs))
 (add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
-(add-to-list 'org-src-lang-modes '("liquid" . shopify))
 #+end_src
 
 **** Svelte
@@ -2611,7 +2610,6 @@ Guix Packages:
       web-mode-block-padding tab-width
       web-mode-enable-auto-indentation nil
       web-mode-enable-auto-pairing nil)
-(add-to-list 'org-src-lang-modes '("html" . web))
 #+end_src
 
 **** YAML
