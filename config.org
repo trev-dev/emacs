@@ -148,9 +148,7 @@ Set up the dictionary and preferred browser.
 #+begin_src elisp
 ;; Spelling
 (setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd"
-      ispell-program-name "aspell"
       ispell-dictionary "en"
-      ispell-library-directory "~/.guix-home/profile/lib/aspell"
       ispell-alternate-dictionary (concat (getenv "HOME") "/Documents/wordlist"))
 ;; Browser
 (setq browse-url-generic-program "/usr/bin/firefox")
