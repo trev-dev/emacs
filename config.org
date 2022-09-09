@@ -2973,7 +2973,7 @@ yaml-mode
 (td/auto-mode '(("\\.yml\\'" . yaml-mode)))
 #+end_src
 
-**** COMMENT Yasnippet
+**** Yasnippet
 Snippets! They're helpful.
 
 #+begin_src elisp :noweb-ref packages :tangle no
