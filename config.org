@@ -107,6 +107,21 @@ This generates the top of the init file, which will set up the lexical scope and
 Some general performance based improvements concerning large files, when to compile with the fancy new native-comp feature and reset the GC collection size after init.
 
 #+begin_src elisp
+(defvar emacs-startup-time (current-time)
+  "When Emacs last initialized.")
+
+(defun td/calculate-init-time (start-time)
+  (float-time (time-subtract (current-time) start-time)))
+
+(defun td/report-init-time ()
+  "Prints the init time into the scratch buffer as a comment."
+  (switch-to-buffer "*scratch*")
+  (insert-before-markers
+   (format ";; Init finished in %0.2f seconds; welcome to Emacs.\n"
+           (td/calculate-init-time emacs-startup-time))))
+
+(add-hook 'after-init-hook #'td/report-init-time)
+
 (add-hook 'emacs-startup-hook
           (lambda ()
             (setq gc-cons-threshold (expt 2 23))))
@@ -722,25 +737,6 @@ Save history for Vertico to look at later.
 
 #+begin_src elisp
 (savehist-mode)
-#+end_src
-
-**** Dashboard
-
-#+begin_src elisp
-(setq dashboard-startup-banner 'logo
-      dashboard-projects-backend 'project-el
-      dashboard-items '((projects . 5)
-                        (recents . 5)
-                        (agenda . 5)
-                        (bookmarks . 5))
-      dashboard-set-heading-icons t
-      dashboard-set-file-icons t
-      dashboard-center-content t
-      dashboard-set-init-info t)
-(when (daemonp)
-  (setq initial-buffer-choice
-        (lambda () (get-buffer "*dashboard*"))))
-(dashboard-setup-startup-hook)
 #+end_src
 
 **** Docker
