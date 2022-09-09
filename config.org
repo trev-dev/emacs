@@ -747,7 +747,7 @@ ctrlf
 **** Completions
 A combination of packages to enhance completions.
 
-***** COMMENT Company
+***** Company
 Completions at point/region.
 
 #+begin_src elisp :noweb-ref packages :tangle no
@@ -758,227 +758,21 @@ company
 (defun td/company-prog-hook ()
   "Completions for programming."
   (setq-local company-backends
-              '(company-capf
-                company-yasnippet
-                company-dabbrv-code
-                company-files)))
+              '(company-capf :with
+                             company-yasnippet
+                             company-dabbrv-code
+                             company-files))
+  (company-mode))
 
-(add-hook 'after-init-hook #'global-company-mode)
+(defun td/company-text-hook ()
+  "Completions for writing."
+  (company-mode))
+
 (add-hook 'prog-mode-hook #'td/company-prog-hook)
+(add-hook 'text-mode-hook #'td/company-text-hook)
 
-(setq company-backends '(company-capf
-                         company-yasnippet
-                         company-ispell
-                         company-files)
-      company-files-exclusions '(".git/")
+(setq company-files-exclusions '(".git/")
       company-idle-delay 0.3)
-#+end_src
-
-***** Cape
-Add completion at point functions for things like Corfu
-
-#+begin_src elisp :noweb-ref packages :tangle no
-cape
-#+end_src
-
-#+begin_src elisp
-(defun td/don-local-cape (comps &optional no-extend)
-  "Create a hook function to set local capfs to include `COMPS'.
-If `NO-EXTEND' is non-nil, the global capfs will be discarded."
-  `(lambda ()
-     (setq-local completion-at-point-functions
-                 (if ,no-extend
-                     ',comps
-                   ',(cl-union comps completion-at-point-functions)))))
-
-(setq cape-dict-file (concat
-                      (getenv "HOME")
-                      "/Documents/wordlist"))
-(defvar td/capes
-  (let ((map (make-sparse-keymap)))
-    (td/bind-keys '(("p" . completion-at-point)
-                    ("t" . complete-tag)
-                    ("d" . cape-dabbrev)
-                    ("h" . cape-history)
-                    ("f" . cape-file)
-                    ("k" . cape-keyword)
-                    ("s" . cape-symbol)
-                    ("a" . cape-abbrev)
-                    ("i" . cape-ispell)
-                    ("l" . cape-line)
-                    ("w" . cape-dict)
-                    ("&" . cape-sgml)
-                    ("t" . tempel-expand)
-                    ("r" . cape-rfc1345)) map)
-    map) "Keymap for the various cape completion functions. \\{td/capes}")
-(fset 'td/capes td/capes)
-
-  (global-set-key (kbd "C-c M-p") 'td/capes)
-
-(add-hook 'prog-mode-hook (td/don-local-cape (list (cape-super-capf
-                                                    #'cape-keyword
-                                                    #'tempel-expand)
-                                                   #'cape-file
-                                                   #'cape-dabbrev)))
-
-(add-hook 'emacs-lisp-mode-hook (td/don-local-cape
-                                 (list (cape-super-capf
-                                        #'cape-symbol
-                                        #'cape-keyword
-                                        #'tempel-expand)
-                                       #'cape-file
-                                       #'cape-dabbrev) t))
-
-(add-hook 'geiser-mode-hook (td/don-local-cape
-                             (list #'geiser-capf--for-module
-                                   #'geiser-capf--for-symbol
-                                   #'geiser-capf--for-filename
-                                   #'tempel-expand
-                                   #'cape-file
-                                   #'cape-dabbrev) t))
-
-(add-hook 'text-mode-hook (td/don-local-cape (list #'tempel-expand #'cape-dict)))
-#+end_src
-
-#+begin_src elisp :noweb-ref packages :tangle no
-corfu-terminal
-#+end_src
-
-#+begin_src elisp
-(unless (display-graphic-p)
-  (corfu-terminal-mode t))
-#+end_src
-
-***** Consult
-I am currently giving consult a try as my completion-at-point solution, amongst many
-other better ways to reference things in Emacs.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-consult
-consult-flycheck
-#+end_src
-
-#+begin_src elisp
-  (require 'consult)
-
-  (setq register-preview-delay 0
-        register-preview-function #'consult-register-format
-        xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  (td/bind-keys '(("C-c M-x" . consult-mode-command)
-                  ;; ("C-c k" . consult-kmacro)
-                  ;; C-x bindings (ctl-x-map)
-                  ("C-x M-:" . consult-complex-command)
-                  ("C-x C-b" . consult-buffer)
-
-                  ("C-x r b" . consult-bookmark)
-                  ;; Custom M-# bindings for fast register access
-                  ("M-#" . consult-register-load)
-                  ("M-'" . consult-register-store)
-                  ("C-M-#" . consult-register)
-                  ("M-g f" . consult-flymake) ; or flymake?
-                  ("M-g o" . consult-outline)
-                  ("M-g m" . consult-mark)
-                  ("M-g k" . consult-global-mark)
-                  ("M-g i" . consult-imenu)
-                  ("M-g I" . consult-imenu-multi)
-                  ;; M-s bindings (search-map)
-                  ("M-s d" . consult-find)
-                  ("M-s D" . consult-locate)
-                  ("M-s g" . consult-grep)
-                  ("M-s G" . consult-git-grep)
-                  ("M-s r" . consult-ripgrep)
-                  ("M-s l" . consult-line)
-                  ("M-s L" . consult-line-multi)
-                  ("M-s m" . consult-multi-occur)
-                  ("M-s k" . consult-keep-lines)
-                  ("M-s u" . consult-focus-lines)
-                  ;; Isearch integration
-                  ("M-s e" . consult-isearch-history)))
-
-  (with-eval-after-load 'org
-    (define-key org-mode-map (kbd "M-g o") #'consult-org-heading))
-
-  (define-key isearch-mode-map (kbd "M-e") #'consult-isearch-history)
-  (add-hook 'completion-list-mode-hook #'consult-preview-at-point-mode)
-  (consult-customize
-   consult-theme
-   :preview-key '(:debounce 0.2 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-recent-file consult--source-project-recent-file
-   consult--source-bookmark
-   :preview-key (kbd "M-."))
-  (setq consult-narrow-key "<"
-        consult-project-root-function
-        (lambda ()
-          (when-let (project (project-current))
-            (car (project-roots project)))))
-#+end_src
-
-***** Corfu
-
-Drop-down style completions & related packages. I use Corfu everywhere, hence adding pcmpl-args, which is supposed to enhance eshell completions.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-corfu
-pcmpl-args
-#+end_src
-
-#+begin_src elisp
-(setq tab-always-indent 'complete)
-
-(setq corfu-auto t
-      corfu-quit-no-match t)
-(global-corfu-mode)
-
-(defun corfu-enable-in-minibuffer ()
-  "Enable Corfu in the minibuffer if `completion-at-point' is bound."
-  (when (where-is-internal #'completion-at-point (list (current-local-map)))
-    (corfu-mode 1)))
-
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (setq-local corfu-auto nil)
-            (corfu-mode)))
-
-(defun corfu-send-shell (&rest _)
-  "Send completion candidate when inside comint/eshell."
-  (cond
-   ((and (derived-mode-p 'eshell-mode) (fboundp 'eshell-send-input))
-    (eshell-send-input))
-   ((and (derived-mode-p 'comint-mode)  (fboundp 'comint-send-input))
-    (comint-send-input))))
-(advice-add #'corfu-insert :after #'corfu-send-shell)
-
-;; Silence the pcomplete capf, no errors or messages!
-(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-
-;; Ensure that pcomplete does not write to the buffer
-;; and behaves as a pure `completion-at-point-function'.
-(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
-
-(add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
-
-(require 'pcmpl-args)
-#+end_src
-
-***** Fussy
-
-A pretty good fuzzy completion style.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-fussy
-#+end_src
-
-#+begin_src elisp
-(add-to-list 'completion-styles 'fussy t)
-(setq completion-category-defaults nil
-      completion-category-overrides nil)
 #+end_src
 
 ***** Icomplete mode
@@ -986,24 +780,10 @@ fussy
 #+begin_src elisp
 (icomplete-mode 1)
 (setq icomplete-show-matches-on-no-input t)
-(td/bind-keys '(("C-n"   . icomplete-forward-completions)
-                ("C-p"   . icomplete-backward-completions)
-                ("RET"   . icomplete-force-complete-and-exit)
-                ("C-j"   . icomplete-ret)
-                ("C-c v" . icomplete-vertical-mode))
+(td/bind-keys '(("C-n"        . icomplete-forward-completions)
+                ("C-p"        . icomplete-backward-completions)
+                ("S-<return>" . icomplete-force-complete-and-exit))
               icomplete-minibuffer-map)
-#+end_src
-
-***** Kind-Icon
-
-#+begin_src elisp :noweb-ref packages :tangle no
-kind-icon
-#+end_src
-
-#+begin_src elisp
-(with-eval-after-load 'corfu
-  (setq kind-icon-default-face 'corfu-default)
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+end_src
 
 ***** Savehist
@@ -1012,19 +792,6 @@ Save history for Vertico to look at later.
 
 #+begin_src elisp
 (savehist-mode)
-#+end_src
-
-***** TempEl
-Snippet completions written in elisp.
-
-Note to self: This is intertwined with [[* Cape][cape]].
-
-#+begin_src elisp :noweb-ref packages :tangle no
-tempel
-#+end_src
-
-#+begin_src elisp
-(global-set-key (kbd "C-c M-t") #'tempel-insert)
 #+end_src
 
 **** Dashboard
@@ -1765,6 +1532,12 @@ goggles
 #+begin_src elisp
 (td/add-hooks '(text-mode prog-mode) #'goggles-mode)
 (setq-default goggles-pulse t)
+#+end_src
+
+**** Imenu
+
+#+begin_src elisp
+(global-set-key (kbd "C-c i") #'imenu)
 #+end_src
 
 **** COMMENT Meow
