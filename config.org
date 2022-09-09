@@ -1827,7 +1827,7 @@ Capture templates! These help me collect information into Org files. Currently I
 
 #+begin_src elisp
 (defvar td/capture-templates
-  '(("t" "Todo" entry (file+headline "~/Org/agenda.org" "Inbox")
+  '(("t" "Todo" entry (file "~/Org/agenda/inbox.org")
      "* TODO %^{Title: }\n:PROPERTIES:\n:date: %U\n:END:\n%?"
      :empty-lines 1)
     ("c" "Contact" entry (file+headline "~/Org/contacts.org" "Other")
@@ -1892,12 +1892,13 @@ Some fairly self-explanatory utility functions.
       org-agenda-tags-column -80
       org-duration-format '(("h" . nil) (special . 2))
       org-clock-total-time-cell-format "%s"
-      org-agenda-files '("~/Org")
+      org-agenda-files '("~/Org/agenda")
       org-tag-alist td/tag-list
       org-todo-keywords td/todo-keywords
-      org-refile-use-outline-path t
+      org-refile-use-outline-path 'file
       org-refile-allow-creating-parent-nodes t
-      org-refile-targets '((org-agenda-files :maxlevel . 4))
+      org-refile-targets '((org-agenda-files :maxlevel . 4)
+                           ("contacts.org" :maxlevel . 1))
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
       org-timer-default-timer "25"
       org-agenda-custom-commands td/org-agenda-commands
