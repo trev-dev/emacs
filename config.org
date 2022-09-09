@@ -710,6 +710,7 @@ The modeline should fit the `window-width' with space between the lists."
                   (format-mode-line
                    '((:eval (tdm/god-state))
                      (:eval (tdm/macro-indicator))
+                     (:eval (tdm/flycheck))
                      (:eval (tdm/vc))
                      (:eval (tdm/misc))
                      "  "
@@ -2575,7 +2576,7 @@ sly
       tab-width 2)
 #+end_src
 
-**** Eglot
+**** COMMENT Eglot
 Eglot - the rival LSP client to the infamous =lsp-mode=. Eglot claims to be leaner, faster and less intense.
 
 #+begin_src elisp :noweb-ref packages :tangle no
@@ -2617,7 +2618,7 @@ eglot
                           #'eldoc-documentation-compose))))
 #+end_src
 
-**** Eldoc
+**** COMMENT Eldoc
 
 #+begin_src elisp
 (setq eldoc-echo-area-use-multiline-p nil
@@ -2654,7 +2655,7 @@ emmet-mode
               #'emmet-mode)
 #+end_src
 
-**** COMMENT Flycheck
+**** Flycheck
 
 #+begin_src elisp :noweb-ref packages :tangle no
 flycheck
@@ -2677,14 +2678,13 @@ go-mode
 (td/auto-mode '(("\\.go\\'" . go-mode)))
 #+end_src
 
-**** COMMENT LSP Mode
+**** LSP Mode
 
 I prefer a lighter weight LSP. I had enjoyed Eglot for some time. LSP-Mode has better features, however. I get fairly minimal feedback about the things I care about with inline flycheck messages.
 
 #+begin_src elisp :noweb-ref packages :tangle no
 lsp-mode
 lsp-ui
-consult-lsp
 #+end_src
 
 #+begin_src elisp
@@ -2705,7 +2705,7 @@ consult-lsp
               #'lsp)
 (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
 
-(setq lsp-keymap-prefix "C-c C-l")
+(setq lsp-keymap-prefix "C-c l")
 (setq lsp-log-io nil
       lsp-modeline-code-actions-segments '(count)
       lsp-signature-doc-lines 1
@@ -2716,6 +2716,7 @@ consult-lsp
       lsp-keep-workspace-alive nil)
 
 (with-eval-after-load 'lsp-mode
+  (define-key lsp-mode-map (kbd "C-S-H") #'lsp-ui-doc-glance)
   (lsp-register-client
    (make-lsp-client :new-connection (lsp-stdio-connection
                                      "theme-check-language-server")
