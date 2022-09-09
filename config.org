@@ -1238,17 +1238,6 @@ expand-region
 (define-key priority-mode-map (kbd "C-,") er/keymap)
 #+end_src
 
-**** COMMENT Exec Path
-It's silly that I need to do this, but I run Emacs in --daemon mode. I'm tired of my $PATH getting missed 1/2 the time.
-
-#+begin_src elisp :noweb-ref packages :tangle no
-exec-path-from-shell
-#+end_src
-
-#+begin_src elisp
-(exec-path-from-shell-initialize)
-#+end_src
-
 **** God Mode
 
 God mode is an amazing package. It automatically translates key-chords into single-key bindings and toggled modifiers.
