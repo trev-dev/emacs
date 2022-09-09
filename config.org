@@ -896,9 +896,11 @@ for pair."
 (global-set-key (kbd "C-S-s") #'surround)
 #+end_src
 
-**** Ement
+**** COMMENT Ement
 
 A Matrix client for Emacs. Ement currenly has a few stray dependencies.
+
+***** TODO Guix package needs updating
 
 #+begin_src elisp
 (defun td/matrix-connect ()
