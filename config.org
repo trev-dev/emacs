@@ -1730,7 +1730,9 @@ mastodon
 
 #+begin_src elisp
 (setq mastodon-instance-url "https://mastodon.technology"
-      mastodon-active-user "trevdev")
+      mastodon-active-user "trevdev"
+      mastodon-tl--show-avatars t
+      mastodon-media--avatar-height 30)
 #+end_src
 
 **** Multiple Cursors
