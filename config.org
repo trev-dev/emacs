@@ -512,30 +512,35 @@ svg-lib
 #+end_src
 
 #+begin_src elisp
-(defvar tdm/git-cached-status nil)
-(defvar tdm/git--last-update nil)
+(defvar-local tdm/git-cached-status nil
+  "The buffer's last known workspace status.")
 
-(defun tdm/git-dirty? ()
-  "Return t if local repository is dirty."
-  (if (and
-       tdm/git--last-update
-       (< (float-time
-           (time-subtract (current-time) tdm/git--last-update))
-          1.0))
-      tdm/git-cached-status
-    (setq tdm/git--last-update (current-time))
+(defun tdm/git-cache-status (&rest args)
+  "Set local buffer's git cache status.
+Accepts 'ARGS' but does not use them."
+  (when-let ((buffer (and (project-current)
+                          (member (buffer-file-name)
+                                  (project-files (project-current)))
+                          (buffer-file-name))))
     (setq tdm/git-cached-status
-          (with-temp-buffer
-            (vc-git-command t 0 nil "status" "--porcelain")
-            (> (buffer-size) 0)))))
+          (vc-state-refresh buffer 'git))))
+
+(add-hook 'after-save-hook #'tdm/git-cache-status)
+
+(add-to-list 'window-buffer-change-functions #'tdm/git-cache-status)
+
+(defvar tdm/git-status-plist '(unregistered ("  ⁈" . (:foreground "#C792EA"))
+                               edited ("  ±" . (:foreground "#82AAFF"))
+                               up-to-date ("  ✔" . success)
+                               ignored ("  ।" . warning)))
 
 (defun tdm/vc ()
   "Get the git status for the current buffer."
-  (when-let (vc vc-mode)
-    (let* ((dirty (tdm/git-dirty?))
-           (icon (if dirty "  ±" "  ✔"))
-           (color (if dirty '(:foreground "#82AAFF") 'success)))
-      `(:propertize ,(concat icon " " (substring vc 5)) face ,color))))
+  (when-let ((styles (plist-get tdm/git-status-plist tdm/git-cached-status)))
+    (let* ((icon (car styles))
+           (color (cdr styles))
+           (branch (if vc-mode (substring vc-mode 5) "untracked")))
+      `(:propertize ,(concat icon " " branch) face ,color))))
 
 (defcustom td/custom-project-name nil
   "A custom directory-local name for a project.el project."
