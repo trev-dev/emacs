@@ -316,7 +316,7 @@ I'd like to keep my tab style fixed at 2 spaces wherever possible. Specific prog
 
 This section is for configuring packages, both built in and abroad.
 
-*** Straight.el
+*** COMMENT Straight.el
 
 I need to bootstrap straight.el in order to grab packages that are not available as Guix packages for whatever reason yet.
 
@@ -932,7 +932,7 @@ A Matrix client for Emacs. Ement currenly has a few stray dependencies.
 **** Eshell
 
 #+begin_src elisp
-(straight-use-package 'capf-autosuggest)
+;; (straight-use-package 'capf-autosuggest)
 
 (defun td/eshell-extras ()
   "Start extra features for eshell-mode"
@@ -1726,7 +1726,7 @@ Some fairly self-explanatory utility functions.
 
 #+begin_src elisp
 ;; Ensure built-in org is used!
-(straight-use-package '(org :type built-in))
+;; (straight-use-package '(org :type built-in))
 
 (add-hook 'org-mode-hook #'td/org-hook)
 (global-set-key (kbd "C-c a") #'org-agenda)
@@ -1776,7 +1776,7 @@ Some fairly self-explanatory utility functions.
 ***** Extending Org Mode
 Extending org-mode with some interesting packages.
 
-****** org-alert
+****** COMMENT org-alert
 
 Libnotify alerts for Agenda alerts.
 
@@ -1792,7 +1792,7 @@ Libnotify alerts for Agenda alerts.
   (org-alert-enable))
 #+end_src
 
-****** org-chef
+****** COMMENT org-chef
 
 [[https://github.com/Chobbes/org-chef][Org-chef]] is a must have if you enjoy cooking. You can just use =M-x org-chef-insert-recipe= in whatever cookbook file, or the capture templates.
 
@@ -1920,7 +1920,7 @@ Org roam is an incredible thought capture system, inspired by roam research. I'm
   (org-roam-db-autosync-mode))
 #+end_src
 
-****** org-roam-ui
+****** COMMENT org-roam-ui
 
 A fancy, web-based user interface for reviewing your org-roam notes and how they connect to one-another.
 
@@ -2052,7 +2052,7 @@ Notmuch is a really impressive way to read and organize mail via tagging files. 
 (add-hook 'notmuch-mua-send-hook #'td/specify-msmtp-account)
 #+end_src
 
-***** ol-notmuch
+***** COMMENT ol-notmuch
 
 This adds the ability to create links to notmuch messages in org-mode
 
@@ -2077,14 +2077,14 @@ Edit messages using org-mode.
               message-mode-map)
 #+end_src
 
-***** org-contacts
+***** COMMENT org-contacts
 
 Organize contacts with org-mode.
 
 #+begin_src elisp
 (straight-use-package '(org-contacts
-                        :type git
-                        :host "https://repo.or.cz/org-contacts.git"))
+                        :source sourcehut
+                        :repo "https://repo.or.cz/org-contacts.git"))
 
 (require 'org-contacts)
 (setq org-contacts-files '("~/Org/contacts.org"))
@@ -2143,7 +2143,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 (rg-enable-default-bindings)
 #+end_src
 
-**** Transpose Mark
+**** COMMENT Transpose Mark
 
 A simple package for highlighting a marked area or region prior to transposing it with some other marked area or region. It makes the built-in =transpose-region= sane.
 
@@ -2410,7 +2410,7 @@ Guix Packages:
                 ("\\.markdown\\'" . markdown-mode)))
 #+end_src
 
-**** Nim
+**** COMMENT Nim
 
 #+begin_src elisp
 (straight-use-package 'nim-mode)
@@ -2554,7 +2554,7 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
 #+end_src
 
-**** Treesitter
+**** COMMENT Treesitter
 
 Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
 
