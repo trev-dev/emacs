@@ -872,6 +872,34 @@ elfeed-org
   (setq rmh-elfeed-org-files '("~/Org/elfeed.org")))
 #+end_src
 
+**** EMMS
+
+Emacs Multi-Media System
+
+#+begin_src elisp :noweb-ref packages :tangle no
+emms
+#+end_src
+
+#+begin_src elisp
+(defun td/start-emms ()
+  "Start up emms."
+  (interactive)
+  (require 'emms-setup)
+  (require 'emms-player-mpd)
+
+  (emms-all)
+
+  (setq emms-player-mpd-server-port "6600"
+        emms-player-mpd-music-directory "~/Music"
+        emms-player-mpd-server-name "localhost")
+
+  (add-to-list 'emms-player-list 'emms-player-mpd)
+  (add-to-list 'emms-info-functions 'emms-info-mpd)
+
+  (emms-mode-line-mode -1)
+  (emms-player-mpd-connect))
+#+end_src
+
 **** Surround
 
 My attempt at writing a quick replacement for "vim surround". There are better solutions out there, but when they're unpredictable, I don't want to figure out why.
