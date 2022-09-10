@@ -5,107 +5,107 @@ The following configuration is an experimental Guix package. Do not use it. It's
 
 Feel free to browse it and borrow/copy concepts about the configuration of Emacs, however.
 
-To read more about how this configuration is supposed to work, see my [config strategy](#org15856ce).
+To read more about how this configuration is supposed to work, see my [config strategy](#org4777cb1).
 
 **Table of Contents**
 
-1.  [Configuration Strategy](#org15856ce)
-    1.  [Tangling Files](#orgdb0fddc)
-    2.  [Configuring Packages](#org3fa2b83)
-2.  [Early Init](#org328aae5)
-3.  [Init File Headers](#orga892377)
-4.  [General Settings](#orge68ff0f)
-5.  [Helper Functions](#org2b5ced3)
-    1.  [Priority Mode](#org90ea384)
-6.  [Keybinds](#orgd6d2839)
-7.  [Prog Mode](#org0dac80d)
-8.  [Package Configuration](#org36485b6)
-    1.  [Look & Feel](#org9f7467b)
-        1.  [All The Icons](#org9cfb669)
-        2.  [Dired](#org5295e83)
-        3.  [Diminish](#org68840b3)
-        4.  [Custom Theme Devel](#org7a491c6)
-        5.  [Font Setup](#org7856ca9)
-        6.  [Modeline](#org71c0a46)
-    2.  [Utility Packages](#org0789d52)
-        1.  [Avy](#orgafb62be)
-        2.  [CTRLF](#org8b18bf8)
-        3.  [Completions](#orgaaf1013)
-            1.  [Company](#org405de32)
-            2.  [Icomplete mode](#orgf3493bd)
-            3.  [Savehist](#orge65633e)
-        4.  [Docker](#orgd85f11c)
-        5.  [Diff-hl](#org84f7f9a)
-        6.  [Ediff](#orge9d6aa0)
-        7.  [Elfeed](#org19e4d13)
-        8.  [EMMS](#orga2a2962)
-        9.  [Surround](#org54d23b4)
-        10. [Ement](#orgc66f07a)
-        11. [ERC](#org8215cce)
-        12. [Eshell](#org719ec29)
-        13. [Expand Region](#org1d65a3a)
-        14. [God Mode](#org2edc89b)
-            1.  [Functions](#orgcfbb461)
-            2.  [Insert Ahead](#orge74b379)
-            3.  [Org Mode Newline Advice](#orgc3e9f38)
-            4.  [Seeking Characters](#org0b0089c)
-            5.  [Cursor Indicator](#orgdb488eb)
-            6.  [Keybindings](#org06eccff)
-            7.  [Apply & Finish Setup](#org1649d46)
-        15. [Goggles](#orgf874cef)
-        16. [Imenu](#org84b7a8d)
-        17. [Magit](#org8434d92)
-        18. [Mastodon](#org2d635ea)
-        19. [Multiple Cursors](#org634500a)
-        20. [Org](#org60665c1)
-            1.  [Key Variables](#orge0c4110)
-            2.  [Functions](#orge799a53)
-            3.  [Apply Configuration](#org0ced055)
-            4.  [Extending Org Mode](#org17f6e11)
-        21. [Ledger](#org7db2fa8)
-        22. [Vterm](#org61002c6)
-        23. [Notmuch](#orga5cc95d)
-            1.  [Built In Mail Settings](#org612457c)
-            2.  [Notmuch](#org170620a)
-            3.  [org-mime](#org2de3a03)
-        24. [Password Store](#orge1962cf)
-        25. [Sensitive Mode](#org4606ee1)
-        26. [RG](#org772e682)
-        27. [Visual Fill Column](#orgf463e62)
-        28. [Which-key](#org0f71a3a)
-        29. [Windmove](#orgca3afb8)
-    3.  [Syntax Support](#org01d49bd)
-        1.  [Clojure](#orgdb8d0f3)
-        2.  [Common Lisp](#orgcab2f83)
-        3.  [CSS/SCSS](#org5f53912)
-        4.  [Emmet](#org000f26b)
-        5.  [Flycheck](#org3a77856)
-        6.  [LSP Mode](#org4d9ac4a)
-        7.  [Markdown](#org555798d)
-        8.  [Paredit](#org4676fe0)
-        9.  [PHP](#org5b424b2)
-        10. [Prettier](#org8798701)
-        11. [Python](#org057e48f)
-        12. [Rainbow Delimiters](#org462035b)
-        13. [Rainbow Mode](#orgc0a9a39)
-        14. [Ruby](#orgdc9dc84)
-        15. [Rust](#org50cb68b)
-        16. [Scheme](#org77fe15d)
-        17. [Shopify Mode](#orgc0195a3)
-        18. [Svelte](#orgb00f6b0)
-        19. [TypeScript & JavaScript](#org63aae93)
-        20. [VueJS](#org07d9e40)
-        21. [Web Mode](#org14440e0)
-        22. [YAML](#org93d5896)
-        23. [Yasnippet](#orgf531552)
-    4.  [Load Customizer Settings](#org638c86c)
-9.  [Guix Package Module](#org32b06ae)
-10. [About This Config](#org69b2792)
-    1.  [Installation](#org1b92ff4)
-    2.  [Licenses](#org1c43ec5)
+1.  [Configuration Strategy](#org4777cb1)
+    1.  [Tangling Files](#orgce33d9c)
+    2.  [Configuring Packages](#org276cac3)
+2.  [Early Init](#org1537aed)
+3.  [Init File Headers](#org5019d92)
+4.  [General Settings](#org5b9b6ac)
+5.  [Helper Functions](#orgb087268)
+    1.  [Priority Mode](#orgf03c0a8)
+6.  [Keybinds](#orgade654d)
+7.  [Prog Mode](#orge80aed1)
+8.  [Package Configuration](#orgc37f92c)
+    1.  [Look & Feel](#orgcb652b4)
+        1.  [All The Icons](#org8fa53c1)
+        2.  [Dired](#orgad79ce7)
+        3.  [Diminish](#org9445bc9)
+        4.  [Custom Theme Devel](#org0fe4c3a)
+        5.  [Font Setup](#org1ce9448)
+        6.  [Modeline](#org2606833)
+    2.  [Utility Packages](#org54c2e4a)
+        1.  [Avy](#orga8b306d)
+        2.  [CTRLF](#orgfaf726b)
+        3.  [Completions](#org6a4fc8d)
+            1.  [Company](#orgbea6611)
+            2.  [Icomplete mode](#org34c2577)
+            3.  [Savehist](#org1efef5b)
+        4.  [Docker](#org1114468)
+        5.  [Diff-hl](#org8205c73)
+        6.  [Ediff](#org7928904)
+        7.  [Elfeed](#org41e25b3)
+        8.  [EMMS](#org75829b2)
+        9.  [Surround](#org6d43aef)
+        10. [Ement](#orgfb4dc9e)
+        11. [ERC](#org91597d8)
+        12. [Eshell](#org181ed6a)
+        13. [Expand Region](#org4e5c628)
+        14. [God Mode](#org39d45ef)
+            1.  [Functions](#orgc550818)
+            2.  [Insert Ahead](#org4793d47)
+            3.  [Org Mode Newline Advice](#orge7f4a98)
+            4.  [Seeking Characters](#orgcf4a145)
+            5.  [Cursor Indicator](#org5d34451)
+            6.  [Keybindings](#org4e75b4a)
+            7.  [Apply & Finish Setup](#orgf60e859)
+        15. [Goggles](#orgd5fae96)
+        16. [Imenu](#orgdc55394)
+        17. [Magit](#org618f911)
+        18. [Mastodon](#org2c519aa)
+        19. [Multiple Cursors](#org218cf28)
+        20. [Org](#org2f1281e)
+            1.  [Key Variables](#org0a03dae)
+            2.  [Functions](#org9904562)
+            3.  [Apply Configuration](#org0d316e3)
+            4.  [Extending Org Mode](#orgfe604f3)
+        21. [Ledger](#orga705f05)
+        22. [Vterm](#orge6f0874)
+        23. [Notmuch](#orgafb4c1b)
+            1.  [Built In Mail Settings](#org378f13c)
+            2.  [Notmuch](#org926c4bc)
+            3.  [org-mime](#orgededbeb)
+        24. [Password Store](#org661043e)
+        25. [Sensitive Mode](#org3cb8928)
+        26. [RG](#orgd28c7e6)
+        27. [Visual Fill Column](#org544b9d3)
+        28. [Which-key](#orgc6804e6)
+        29. [Windmove](#org35ebbbb)
+    3.  [Syntax Support](#org45d3490)
+        1.  [Clojure](#org4f4bd71)
+        2.  [Common Lisp](#org6d24f36)
+        3.  [CSS/SCSS](#org16846ae)
+        4.  [Emmet](#org546665f)
+        5.  [Flycheck](#org2ea5028)
+        6.  [LSP Mode](#orgf419e3e)
+        7.  [Markdown](#org228a9d9)
+        8.  [Paredit](#orgb6e2afd)
+        9.  [PHP](#orgc53bc5b)
+        10. [Prettier](#org58bbeab)
+        11. [Python](#orgb714a1b)
+        12. [Rainbow Delimiters](#org405b6e0)
+        13. [Rainbow Mode](#orgc46be73)
+        14. [Ruby](#org1caccd8)
+        15. [Rust](#orgcd33b4a)
+        16. [Scheme](#org92592a2)
+        17. [Shopify Mode](#org82e19a9)
+        18. [Svelte](#org8fc32a9)
+        19. [TypeScript & JavaScript](#org6f21b70)
+        20. [VueJS](#org092fe2a)
+        21. [Web Mode](#org872e622)
+        22. [YAML](#orga4af9ff)
+        23. [Yasnippet](#org9167ae6)
+    4.  [Load Customizer Settings](#org7b2617a)
+9.  [Guix Package Module](#orga34e645)
+10. [About This Config](#org0528b8d)
+    1.  [Installation](#orge8703ca)
+    2.  [Licenses](#org2d2a4ad)
 
 
-<a id="org15856ce"></a>
+<a id="org4777cb1"></a>
 
 ## Configuration Strategy
 
@@ -114,7 +114,7 @@ The goal of my configuration strategy is to create a more re-producible "hardene
 The long-term vision is to have a config that I am mostly happy with, that does not require much updating and is essentially a Guix package itself.
 
 
-<a id="orgdb0fddc"></a>
+<a id="orgce33d9c"></a>
 
 ### Tangling Files
 
@@ -127,18 +127,18 @@ This file produces the following files when tangled:
 -   emacs-d.scm
 
 
-<a id="org3fa2b83"></a>
+<a id="org276cac3"></a>
 
 ### Configuring Packages
 
 Since this init file is a the "build source" of a Guix package, it is assumed that all dependencies will already be installed before runtime is initiated.
 
-For convenience, this file can be tangled to produce a Guile module, `emacs-d.scm`, which can serve as a useful reference for how to package the init configuration with its required dependencies. See [1.9](#org32b06ae) for more info.
+For convenience, this file can be tangled to produce a Guile module, `emacs-d.scm`, which can serve as a useful reference for how to package the init configuration with its required dependencies. See [1.9](#orga34e645) for more info.
 
 The rest of the source code blocks in this file will be simple package configurations.
 
 
-<a id="org328aae5"></a>
+<a id="org1537aed"></a>
 
 ## Early Init
 
@@ -168,7 +168,7 @@ We want the garbage collector to have no limit during the init sequence.
 ```
 
 
-<a id="orga892377"></a>
+<a id="org5019d92"></a>
 
 ## Init File Headers
 
@@ -209,7 +209,7 @@ This generates the top of the init file, which will set up the lexical scope and
 ```
 
 
-<a id="orge68ff0f"></a>
+<a id="org5b9b6ac"></a>
 
 ## General Settings
 
@@ -299,7 +299,7 @@ Start the pinentry service
 ```
 
 
-<a id="org2b5ced3"></a>
+<a id="orgb087268"></a>
 
 ## Helper Functions
 
@@ -336,7 +336,7 @@ Adds '-hook' onto the end of the symbols for brevity."
 Create a mode for mapping high priority keybinds early on.
 
 
-<a id="org90ea384"></a>
+<a id="orgf03c0a8"></a>
 
 ### Priority Mode
 
@@ -357,7 +357,7 @@ see bound."
 ```
 
 
-<a id="orgd6d2839"></a>
+<a id="orgade654d"></a>
 
 ## Keybinds
 
@@ -378,7 +378,7 @@ Change some of the built-in keybinds & bind some of the useful unbound functions
 ```
 
 
-<a id="org0dac80d"></a>
+<a id="orge80aed1"></a>
 
 ## Prog Mode
 
@@ -437,19 +437,19 @@ I'd like to keep my tab style fixed at 2 spaces wherever possible. Specific prog
 ```
 
 
-<a id="org36485b6"></a>
+<a id="orgc37f92c"></a>
 
 ## Package Configuration
 
 This section is for configuring packages, both built in and abroad.
 
 
-<a id="org9f7467b"></a>
+<a id="orgcb652b4"></a>
 
 ### Look & Feel
 
 
-<a id="org9cfb669"></a>
+<a id="org8fa53c1"></a>
 
 #### All The Icons
 
@@ -458,7 +458,7 @@ This section is for configuring packages, both built in and abroad.
 ```
 
 
-<a id="org5295e83"></a>
+<a id="orgad79ce7"></a>
 
 #### Dired
 
@@ -474,15 +474,11 @@ This section is for configuring packages, both built in and abroad.
 ```
 
 
-<a id="org68840b3"></a>
+<a id="org9445bc9"></a>
 
 #### Diminish
 
 Output from the `minor-mode-alist`. Due to how lazy-loading works, we want to make sure we have diminish early on.
-
-```scheme
-emacs-diminish
-```
 
 ```elisp
 (defun tdm/diminish-lsp-lighter ()
@@ -526,15 +522,11 @@ emacs-diminish
 ```
 
 
-<a id="org7a491c6"></a>
+<a id="org0fe4c3a"></a>
 
 #### Custom Theme Devel
 
 I've written my own theme called "tangonov".
-
-```scheme
-emacs-tangonov-theme
-```
 
 ```elisp
 (add-to-list 'custom-theme-load-path "~/Projects/tangonov-theme/")
@@ -550,13 +542,9 @@ emacs-tangonov-theme
 ```
 
 
-<a id="org7856ca9"></a>
+<a id="org1ce9448"></a>
 
 #### Font Setup
-
-```scheme
-font-hack
-```
 
 ```elisp
 (set-language-environment "UTF-8")
@@ -565,13 +553,9 @@ font-hack
 ```
 
 
-<a id="org71c0a46"></a>
+<a id="org2606833"></a>
 
 #### Modeline
-
-```scheme
-emacs-svg-lib
-```
 
 ```elisp
 (defvar-local tdm/git-cached-status nil
@@ -780,20 +764,16 @@ The modeline should fit the `window-width' with space between the lists."
 ```
 
 
-<a id="org0789d52"></a>
+<a id="org54c2e4a"></a>
 
 ### Utility Packages
 
 Packages that extend and augment emacs in a general way
 
 
-<a id="orgafb62be"></a>
+<a id="orga8b306d"></a>
 
 #### Avy
-
-```scheme
-emacs-avy
-```
 
 ```elisp
 (define-key priority-mode-map (kbd "C-:") #'avy-goto-char-timer)
@@ -802,37 +782,29 @@ emacs-avy
 ```
 
 
-<a id="org8b18bf8"></a>
+<a id="orgfaf726b"></a>
 
 #### CTRLF
 
 CTRLF greatly enhances isearch.
-
-```scheme
-emacs-ctrlf
-```
 
 ```elisp
 (ctrlf-mode 1)
 ```
 
 
-<a id="orgaaf1013"></a>
+<a id="org6a4fc8d"></a>
 
 #### Completions
 
 A combination of packages to enhance completions.
 
 
-<a id="org405de32"></a>
+<a id="orgbea6611"></a>
 
 ##### Company
 
 Completions at point/region.
-
-```scheme
-emacs-company
-```
 
 ```elisp
 (defun td/company-prog-hook ()
@@ -856,7 +828,7 @@ emacs-company
 ```
 
 
-<a id="orgf3493bd"></a>
+<a id="org34c2577"></a>
 
 ##### Icomplete mode
 
@@ -870,7 +842,7 @@ emacs-company
 ```
 
 
-<a id="orge65633e"></a>
+<a id="org1efef5b"></a>
 
 ##### Savehist
 
@@ -881,7 +853,7 @@ Save history for Vertico to look at later.
 ```
 
 
-<a id="orgd85f11c"></a>
+<a id="org1114468"></a>
 
 #### Docker
 
@@ -891,22 +863,12 @@ Docker support is provided by:
 -   emacs-dockerfile-mode
 -   emacs-docker-compose-mode
 
-```scheme
-emacs-docker
-emacs-dockerfile-mode
-emacs-docker-compose-mode
-```
 
-
-<a id="org84f7f9a"></a>
+<a id="org8205c73"></a>
 
 #### Diff-hl
 
 Show me the diffs in the fringe!
-
-```scheme
-emacs-diff-hl
-```
 
 ```elisp
 (setq diff-hl-show-staged-changes nil)
@@ -917,7 +879,7 @@ emacs-diff-hl
 ```
 
 
-<a id="orge9d6aa0"></a>
+<a id="org7928904"></a>
 
 #### Ediff
 
@@ -928,30 +890,22 @@ I enjoy using tiling window managers. It serves me better to avoid having a sepa
 ```
 
 
-<a id="org19e4d13"></a>
+<a id="org41e25b3"></a>
 
 #### Elfeed
 
 RSS Reader :D
-
-```scheme
-emacs-elfeed
-```
 
 ```elisp
 (global-set-key (kbd "<f6>") #'elfeed)
 ```
 
 
-<a id="orga2a2962"></a>
+<a id="org75829b2"></a>
 
 #### EMMS
 
 Emacs Multi-Media System
-
-```scheme
-emacs-emms
-```
 
 ```elisp
 (defun td/start-emms ()
@@ -974,7 +928,7 @@ emacs-emms
 ```
 
 
-<a id="org54d23b4"></a>
+<a id="org6d43aef"></a>
 
 #### Surround
 
@@ -1082,16 +1036,11 @@ for pair."
 ```
 
 
-<a id="orgc66f07a"></a>
+<a id="orgfb4dc9e"></a>
 
 #### Ement
 
 A Matrix client for Emacs.
-
-```scheme
-emacs-ement
-pantalaimon
-```
 
 ```elisp
 (defun td/matrix-connect ()
@@ -1104,7 +1053,7 @@ pantalaimon
 ```
 
 
-<a id="org8215cce"></a>
+<a id="org91597d8"></a>
 
 #### ERC
 
@@ -1122,13 +1071,9 @@ pantalaimon
 ```
 
 
-<a id="org719ec29"></a>
+<a id="org181ed6a"></a>
 
 #### Eshell
-
-```scheme
-emacs-eshell-syntax-highlighting
-```
 
 ```elisp
 (defun td/eshell-extras ()
@@ -1139,15 +1084,11 @@ emacs-eshell-syntax-highlighting
 ```
 
 
-<a id="org1d65a3a"></a>
+<a id="org4e5c628"></a>
 
 #### Expand Region
 
 It just makes selecting text between sexps easy.
-
-```scheme
-emacs-expand-region
-```
 
 ```elisp
 (require 'expand-region)
@@ -1177,7 +1118,7 @@ emacs-expand-region
 ```
 
 
-<a id="org2edc89b"></a>
+<a id="org39d45ef"></a>
 
 #### God Mode
 
@@ -1185,12 +1126,8 @@ God mode is an amazing package. It automatically translates key-chords into sing
 
 Because it has its own keymap, I can add utility functions to god-mode. This turns it into sort of a pseudo-modal editing mode. However, unlike other modal packages, it does not require as much key re-binding, thanks to key-chord translation.
 
-```scheme
-emacs-god-mode
-```
 
-
-<a id="orgcfbb461"></a>
+<a id="orgc550818"></a>
 
 ##### Functions
 
@@ -1253,7 +1190,7 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
 ```
 
 
-<a id="orge74b379"></a>
+<a id="org4793d47"></a>
 
 ##### Insert Ahead
 
@@ -1305,7 +1242,7 @@ A value of -1 is backward.'"
 ```
 
 
-<a id="orgc3e9f38"></a>
+<a id="orge7f4a98"></a>
 
 ##### Org Mode Newline Advice
 
@@ -1326,7 +1263,7 @@ I would like to be able to perform special org-mode functions such as `org-meta-
 ```
 
 
-<a id="org0b0089c"></a>
+<a id="orgcf4a145"></a>
 
 ##### Seeking Characters
 
@@ -1375,7 +1312,7 @@ Apply a neg-arg to go in `REVERSE'"
 ```
 
 
-<a id="orgdb488eb"></a>
+<a id="org5d34451"></a>
 
 ##### Cursor Indicator
 
@@ -1392,7 +1329,7 @@ I like having a thick bar for "emacs mode" and a box for god-mode.
 ```
 
 
-<a id="org06eccff"></a>
+<a id="org4e75b4a"></a>
 
 ##### Keybindings
 
@@ -1425,7 +1362,7 @@ Declare key-bindings to be applied in the next section.
 ```
 
 
-<a id="org1649d46"></a>
+<a id="orgf60e859"></a>
 
 ##### Apply & Finish Setup
 
@@ -1473,15 +1410,11 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
 ```
 
 
-<a id="orgf874cef"></a>
+<a id="orgd5fae96"></a>
 
 #### Goggles
 
 Extra feedback for text changes.
-
-```scheme
-emacs-goggles
-```
 
 ```elisp
 (td/add-hooks '(text-mode prog-mode) #'goggles-mode)
@@ -1489,7 +1422,7 @@ emacs-goggles
 ```
 
 
-<a id="org84b7a8d"></a>
+<a id="orgdc55394"></a>
 
 #### Imenu
 
@@ -1498,30 +1431,22 @@ emacs-goggles
 ```
 
 
-<a id="org8434d92"></a>
+<a id="org618f911"></a>
 
 #### Magit
 
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
-
-```scheme
-emacs-magit
-```
 
 ```elisp
 (global-set-key (kbd "C-c m") #'magit-status)
 ```
 
 
-<a id="org2d635ea"></a>
+<a id="org2c519aa"></a>
 
 #### Mastodon
 
 Toot.
-
-```scheme
-emacs-mastodon
-```
 
 ```elisp
 (setq mastodon-instance-url "https://mastodon.technology"
@@ -1531,13 +1456,9 @@ emacs-mastodon
 ```
 
 
-<a id="org634500a"></a>
+<a id="org218cf28"></a>
 
 #### Multiple Cursors
-
-```scheme
-emacs-multiple-cursors
-```
 
 ```elisp
 (td/bind-keys '(("C-S-l"   . mc/edit-lines)
@@ -1553,14 +1474,14 @@ emacs-multiple-cursors
 ```
 
 
-<a id="org60665c1"></a>
+<a id="org2f1281e"></a>
 
 #### Org
 
 The greatest part of using Emacs is org-mode. It handles my agenda, my todo list, helps me prioritize tasks, track time and invoice clients.
 
 
-<a id="orge0c4110"></a>
+<a id="org0a03dae"></a>
 
 ##### Key Variables
 
@@ -1626,7 +1547,7 @@ My org agenda commands & stuck projects. Currently a work in progress! I am read
   "Custom commands for Org Agenda.")
 ```
 
-Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [extensions](#org17f6e11) for how I extend org-mode.
+Capture templates! These help me collect information into Org files. Currently I only have 2 cookbook capture methods that are meant to be used with org-chef. See [extensions](#orgfe604f3) for how I extend org-mode.
 
 ```elisp
 (defvar td/capture-templates
@@ -1644,7 +1565,7 @@ Capture templates! These help me collect information into Org files. Currently I
 I usually stick to monospace sized fonts with the exception of Org files. I like the first 3 levels to be slightly larger than the rest, and progressively smaller. This helps me create a sense of urgency at the lower-level headers and it also improves readability.
 
 
-<a id="orge799a53"></a>
+<a id="org9904562"></a>
 
 ##### Functions
 
@@ -1675,7 +1596,7 @@ Some fairly self-explanatory utility functions.
 ```
 
 
-<a id="org0ced055"></a>
+<a id="org0d316e3"></a>
 
 ##### Apply Configuration
 
@@ -1726,7 +1647,7 @@ Some fairly self-explanatory utility functions.
 ```
 
 
-<a id="org17f6e11"></a>
+<a id="orgfe604f3"></a>
 
 ##### Extending Org Mode
 
@@ -1736,10 +1657,6 @@ Extending org-mode with some interesting packages.
 ###### org-chef
 
 [Org-chef](https://github.com/Chobbes/org-chef) is a must have if you enjoy cooking. You can just use `M-x org-chef-insert-recipe` in whatever cookbook file, or the capture templates.
-
-```scheme
-emacs-org-chef
-```
 
 ```elisp
 (td/org-append-templates
@@ -1758,10 +1675,6 @@ emacs-org-chef
 
 Get access to Github Flavored Markdown
 
-```scheme
-emacs-ox-gfm
-```
-
 ```elisp
 (with-eval-after-load 'ox
   (require 'ox-gfm))
@@ -1772,10 +1685,6 @@ emacs-ox-gfm
 
 I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
 
-```scheme
-emacs-ox-hugo
-```
-
 ```elisp
 (with-eval-after-load 'ox
   (require 'ox-hugo))
@@ -1785,10 +1694,6 @@ emacs-ox-hugo
 ###### org-present
 
 A tiny package for presenting with org-mode.
-
-```scheme
-emacs-org-present
-```
 
 ```elisp
 (setq org-present-text-scale 5)
@@ -1818,10 +1723,6 @@ emacs-org-present
 ###### org-roam
 
 Org roam is an incredible thought capture system, inspired by roam research. I'm not sure this one's for me, but I am giving it a try.
-
-```scheme
-emacs-org-roam
-```
 
 ```elisp
 (defvar td/roam-capture-templates
@@ -1869,7 +1770,7 @@ emacs-org-roam
 ```
 
 
-<a id="org7db2fa8"></a>
+<a id="orga705f05"></a>
 
 #### Ledger
 
@@ -1882,17 +1783,11 @@ Note: this is probably built into the Guix ledger package. If something breaks, 
 ```
 
 
-<a id="org61002c6"></a>
+<a id="orge6f0874"></a>
 
 #### Vterm
 
 A "normal" terminal for Emacs. This package is currently installed by the guix system.
-
-```scheme
-emacs-vterm
-emacs-vterm-toggle
-emacs-multi-vterm
-```
 
 ```elisp
 (td/bind-keys '(("C-c v t" . multi-vterm)
@@ -1903,19 +1798,14 @@ emacs-multi-vterm
 ```
 
 
-<a id="orga5cc95d"></a>
+<a id="orgafb4c1b"></a>
 
 #### Notmuch
 
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
 
-```scheme
-notmuch
-emacs-notmuch
-```
 
-
-<a id="org612457c"></a>
+<a id="org378f13c"></a>
 
 ##### Built In Mail Settings
 
@@ -1931,7 +1821,7 @@ emacs-notmuch
 ```
 
 
-<a id="org170620a"></a>
+<a id="org926c4bc"></a>
 
 ##### Notmuch
 
@@ -2008,15 +1898,11 @@ emacs-notmuch
 ```
 
 
-<a id="org2de3a03"></a>
+<a id="orgededbeb"></a>
 
 ##### org-mime
 
 Edit messages using org-mode.
-
-```scheme
-emacs-org-mime
-```
 
 ```elisp
 (autoload 'org-mime-edit-mail-in-org-mode "org-mime"
@@ -2032,13 +1918,9 @@ emacs-org-mime
 ```
 
 
-<a id="orge1962cf"></a>
+<a id="org661043e"></a>
 
 #### Password Store
-
-```scheme
-emacs-password-store
-```
 
 ```elisp
 (td/bind-keys '(("C-c p c" . password-store-copy)
@@ -2048,7 +1930,7 @@ emacs-password-store
 ```
 
 
-<a id="org4606ee1"></a>
+<a id="org3cb8928"></a>
 
 #### Sensitive Mode
 
@@ -2078,28 +1960,20 @@ Inspired from a script written by [Anirudh Sasikumar](https://anirudhsasikumar.n
 ```
 
 
-<a id="org772e682"></a>
+<a id="orgd28c7e6"></a>
 
 #### RG
-
-```scheme
-emacs-rg
-```
 
 ```elisp
 (rg-enable-default-bindings)
 ```
 
 
-<a id="orgf463e62"></a>
+<a id="org544b9d3"></a>
 
 #### Visual Fill Column
 
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
-
-```scheme
-emacs-visual-fill-column
-```
 
 ```elisp
 (defun td/visual-fill-setup ()
@@ -2115,22 +1989,18 @@ emacs-visual-fill-column
 ```
 
 
-<a id="org0f71a3a"></a>
+<a id="orgc6804e6"></a>
 
 #### Which-key
 
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
-
-```scheme
-emacs-which-key
-```
 
 ```elisp
 (which-key-mode)
 ```
 
 
-<a id="orgca3afb8"></a>
+<a id="org35ebbbb"></a>
 
 #### Windmove
 
@@ -2170,41 +2040,32 @@ Set up a keymap for wind-move and bind it to a prefix that's easy to hit.
 ```
 
 
-<a id="org01d49bd"></a>
+<a id="org45d3490"></a>
 
 ### Syntax Support
 
 This section is for syntax highlighting and language specific tooling.
 
 
-<a id="orgdb8d0f3"></a>
+<a id="org4f4bd71"></a>
 
 #### Clojure
 
 This configuration includes clojure-mode and cider.
-
-```scheme
-emacs-clojure-mode
-emacs-cider
-```
 
 ```elisp
 (td/auto-mode '(("\\.clj\\'" . clojure-mode)))
 ```
 
 
-<a id="orgcab2f83"></a>
+<a id="org6d24f36"></a>
 
 #### Common Lisp
 
 The most important package to have handy for Common Lisp is the "sly" package. It's a REPL package that gives me the ability to run code on the fly.
 
-```scheme
-emacs-sly
-```
 
-
-<a id="org5f53912"></a>
+<a id="org16846ae"></a>
 
 #### CSS/SCSS
 
@@ -2214,15 +2075,11 @@ emacs-sly
 ```
 
 
-<a id="org000f26b"></a>
+<a id="org546665f"></a>
 
 #### Emmet
 
 `.Emmet[data-love="true"]`
-
-```scheme
-emacs-emmet-mode
-```
 
 ```elisp
 (setq emmet-expand-jsx-className t)
@@ -2234,13 +2091,9 @@ emacs-emmet-mode
 ```
 
 
-<a id="org3a77856"></a>
+<a id="org2ea5028"></a>
 
 #### Flycheck
-
-```scheme
-emacs-sly
-```
 
 ```elisp
 (td/add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
@@ -2250,16 +2103,11 @@ emacs-sly
 ```
 
 
-<a id="org4d9ac4a"></a>
+<a id="orgf419e3e"></a>
 
 #### LSP Mode
 
 I prefer a lighter weight LSP. I had enjoyed Eglot for some time. LSP-Mode has better features, however. I get fairly minimal feedback about the things I care about with inline flycheck messages.
-
-```scheme
-emacs-lsp-mode
-emacs-lsp-ui
-```
 
 ```elisp
 (td/add-hooks '(css-mode
@@ -2303,15 +2151,11 @@ emacs-lsp-ui
 ```
 
 
-<a id="org555798d"></a>
+<a id="org228a9d9"></a>
 
 #### Markdown
 
 The free software documentation language of the Internet.
-
-```scheme
-emacs-markdown-mode
-```
 
 ```elisp
 (td/auto-mode '(("README\\.md\\'" . gfm-mode)
@@ -2320,13 +2164,9 @@ emacs-markdown-mode
 ```
 
 
-<a id="org4676fe0"></a>
+<a id="orgb6e2afd"></a>
 
 #### Paredit
-
-```scheme
-emacs-paredit
-```
 
 ```elisp
 (td/add-hooks '(lisp-mode
@@ -2337,13 +2177,9 @@ emacs-paredit
 ```
 
 
-<a id="org5b424b2"></a>
+<a id="orgc53bc5b"></a>
 
 #### PHP
-
-```scheme
-emacs-php-mode
-```
 
 ```elisp
 (defun td/get-intelephense-key ()
@@ -2369,73 +2205,48 @@ emacs-php-mode
 ```
 
 
-<a id="org8798701"></a>
+<a id="org58bbeab"></a>
 
 #### Prettier
 
 An opinionated way to clean up my web-dev code quickly.
 
-```scheme
-emacs-prettier
-```
 
-
-<a id="org057e48f"></a>
+<a id="orgb714a1b"></a>
 
 #### Python
 
 <3 Python
 
-```scheme
-emacs-pyvenv
-```
 
-
-<a id="org462035b"></a>
+<a id="org405b6e0"></a>
 
 #### Rainbow Delimiters
 
 This comes in handier than you think it would. Especially with these
-
-```scheme
-emacs-rainbow-delimiters
-```
 
 ```elisp
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 ```
 
 
-<a id="orgc0a9a39"></a>
+<a id="orgc46be73"></a>
 
 #### Rainbow Mode
 
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
-```scheme
-emacs-rainbow-mode
-```
 
-
-<a id="orgdc9dc84"></a>
+<a id="org1caccd8"></a>
 
 #### Ruby
 
 I am currently using solargraph & inf-ruby to work on Ruby scripts.
 
-```scheme
-ruby-solargraph
-emacs-inf-ruby
-```
 
-
-<a id="org50cb68b"></a>
+<a id="orgcd33b4a"></a>
 
 #### Rust
-
-```scheme
-emacs-rust-mode
-```
 
 ```elisp
 (defun td/rust-run-args (s)
@@ -2449,7 +2260,7 @@ emacs-rust-mode
 ```
 
 
-<a id="org77fe15d"></a>
+<a id="org92592a2"></a>
 
 #### Scheme
 
@@ -2457,12 +2268,8 @@ There are many dialects of Scheme. I am choosing to organize mine in this subcat
 
 Guile: GNU Ubiquitous Intelligent Language for Extensions
 
-```scheme
-emacs-geiser-guile
-```
 
-
-<a id="orgc0195a3"></a>
+<a id="org82e19a9"></a>
 
 #### Shopify Mode
 
@@ -2483,7 +2290,7 @@ This is where I turn emacs into a usuable IDE for Shopify themes. I use regexp t
 ```
 
 
-<a id="orgb00f6b0"></a>
+<a id="org8fc32a9"></a>
 
 #### Svelte
 
@@ -2497,13 +2304,9 @@ Fake-out a "svelte-mode" for the purposes of activating with the svelte-language
 ```
 
 
-<a id="org63aae93"></a>
+<a id="org6f21b70"></a>
 
 #### TypeScript & JavaScript
-
-```scheme
-emacs-typescript-mode
-```
 
 ```elisp
 (setq js-indent-level 2)
@@ -2511,7 +2314,7 @@ emacs-typescript-mode
 ```
 
 
-<a id="org07d9e40"></a>
+<a id="org092fe2a"></a>
 
 #### VueJS
 
@@ -2523,15 +2326,11 @@ emacs-typescript-mode
 ```
 
 
-<a id="org14440e0"></a>
+<a id="org872e622"></a>
 
 #### Web Mode
 
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
-
-```scheme
-emacs-web-mode
-```
 
 ```elisp
 (td/auto-mode '(("\\.html\\'" . web-mode)))
@@ -2545,31 +2344,22 @@ emacs-web-mode
 ```
 
 
-<a id="org93d5896"></a>
+<a id="orga4af9ff"></a>
 
 #### YAML
 
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
-
-```scheme
-emacs-yaml-mode
-```
 
 ```elisp
 (td/auto-mode '(("\\.yml\\'" . yaml-mode)))
 ```
 
 
-<a id="orgf531552"></a>
+<a id="org9167ae6"></a>
 
 #### Yasnippet
 
 Snippets! They're helpful.
-
-```scheme
-emacs-yasnippet
-emacs-yasnippet-snippets
-```
 
 ```elisp
 (require 'yasnippet)
@@ -2581,18 +2371,18 @@ emacs-yasnippet-snippets
 ```
 
 
-<a id="org638c86c"></a>
+<a id="org7b2617a"></a>
 
 ### Load Customizer Settings
 
-Load the file we created for custom vars in the [general settings](#orge68ff0f).
+Load the file we created for custom vars in the [general settings](#org5b9b6ac).
 
 ```elisp
 (load custom-file 'noerror 'nomessage)
 ```
 
 
-<a id="org32b06ae"></a>
+<a id="orga34e645"></a>
 
 ## Guix Package Module
 
@@ -2715,7 +2505,7 @@ on The GNU Guix System.")
 ```
 
 
-<a id="org69b2792"></a>
+<a id="org0528b8d"></a>
 
 ## About This Config
 
@@ -2730,7 +2520,7 @@ If you like it enough to drop me a tip, feel free to do so:
 [![img](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y34UWHH) [![img](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/trev.dev/donate) BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
 
 
-<a id="org1b92ff4"></a>
+<a id="orge8703ca"></a>
 
 ### Installation
 
@@ -2742,7 +2532,7 @@ If you've decided to fork this repository and wish to use it as-is, here are the
 4.  Install the dependencies for this configuration somehow. It's designed to be used with GNU Guix, but so long as the dependencies are installed via package.el or straight.el, it should still work.
 
 
-<a id="org1c43ec5"></a>
+<a id="org2d2a4ad"></a>
 
 ### Licenses
 

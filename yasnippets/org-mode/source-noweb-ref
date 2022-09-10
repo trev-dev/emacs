@@ -2,6 +2,6 @@
 # name: Noweb Ref
 # key: <snr
 # --
-#+begin_src $1 :noweb-ref $2 :tangle no :export none
+#+begin_src $1 :noweb-ref $2 :tangle no :exports none
 $3
 #+end_src

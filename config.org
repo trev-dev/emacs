@@ -373,7 +373,7 @@ emacs-all-the-icons-dired
 
 Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to make sure we have diminish early on.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-diminish
 #+end_src
 
@@ -430,8 +430,13 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 (doom-themes-org-config)
 #+end_src
 
-**** COMMENT Custom Theme Devel
+**** Custom Theme Devel
+
 I've written my own theme called "tangonov".
+
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+emacs-tangonov-theme
+#+end_src
 
 #+begin_src elisp
 (add-to-list 'custom-theme-load-path "~/Projects/tangonov-theme/")
@@ -446,7 +451,7 @@ I've written my own theme called "tangonov".
   (load-theme 'tangonov t))
 #+end_src
 
-**** Custom Theme
+**** COMMENT Custom Theme
 
 #+begin_src elisp :noweb-ref packages :tangle no
 tangonov-theme
@@ -458,7 +463,7 @@ tangonov-theme
 
 **** Font Setup
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 font-hack
 #+end_src
 
@@ -470,7 +475,7 @@ font-hack
 
 **** Modeline
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-svg-lib
 #+end_src
 
@@ -686,7 +691,7 @@ Packages that extend and augment emacs in a general way
 
 **** Avy
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-avy
 #+end_src
 
@@ -700,7 +705,7 @@ emacs-avy
 
 CTRLF greatly enhances isearch.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-ctrlf
 #+end_src
   
@@ -714,7 +719,7 @@ A combination of packages to enhance completions.
 ***** Company
 Completions at point/region.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-company
 #+end_src
 
@@ -766,7 +771,7 @@ Docker support is provided by:
 - emacs-dockerfile-mode
 - emacs-docker-compose-mode
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-docker
 emacs-dockerfile-mode
 emacs-docker-compose-mode
@@ -776,7 +781,7 @@ emacs-docker-compose-mode
 
 Show me the diffs in the fringe!
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-diff-hl
 #+end_src
 
@@ -800,7 +805,7 @@ I enjoy using tiling window managers. It serves me better to avoid having a sepa
 
 RSS Reader :D
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-elfeed
 #+end_src
 
@@ -812,7 +817,7 @@ emacs-elfeed
 
 Emacs Multi-Media System
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-emms
 #+end_src
 
@@ -945,7 +950,7 @@ for pair."
 
 A Matrix client for Emacs.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-ement
 pantalaimon
 #+end_src
@@ -977,7 +982,7 @@ pantalaimon
 
 **** Eshell
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-eshell-syntax-highlighting
 #+end_src
 
@@ -1185,7 +1190,7 @@ Here apply our evil configurations and set up our hooks.
 
 It just makes selecting text between sexps easy.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-expand-region
 #+end_src
 
@@ -1222,7 +1227,7 @@ God mode is an amazing package. It automatically translates key-chords into sing
 
 Because it has its own keymap, I can add utility functions to god-mode. This turns it into sort of a pseudo-modal editing mode. However, unlike other modal packages, it does not require as much key re-binding, thanks to key-chord translation.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-god-mode
 #+end_src
 
@@ -1492,7 +1497,7 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
 
 Extra feedback for text changes.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-goggles
 #+end_src
 
@@ -1510,7 +1515,7 @@ emacs-goggles
 **** COMMENT Meow
 Meow is a pretty special and ambitious modal editing project. It takes inspiration from Vim, Kakuone and god-mode to create a selection first, complete modal experience.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 meow
 #+end_src
 
@@ -1640,7 +1645,7 @@ meow
 
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-magit
 #+end_src
 
@@ -1652,7 +1657,7 @@ emacs-magit
 
 Toot.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-mastodon
 #+end_src
 
@@ -1665,7 +1670,7 @@ emacs-mastodon
 
 **** Multiple Cursors
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-multiple-cursors
 #+end_src
 
@@ -1865,7 +1870,7 @@ Libnotify alerts for Agenda alerts.
 
 [[https://github.com/Chobbes/org-chef][Org-chef]] is a must have if you enjoy cooking. You can just use =M-x org-chef-insert-recipe= in whatever cookbook file, or the capture templates.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-org-chef
 #+end_src
 
@@ -1885,7 +1890,7 @@ emacs-org-chef
 
 Get access to Github Flavored Markdown
 
-#+begin_src scheme packages :noweb-ref packages :tangle no :export none
+#+begin_src scheme packages :noweb-ref packages :tangle no :exports none
 emacs-ox-gfm
 #+end_src
 
@@ -1898,7 +1903,7 @@ emacs-ox-gfm
 
 I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-ox-hugo
 #+end_src
 
@@ -1928,7 +1933,7 @@ org-modern
 
 A tiny package for presenting with org-mode.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-org-present
 #+end_src
 
@@ -1960,7 +1965,7 @@ emacs-org-present
 
 Org roam is an incredible thought capture system, inspired by roam research. I'm not sure this one's for me, but I am giving it a try.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-org-roam
 #+end_src
 
@@ -2042,7 +2047,7 @@ Note: this is probably built into the Guix ledger package. If something breaks, 
 
 A "normal" terminal for Emacs. This package is currently installed by the guix system.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-vterm
 emacs-vterm-toggle
 emacs-multi-vterm
@@ -2060,7 +2065,7 @@ emacs-multi-vterm
 
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 notmuch
 emacs-notmuch
 #+end_src
@@ -2164,7 +2169,7 @@ This adds the ability to create links to notmuch messages in org-mode
 
 Edit messages using org-mode.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-org-mime
 #+end_src
 
@@ -2196,7 +2201,7 @@ Organize contacts with org-mode.
 
 **** Password Store
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-password-store
 #+end_src
 
@@ -2236,7 +2241,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 
 **** RG
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-rg
 #+end_src
 
@@ -2257,7 +2262,7 @@ A simple package for highlighting a marked area or region prior to transposing i
 
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-visual-fill-column
 #+end_src
 
@@ -2277,7 +2282,7 @@ emacs-visual-fill-column
 **** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-which-key
 #+end_src
 
@@ -2330,7 +2335,7 @@ This section is for syntax highlighting and language specific tooling.
 
 This configuration includes clojure-mode and cider.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-clojure-mode
 emacs-cider
 #+end_src
@@ -2343,7 +2348,7 @@ emacs-cider
 
 The most important package to have handy for Common Lisp is the "sly" package. It's a REPL package that gives me the ability to run code on the fly.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-sly
 #+end_src
 
@@ -2422,7 +2427,7 @@ eldoc-box
 
 ~.Emmet[data-love="true"]~
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-emmet-mode
 #+end_src
 
@@ -2437,7 +2442,7 @@ emacs-emmet-mode
 
 **** Flycheck
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-sly
 #+end_src
 
@@ -2460,7 +2465,7 @@ emacs-sly
 
 I prefer a lighter weight LSP. I had enjoyed Eglot for some time. LSP-Mode has better features, however. I get fairly minimal feedback about the things I care about with inline flycheck messages.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-lsp-mode
 emacs-lsp-ui
 #+end_src
@@ -2518,7 +2523,7 @@ emacs-lsp-ui
 
 The free software documentation language of the Internet.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-markdown-mode
 #+end_src
 
@@ -2536,7 +2541,7 @@ emacs-markdown-mode
 
 **** Paredit
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-paredit
 #+end_src
 
@@ -2550,7 +2555,7 @@ emacs-paredit
 
 **** PHP
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-php-mode
 #+end_src
 
@@ -2581,7 +2586,7 @@ emacs-php-mode
 
 An opinionated way to clean up my web-dev code quickly.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-prettier
 #+end_src
 
@@ -2589,7 +2594,7 @@ emacs-prettier
 
 <3 Python
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-pyvenv
 #+end_src
 
@@ -2597,7 +2602,7 @@ emacs-pyvenv
 
 This comes in handier than you think it would. Especially with these 
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-rainbow-delimiters
 #+end_src
 
@@ -2609,7 +2614,7 @@ emacs-rainbow-delimiters
 
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-rainbow-mode
 #+end_src
 
@@ -2617,14 +2622,14 @@ emacs-rainbow-mode
 
 I am currently using solargraph & inf-ruby to work on Ruby scripts.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 ruby-solargraph
 emacs-inf-ruby
 #+end_src
 
 **** Rust
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-rust-mode
 #+end_src
 
@@ -2645,7 +2650,7 @@ There are many dialects of Scheme. I am choosing to organize mine in this subcat
 
 Guile: GNU Ubiquitous Intelligent Language for Extensions
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-geiser-guile
 #+end_src
 
@@ -2700,7 +2705,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 
 **** TypeScript & JavaScript
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-typescript-mode
 #+end_src
 
@@ -2722,7 +2727,7 @@ emacs-typescript-mode
 
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-web-mode
 #+end_src
 
@@ -2741,7 +2746,7 @@ emacs-web-mode
 
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-yaml-mode
 #+end_src
 
@@ -2752,7 +2757,7 @@ emacs-yaml-mode
 **** Yasnippet
 Snippets! They're helpful.
 
-#+begin_src scheme :noweb-ref packages :tangle no :export none
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-yasnippet
 emacs-yasnippet-snippets
 #+end_src
