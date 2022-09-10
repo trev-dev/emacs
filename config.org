@@ -778,6 +778,14 @@ emacs-diff-hl
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 #+end_src
 
+**** Ediff
+
+I enjoy using tiling window managers. It serves me better to avoid having a separate, floating window for ediff.
+
+#+begin_src elisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
+
 **** Elfeed
 
 RSS Reader :D
