@@ -334,14 +334,18 @@ This section is for configuring packages, both built in and abroad.
 *** Look & Feel
 **** All The Icons
 
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+emacs-all-the-icons
+#+end_src
+
 #+begin_src elisp
 (require 'all-the-icons)
 #+end_src
 
 **** Dired
 
-#+begin_src elisp :noweb-ref packages :tangle no
-all-the-icons-dired
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+emacs-all-the-icons-dired
 #+end_src
 
 #+begin_src elisp
@@ -356,7 +360,12 @@ all-the-icons-dired
 #+end_src
 
 **** Diminish
+
 Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to make sure we have diminish early on.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-diminish
+#+end_src
 
 #+begin_src elisp
 (defun tdm/diminish-lsp-lighter ()
@@ -439,6 +448,10 @@ tangonov-theme
 
 **** Font Setup
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+font-hack
+#+end_src
+
 #+begin_src elisp
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
@@ -446,6 +459,10 @@ tangonov-theme
 #+end_src
 
 **** Modeline
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-svg-lib
+#+end_src
 
 #+begin_src elisp
 (defvar-local tdm/git-cached-status nil
@@ -659,6 +676,10 @@ Packages that extend and augment emacs in a general way
 
 **** Avy
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-avy
+#+end_src
+
 #+begin_src elisp
 (define-key priority-mode-map (kbd "C-:") #'avy-goto-char-timer)
 (define-key isearch-mode-map (kbd "C-:") #'avy-isearch)
@@ -668,6 +689,10 @@ Packages that extend and augment emacs in a general way
 **** CTRLF
 
 CTRLF greatly enhances isearch.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-ctrlf
+#+end_src
   
 #+begin_src elisp
 (ctrlf-mode 1)
@@ -679,13 +704,17 @@ A combination of packages to enhance completions.
 ***** Company
 Completions at point/region.
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-company
+#+end_src
+
 #+begin_src elisp
 (defun td/company-prog-hook ()
   "Completions for programming."
   (setq-local company-backends
               '(company-capf :with
                              company-yasnippet
-                             company-dabbrv-code
+                             company-dabbrev-code
                              company-files))
   (company-mode))
 
@@ -721,15 +750,25 @@ Save history for Vertico to look at later.
 
 **** Docker
 
-Numerous packages related to docker. Currently installed via Guix are:
+Docker support is provided by:
 
-- emacs-docker: Control docker from Emacs
-- emacs-dockerfile-mode: Dockerfile support
-- emacs-docker-compose-mode: docker-compose.yml support
+- emacs-docker
+- emacs-dockerfile-mode
+- emacs-docker-compose-mode
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-docker
+emacs-dockerfile-mode
+emacs-docker-compose-mode
+#+end_src
 
 **** Diff-hl
 
 Show me the diffs in the fringe!
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-diff-hl
+#+end_src
 
 #+begin_src elisp
 (setq diff-hl-show-staged-changes nil)
@@ -743,6 +782,10 @@ Show me the diffs in the fringe!
 
 RSS Reader :D
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-elfeed
+#+end_src
+
 #+begin_src elisp
 (global-set-key (kbd "<f6>") #'elfeed)
 #+end_src
@@ -750,6 +793,10 @@ RSS Reader :D
 **** EMMS
 
 Emacs Multi-Media System
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-emms
+#+end_src
 
 #+begin_src elisp
 (defun td/start-emms ()
@@ -876,11 +923,14 @@ for pair."
 (global-set-key (kbd "C-S-s") #'surround)
 #+end_src
 
-**** COMMENT Ement
+**** Ement
 
-A Matrix client for Emacs. Ement currenly has a few stray dependencies.
+A Matrix client for Emacs.
 
-***** TODO Guix package needs updating
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-ement
+pantalaimon
+#+end_src
 
 #+begin_src elisp
 (defun td/matrix-connect ()
@@ -909,13 +959,14 @@ A Matrix client for Emacs. Ement currenly has a few stray dependencies.
 
 **** Eshell
 
-#+begin_src elisp
-;; (straight-use-package 'capf-autosuggest)
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-eshell-syntax-highlighting
+#+end_src
 
+#+begin_src elisp
 (defun td/eshell-extras ()
   "Start extra features for eshell-mode"
-  (eshell-syntax-highlighting-mode)
-  (capf-autosuggest-mode))
+  (eshell-syntax-highlighting-mode))
 
 (add-hook 'eshell-mode-hook #'td/eshell-extras)
 #+end_src
@@ -1113,7 +1164,12 @@ Here apply our evil configurations and set up our hooks.
 #+end_src
 
 **** Expand Region
+
 It just makes selecting text between sexps easy.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-expand-region
+#+end_src
 
 #+begin_src elisp
 (require 'expand-region)
@@ -1147,6 +1203,10 @@ It just makes selecting text between sexps easy.
 God mode is an amazing package. It automatically translates key-chords into single-key bindings and toggled modifiers.
 
 Because it has its own keymap, I can add utility functions to god-mode. This turns it into sort of a pseudo-modal editing mode. However, unlike other modal packages, it does not require as much key re-binding, thanks to key-chord translation.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-god-mode
+#+end_src
 
 ***** Functions
 
@@ -1414,6 +1474,10 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
 
 Extra feedback for text changes.
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-goggles
+#+end_src
+
 #+begin_src elisp
 (td/add-hooks '(text-mode prog-mode) #'goggles-mode)
 (setq-default goggles-pulse t)
@@ -1428,7 +1492,7 @@ Extra feedback for text changes.
 **** COMMENT Meow
 Meow is a pretty special and ambitious modal editing project. It takes inspiration from Vim, Kakuone and god-mode to create a selection first, complete modal experience.
 
-#+begin_src elisp :noweb-ref packages :tangle no
+#+begin_src scheme :noweb-ref packages :tangle no :export none
 meow
 #+end_src
 
@@ -1558,6 +1622,10 @@ meow
 
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-magit
+#+end_src
+
 #+begin_src elisp
 (global-set-key (kbd "C-c m") #'magit-status)
 #+end_src
@@ -1565,6 +1633,10 @@ Magit is one of the biggest reasons why I fell in love with emacs. It's the best
 **** Mastodon
 
 Toot.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-mastodon
+#+end_src
 
 #+begin_src elisp
 (setq mastodon-instance-url "https://mastodon.technology"
@@ -1574,6 +1646,10 @@ Toot.
 #+end_src
 
 **** Multiple Cursors
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-multiple-cursors
+#+end_src
 
 #+begin_src elisp
 (td/bind-keys '(("C-S-l"   . mc/edit-lines)
@@ -1767,9 +1843,13 @@ Libnotify alerts for Agenda alerts.
   (org-alert-enable))
 #+end_src
 
-****** COMMENT org-chef
+****** org-chef
 
 [[https://github.com/Chobbes/org-chef][Org-chef]] is a must have if you enjoy cooking. You can just use =M-x org-chef-insert-recipe= in whatever cookbook file, or the capture templates.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-org-chef
+#+end_src
 
 #+begin_src elisp
 (td/org-append-templates
@@ -1787,6 +1867,10 @@ Libnotify alerts for Agenda alerts.
 
 Get access to Github Flavored Markdown
 
+#+begin_src scheme packages :noweb-ref packages :tangle no :export none
+emacs-ox-gfm
+#+end_src
+
 #+begin_src elisp
 (with-eval-after-load 'ox
   (require 'ox-gfm))
@@ -1795,6 +1879,10 @@ Get access to Github Flavored Markdown
 ****** ox-hugo
 
 I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-ox-hugo
+#+end_src
 
 #+begin_src elisp
 (with-eval-after-load 'ox
@@ -1821,6 +1909,10 @@ org-modern
 ****** org-present
 
 A tiny package for presenting with org-mode.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-org-present
+#+end_src
 
 #+begin_src elisp
 (setq org-present-text-scale 5)
@@ -1849,6 +1941,10 @@ A tiny package for presenting with org-mode.
 ****** org-roam
 
 Org roam is an incredible thought capture system, inspired by roam research. I'm not sure this one's for me, but I am giving it a try.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-org-roam
+#+end_src
 
 #+begin_src elisp
 (defvar td/roam-capture-templates
@@ -1924,9 +2020,15 @@ Note: this is probably built into the Guix ledger package. If something breaks, 
 (setq ledger-use-native-highlighting t)
 #+end_src
 
-**** Vterm                                                          :guix:
+**** Vterm
 
 A "normal" terminal for Emacs. This package is currently installed by the guix system.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-vterm
+emacs-vterm-toggle
+emacs-multi-vterm
+#+end_src
 
 #+begin_src elisp
 (td/bind-keys '(("C-c v t" . multi-vterm)
@@ -1939,6 +2041,11 @@ A "normal" terminal for Emacs. This package is currently installed by the guix s
 **** Notmuch
 
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+notmuch
+emacs-notmuch
+#+end_src
 
 ***** Built In Mail Settings
 
@@ -2039,6 +2146,10 @@ This adds the ability to create links to notmuch messages in org-mode
 
 Edit messages using org-mode.
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-org-mime
+#+end_src
+
 #+begin_src elisp
 (autoload 'org-mime-edit-mail-in-org-mode "org-mime"
   "Edit a message in org-mode"
@@ -2065,18 +2176,11 @@ Organize contacts with org-mode.
 (setq org-contacts-files '("~/Org/contacts.org"))
 #+end_src
 
-**** COMMENT Pulsar
-
-#+begin_src elisp :noweb-ref packages :tangle no
-pulsar
-#+end_src
-
-
-#+begin_src elisp
-(setq pulsar-iterations 5)
-#+end_src
-
 **** Password Store
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-password-store
+#+end_src
 
 #+begin_src elisp
 (td/bind-keys '(("C-c p c" . password-store-copy)
@@ -2114,6 +2218,10 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 
 **** RG
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-rg
+#+end_src
+
 #+begin_src elisp
 (rg-enable-default-bindings)
 #+end_src
@@ -2131,6 +2239,10 @@ A simple package for highlighting a marked area or region prior to transposing i
 
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
 
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-visual-fill-column
+#+end_src
+
 #+begin_src elisp
 (defun td/visual-fill-setup ()
   "Center the column 100 characters wide."
@@ -2146,6 +2258,10 @@ Creates a fake "fill column" to wrap text around. Makes reading documents more v
 
 **** Which-key
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-which-key
+#+end_src
 
 #+begin_src elisp
 (which-key-mode)
@@ -2189,15 +2305,17 @@ Set up a keymap for wind-move and bind it to a prefix that's easy to hit.
 #+end_src
 
 *** Syntax Support
+
 This section is for syntax highlighting and language specific tooling.
 
 **** Clojure
+
 This configuration includes clojure-mode and cider.
 
-Guix Packages:
-
-- emacs-clojure-mode
-- emacs-cider
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-clojure-mode
+emacs-cider
+#+end_src
 
 #+begin_src elisp
 (td/auto-mode '(("\\.clj\\'" . clojure-mode)))
@@ -2205,11 +2323,12 @@ Guix Packages:
 
 **** Common Lisp
 
-The most important package to have handy for Common Lisp is the "sly" package.
+The most important package to have handy for Common Lisp is the "sly" package. It's a REPL package that gives me the ability to run code on the fly.
 
-Guix Packages:
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-sly
+#+end_src
 
-- emacs-sly
 
 **** CSS/SCSS
 
@@ -2282,11 +2401,12 @@ eldoc-box
 #+end_src
 
 **** Emmet
+
 ~.Emmet[data-love="true"]~
 
-Guix Packages:
-
-- emacs-emmet-mode
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-emmet-mode
+#+end_src
 
 #+begin_src elisp
 (setq emmet-expand-jsx-className t)
@@ -2298,6 +2418,10 @@ Guix Packages:
 #+end_src
 
 **** Flycheck
+
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-sly
+#+end_src
 
 #+begin_src elisp
 (td/add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
@@ -2318,10 +2442,10 @@ Guix Packages:
 
 I prefer a lighter weight LSP. I had enjoyed Eglot for some time. LSP-Mode has better features, however. I get fairly minimal feedback about the things I care about with inline flycheck messages.
 
-Guix Packages:
-
-- emacs-lsp-mode
-- emacs-lsp-ui
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-lsp-mode
+emacs-lsp-ui
+#+end_src
 
 #+begin_src elisp
 (td/add-hooks '(css-mode
@@ -2373,11 +2497,12 @@ Guix Packages:
 #+end_src
 
 **** Markdown
+
 The free software documentation language of the Internet.
 
-Guix Packages:
-
-- emacs-markdown-mode
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-markdown-mode
+#+end_src
 
 #+begin_src elisp
 (td/auto-mode '(("README\\.md\\'" . gfm-mode)
@@ -2393,9 +2518,9 @@ Guix Packages:
 
 **** Paredit
 
-Guix Packages:
-
-- emacs-paredit
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-paredit
+#+end_src
 
 #+begin_src elisp
 (td/add-hooks '(lisp-mode
@@ -2407,9 +2532,9 @@ Guix Packages:
 
 **** PHP
 
-Guix Packages:
-
-- emacs-php-mode
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-php-mode
+#+end_src
 
 #+begin_src elisp
 (defun td/get-intelephense-key ()
@@ -2438,45 +2563,52 @@ Guix Packages:
 
 An opinionated way to clean up my web-dev code quickly.
 
-Guix Packages:
-
-- emacs-prettier
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-prettier
+#+end_src
 
 **** Python
 
 <3 Python
 
-Guix Packages:
-
-- emacs-pyvenv
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-pyvenv
+#+end_src
 
 **** Rainbow Delimiters
 
 This comes in handier than you think it would. Especially with these 
 
-Guix Package:
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-rainbow-delimiters
+#+end_src
 
-- emacs-rainbow-delimiters
+#+begin_src elisp
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+#+end_src
 
 **** Rainbow Mode
 
 LSP-Mode covers making visual representations of hex color codes almost everywhere I need it. For everywhere else there's rainbow-mode
 
-Guix Packages:
-
-- emacs-rainbow-mode
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-rainbow-mode
+#+end_src
 
 **** Ruby
 
-Guix Packages:
+I am currently using solargraph & inf-ruby to work on Ruby scripts.
 
-- guix-inf-ruby
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+ruby-solargraph
+emacs-inf-ruby
+#+end_src
 
 **** Rust
 
-Guix Packages:
-
-- emacs-rust-mode
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-rust-mode
+#+end_src
 
 #+begin_src elisp
 (defun td/rust-run-args (s)
@@ -2495,9 +2627,9 @@ There are many dialects of Scheme. I am choosing to organize mine in this subcat
 
 Guile: GNU Ubiquitous Intelligent Language for Extensions
 
-Guix Packages:
-
-- emacs-geiser-guile
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-geiser-guile
+#+end_src
 
 **** Shopify Mode
 
@@ -2550,9 +2682,9 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 
 **** TypeScript & JavaScript
 
-Guix Packages:
-
-- emacs-typescript-mode
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-typescript-mode
+#+end_src
 
 #+begin_src elisp
 (setq js-indent-level 2)
@@ -2572,9 +2704,9 @@ Guix Packages:
 
 There isn't a much better catch-all for web template syntax support than web-mode. It works well with Liquid syntax files. It also comes with it's own divergent, insane defaults that I have to choke out.
 
-Guix Packages:
-
-- emacs-web-mode
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-web-mode
+#+end_src
 
 #+begin_src elisp
 (td/auto-mode '(("\\.html\\'" . web-mode)))
@@ -2591,9 +2723,9 @@ Guix Packages:
 
 YAML's a really nice way to configure software, containers and projects. I use it when I can.
 
-Guix Packages:
-
-- emacs-yaml-mode
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-yaml-mode
+#+end_src
 
 #+begin_src elisp
 (td/auto-mode '(("\\.yml\\'" . yaml-mode)))
@@ -2602,10 +2734,10 @@ Guix Packages:
 **** Yasnippet
 Snippets! They're helpful.
 
-Guix Packages:
-
-- emacs-yasnippet
-- emacs-yasnippet-snippets
+#+begin_src scheme :noweb-ref packages :tangle no :export none
+emacs-yasnippet
+emacs-yasnippet-snippets
+#+end_src
 
 #+begin_src elisp
 (require 'yasnippet)
@@ -2624,7 +2756,70 @@ Load the file we created for custom vars in the [[* General Settings][general se
 (load custom-file 'noerror 'nomessage)
 #+end_src
 
+** Guix Package Module
+:PROPERTIES:
+:header-args: :tangle emacs-d.scm :comments link
+:END:
+
+This section generates the Guile Scheme module that creates a Guix package for this emacs init. It uses the =noweb= feature to tangle up the relevant package dependencies.
+
+#+begin_src scheme :noweb yes
+(define-module (emacs-d)
+  #:use-module (gnu packages)
+  #:use-module (guix packages)
+  #:use-module (guix gexp)
+  #:use-module (guix utils)
+  #:use-module (guix build-system trivial)
+  #:use-module (guix licenses)
+  #:use-module (guix git-download)
+  #:use-module (gnu packages emacs)
+  #:use-module (gnu packages emacs-xyz)
+  #:use-module (gnu packages matrix)
+  #:use-module (gnu packages fonts)
+  #:use-module (gnu packages mail)
+  #:use-module (gnu packages ruby)
+  #:export (emacs-init))
+
+(define emacs-init
+  (package
+    (name "emacs-init")
+    (version "0.0.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/trev-dev/emacs")
+             (commit "24889c5b6b6ed363a18796065639171537cfabd8")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1bjzadgliy52kmc47kgxw3bpc451ky8989v1lp5r1pw9zfa5xqzk"))))
+    (inputs (list
+             emacs
+             <<packages>>))
+    (build-system trivial-build-system)
+    (arguments
+     (list
+      #:modules '((guix build utils))
+      #:builder
+      #~(begin
+          (use-modules (guix build utils))
+          (copy-recursively #$source ".")
+          (setenv "PATH" (string-append #$emacs "/bin"))
+          (invoke "emacs" "--batch"
+                  "--eval" "(require 'org)"
+                  "--eval" "(org-babel-tangle-file \"config.org\")")
+          (let ((dest (string-append #$output "/emacs.d")))
+            (install-file ".emacs.d/init.el" dest)
+            (install-file ".emacs.d/early-init.el" dest)))))
+    (home-page "https://github.com/trev-dev/emacs")
+    (synopsis "Trev's Emacs init files")
+    (description "My init files as a package for the purposes of installing
+on The GNU Guix System.")
+    (license gpl3)))
+#+end_src
+
 ** About This Config
+
 This literate configuration is a labour of love from a man who changes his mind and mixes things up /often/.
 
 I'm not sure it will ever be finished or perfect. At times, things may clunk. I will do my best to clunk them in another branch.
