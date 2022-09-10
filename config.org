@@ -4,7 +4,9 @@
 #+OPTIONS: toc:nil H:6
 :END:
 
-The following document is a literate program that will generate my =~/.emacs.d=. It is intended to be used in conjunction with a dotfile manager such as GNU Stow for symlinking back to the home directory. You could, however, tangle this file from the home directory and skip using stow.
+The following configuration is an experimental Guix package. Do not use it. It's not ready yet.
+
+Feel free to browse it and borrow/copy concepts about the configuration of Emacs, however.
 
 To read more about how this configuration is supposed to work, see my [[* Configuration Strategy][config strategy]].
 
@@ -14,17 +16,25 @@ To read more about how this configuration is supposed to work, see my [[* Config
 
 ** Configuration Strategy
 
-The goal of my configuration strategy is to create a more re-producible "hardened" Emacs configuration with the help of the Guix package manager. I will be using =straight.el= for interim packages that are not yet "stable" or perhaps are not yet added to Guix.
+The goal of my configuration strategy is to create a more re-producible "hardened" Emacs configuration with the help of the Guix package manager.
 
 The long-term vision is to have a config that I am mostly happy with, that does not require much updating and is essentially a Guix package itself.
 
 *** Tangling Files
 
-I will be using =org-babel-tangle= to generate numerous files and to help separate concerns. This file will generate the =early-init.el=, and the =init.el= file.
+This file is more than documentation. It is a literate program. With the power of Emacs org-mode, it can be tangled into several files that help facilitate the packaging of my init files as a Guix package. It also serves as a record of my Emacs dependencies.
+
+This file produces the following files when tangled:
+
+- .emacs.d/early-init.el
+- .emacs.d/init.el
+- emacs-d.scm
 
 *** Configuring Packages
 
-Since this init file is a the "build source" of a Guix package, it is assumed that all dependencies will already be installed before runtime is initiated, or by =straight.el= as needed.
+Since this init file is a the "build source" of a Guix package, it is assumed that all dependencies will already be installed before runtime is initiated.
+
+For convenience, this file can be tangled to produce a Guile module, =emacs-d.scm=, which can serve as a useful reference for how to package the init configuration with its required dependencies. See [[Guix Package Module]] for more info.
 
 The rest of the source code blocks in this file will be simple package configurations.
 
@@ -2847,6 +2857,7 @@ If you've decided to fork this repository and wish to use it as-is, here are the
 1. Clone this repository somewhere.
 2. Tangle config.org. The resulting configuration files should be output to =.emacs.d/*.el=
 3. Symlink, copy or move the config files to wherever you want to start your init.
+4. Install the dependencies for this configuration somehow. It's designed to be used with GNU Guix, but so long as the dependencies are installed via package.el or straight.el, it should still work.
 
 *** Licenses
 
