@@ -331,26 +331,6 @@ I'd like to keep my tab style fixed at 2 spaces wherever possible. Specific prog
 
 This section is for configuring packages, both built in and abroad.
 
-*** COMMENT Straight.el
-
-I need to bootstrap straight.el in order to grab packages that are not available as Guix packages for whatever reason yet.
-
-#+begin_src elisp
-(defvar bootstrap-version)
-(setq straight-check-for-modifications nil)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-#+end_src
-
 *** Look & Feel
 **** All The Icons
 
@@ -1723,9 +1703,6 @@ Some fairly self-explanatory utility functions.
 ***** Apply Configuration
 
 #+begin_src elisp
-;; Ensure built-in org is used!
-;; (straight-use-package '(org :type built-in))
-
 (add-hook 'org-mode-hook #'td/org-hook)
 (global-set-key (kbd "C-c a") #'org-agenda)
 
