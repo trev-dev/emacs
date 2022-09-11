@@ -10,6 +10,10 @@ Feel free to browse it and borrow/copy concepts about the configuration of Emacs
 
 To read more about how this configuration is supposed to work, see my [[* Configuration Strategy][config strategy]].
 
+*Note:* /This document was generated using Emacs Org Mode by tangling [[file:config.org][config.org]]./
+
+All references this document makes to itself are referring to it's Orgdown counterpart.
+
 *Table of Contents*
 
 #+TOC: headlines 4 local
@@ -2600,7 +2604,7 @@ emacs-pyvenv
 
 **** Rainbow Delimiters
 
-This comes in handier than you think it would. Especially with these 
+This comes in handier than you think it would. Especially with LISP.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
 emacs-rainbow-delimiters
@@ -2860,12 +2864,12 @@ BTC: bc1qwad2jlteldw644w4wfh28y6ju53zfp69nnswrq
 If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
 
 1. Clone this repository somewhere.
-2. Tangle config.org. The resulting configuration files should be output to =.emacs.d/*.el=
+2. Tangle =config.org=. The resulting configuration files should be output to =.emacs.d/*.el=
 3. Symlink, copy or move the config files to wherever you want to start your init.
 4. Install the dependencies for this configuration somehow. It's designed to be used with GNU Guix, but so long as the dependencies are installed via package.el or straight.el, it should still work.
 
 *** Licenses
 
-- For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0
+- For the [[file:inspectorj_bell.wav][bell sound]]: "Bell, Candle Damper, A (H4n).wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org (Creative Commons - CC BY 3.0)
 
   
