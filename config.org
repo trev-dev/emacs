@@ -497,9 +497,24 @@ Accepts 'ARGS' but does not use them."
     (setq tdm/git-cached-status
           (vc-state-refresh buffer 'git))))
 
-(add-hook 'after-save-hook #'tdm/git-cache-status)
+(defun tdm/is-file-buffer (buffer)
+  (let ((file (buffer-file-name buffer)))
+    (when file
+      (file-exists-p file))))
 
-(add-to-list 'window-buffer-change-functions #'tdm/git-cache-status)
+(defun tdm/git-cache-status-post-magit ()
+  (let ((start-buffer (current-buffer)))
+    (dolist (buff (seq-filter #'tdm/is-file-buffer
+                              (project-buffers (project-current))))
+      (switch-to-buffer buff)
+      (setq tdm/git-cached-status (vc-state-refresh (buffer-file-name buff)
+                                                    'git))
+      (force-mode-line-update))
+    (switch-to-buffer start-buffer)))
+
+(add-hook 'after-save-hook #'tdm/git-cache-status)
+(add-hook 'find-file-hook #'tdm/git-cache-status)
+(add-hook 'magit-post-refresh-hook #'tdm/git-cache-status-post-magit)
 
 (defvar tdm/git-status-plist '(unregistered ("  ⁈" . (:foreground "#C792EA"))
                                edited ("  ±" . (:foreground "#82AAFF"))
