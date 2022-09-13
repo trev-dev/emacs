@@ -236,6 +236,12 @@ Adds '-hook' onto the end of the symbols for brevity."
 (defun td/filter-nil (seq)
   "Filter out nil items from sequence `SEQ'."
   (seq-filter #'(lambda (item) item) seq))
+
+(defun td/is-file-buffer (buffer)
+  "Test if a buffer belongs to a file on the system. Returns non-nil if it does."
+  (let ((file (buffer-file-name buffer)))
+    (when file
+      (file-exists-p file))))
 #+end_src
 
 Create a mode for mapping high priority keybinds early on.
@@ -497,14 +503,9 @@ Accepts 'ARGS' but does not use them."
     (setq tdm/git-cached-status
           (vc-state-refresh buffer 'git))))
 
-(defun tdm/is-file-buffer (buffer)
-  (let ((file (buffer-file-name buffer)))
-    (when file
-      (file-exists-p file))))
-
 (defun tdm/git-cache-status-post-magit ()
   (let ((start-buffer (current-buffer)))
-    (dolist (buff (seq-filter #'tdm/is-file-buffer
+    (dolist (buff (seq-filter #'td/is-file-buffer
                               (project-buffers (project-current))))
       (switch-to-buffer buff)
       (setq tdm/git-cached-status (vc-state-refresh (buffer-file-name buff)
