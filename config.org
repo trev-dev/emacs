@@ -355,7 +355,7 @@ I'd like to keep my tab style fixed at 2 spaces wherever possible. Specific prog
 *** All The Icons
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-all-the-icons
+"emacs-all-the-icons"
 #+end_src
 
 #+begin_src elisp
@@ -365,7 +365,7 @@ emacs-all-the-icons
 *** Dired
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-all-the-icons-dired
+"emacs-all-the-icons-dired"
 #+end_src
 
 #+begin_src elisp
@@ -377,55 +377,6 @@ emacs-all-the-icons-dired
                         (when (display-graphic-p)
                           (all-the-icons-dired-mode))
                         (dired-hide-details-mode))))
-#+end_src
-
-*** Diminish
-
-Output from the =minor-mode-alist=. Due to how lazy-loading works, we want to make sure we have diminish early on.
-
-#+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-diminish
-#+end_src
-
-#+begin_src elisp
-(defun tdm/diminish-lsp-lighter ()
-  "Display the LSP status in the `mode-line-modes'."
-  (let* ((lsp-up lsp--buffer-workspaces)
-         (color (if lsp-up '(:inherit success :weight bold)
-                  '(:inherit warning :weight bold))))
-    `(:propertize " LSP" face ,color)))
-
-(dolist (mode '(("company" 'company-mode)
-                ("hideshow" 'hs-minor-mode)
-                ("undo-tree" 'undo-tree-mode)
-                ("whitespace" 'whitespace-mode)
-                ("yasnippet" 'yas-minor-mode)
-                ("which-key" 'which-key-mode)
-                ("org-indent" 'org-indent-mode)
-                ("simple" 'visual-line-mode)
-                ("eldoc" 'eldoc-mode)
-                ("flymake" 'flymake-mode)
-                ("flycheck" 'flycheck-mode)
-                ("evil-org" 'evil-org-mode)
-                ("lsp-mode" 'lsp-mode '(:eval (tdm/diminish-lsp-lighter)))
-                ("tree-sitter" 'tree-sitter-mode "TS")
-                ("god-mode" 'god-local-mode)
-                ("beacon" 'beacon-mode)
-                ("evil-goggles" 'evil-goggles-mode)
-                ("evil-commentary" 'evil-commentary-mode)
-                ("goggles" 'goggles-mode)))
-  (eval-after-load (car mode)
-    `(diminish ,(cadr mode) ,(caddr mode))))
-
-(diminish 'defining-kbd-macro)
-
-(with-eval-after-load 'meow
-  (dolist (mode (list 'meow-normal-mode
-                      'meow-insert-mode
-                      'meow-motion-mode
-                      'meow-keypad-mode
-                      'meow-beacon-mode))
-    (diminish mode)))
 #+end_src
 
 *** COMMENT Doom Themes
@@ -444,10 +395,6 @@ Doom's themes are hard to beat. They're easy to install, highly customizable and
 
 I've written my own theme called "tangonov".
 
-#+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-tangonov-theme
-#+end_src
-
 #+begin_src elisp
 (add-to-list 'custom-theme-load-path "~/Projects/tangonov-theme/")
 (setq tangonov-selection-foregrounds nil)
@@ -464,7 +411,7 @@ emacs-tangonov-theme
 *** COMMENT Custom Theme
 
 #+begin_src elisp :noweb-ref packages :tangle no
-tangonov-theme
+"emacs-tangonov-theme"
 #+end_src
   
 #+begin_src elisp
@@ -474,7 +421,7 @@ tangonov-theme
 *** Font Setup
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-font-hack
+"font-hack"
 #+end_src
 
 #+begin_src elisp
@@ -488,56 +435,75 @@ font-hack
 :header-args: :tangle .emacs.d/init.el :comments link
 :END:
 
+My custom modeline consists of many parts. The original goal was to create a light weight and simple modeline that displays the information that I want from a typical Emacs modeline in a way that I find appealing. I also hoped to never overflow in a 2 window view.
+
+It has turned into something something else: A crazy exercise in learning how to optimize a modeline configuration that does silly things like render SVG icons.
+
+The modeline config requires the =svg-lib= package.
+
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-svg-lib
+"emacs-svg-lib"
 #+end_src
 
+*** Git status
+
+With some effort I have been able to make a somewhat reliable, accurate status indicator for git projects that does not break my emacs.
+
 #+begin_src elisp
-(defvar-local tdm/git-cached-status nil
+(defvar-local tdm/git-status-indicator ""
   "The buffer's last known workspace status.")
 
-(defun tdm/git-cache-status (&rest args)
-  "Set local buffer's git cache status.
-Accepts 'ARGS' but does not use them."
-  (when-let ((buffer (and (project-current)
-                          (member (buffer-file-name)
-                                  (project-files (project-current)))
-                          (buffer-file-name))))
-    (setq tdm/git-cached-status
-          (vc-state-refresh buffer 'git))))
-
-(defun tdm/git-cache-status-post-magit ()
-  (let ((start-buffer (current-buffer)))
-    (dolist (buff (seq-filter #'td/is-file-buffer
-                              (project-buffers (project-current))))
-      (switch-to-buffer buff)
-      (setq tdm/git-cached-status (vc-state-refresh (buffer-file-name buff)
-                                                    'git))
-      (force-mode-line-update))
-    (switch-to-buffer start-buffer)))
-
-(add-hook 'after-save-hook #'tdm/git-cache-status)
-(add-hook 'find-file-hook #'tdm/git-cache-status)
-(add-hook 'magit-post-refresh-hook #'tdm/git-cache-status-post-magit)
+(put 'tdm/git-status-indicator 'risky-local-variable t)
 
 (defvar tdm/git-status-plist '(unregistered ("  ⁈" . (:foreground "#C792EA"))
                                edited ("  ±" . (:foreground "#82AAFF"))
                                up-to-date ("  ✔" . success)
                                ignored ("  ।" . warning)))
 
-(defun tdm/vc ()
-  "Get the git status for the current buffer."
-  (when-let ((styles (plist-get tdm/git-status-plist tdm/git-cached-status)))
-    (let* ((icon (car styles))
-           (color (cdr styles))
-           (branch (if vc-mode (substring vc-mode 5) "untracked")))
-      `(:propertize ,(concat icon " " branch) face ,color))))
+(defun tdm/git-create-indicator (buffer)
+  "Create a git status indicator using a `BUFFER'."
+  (let* ((status (vc-state-refresh buffer 'git))
+         (icon-and-color (plist-get tdm/git-status-plist status))
+         (branch (cond (vc-mode (substring vc-mode 5))
+                       ((eq status 'unregistered) "untracked")
+                       ((eq status 'ignored) "ignored")
+                       (t ""))))
+    (propertize
+     (concat
+      (car icon-and-color) " " branch)
+     'face (cdr icon-and-color))))
 
+
+(defun tdm/git-cache-status (&optional frame)
+  "Set local buffer's git cache status.
+When used as a window hook, receive the `FRAME' as an argument."
+  (let ((proj (project-current))
+        (buff (buffer-file-name)))
+    (when (and proj (member buff (project-files proj)))
+      (setq tdm/git-status-indicator (tdm/git-create-indicator buff)))))
+
+(defun tdm/git-cache-status-post-magit ()
+  (let ((start-buffer (current-buffer)))
+    (dolist (buff (seq-filter #'td/is-file-buffer
+                              (project-buffers (project-current))))
+      (switch-to-buffer buff)
+      (setq tdm/git-status-indicator (tdm/git-create-indicator
+                                      (buffer-file-name buff))))
+    (switch-to-buffer start-buffer)))
+
+(add-hook 'after-save-hook #'tdm/git-cache-status)
+(add-to-list 'window-buffer-change-functions #'tdm/git-cache-status)
+(add-hook 'magit-post-refresh-hook #'tdm/git-cache-status-post-magit)
+#+end_src
+
+*** Project indicator
+
+#+begin_src elisp
 (defcustom td/custom-project-name nil
   "A custom directory-local name for a project.el project."
   :type 'string)
 
-(defun tdm/project()
+(defun tdm/project ()
   "Display the current project name, or path."
   (when (project-current)
     (concat (propertize (if (stringp td/custom-project-name)
@@ -552,7 +518,11 @@ Accepts 'ARGS' but does not use them."
                              'mouse-1 #'project-switch-project))
             (propertize ":" 'face
                         '(:inherit font-lock-comment-face)))))
+#+end_src
 
+*** Modal mode indicators
+
+#+begin_src elisp
 (defun tdm/modal-face (str base)
   (propertize str 'face
               `(:inherit ,base :weight bold :height 0.9)))
@@ -583,18 +553,6 @@ Accepts 'ARGS' but does not use them."
                           (emacs . ,(tdm/modal-face
                                      "<E>" '(:foreground "#C792EA")))))
 
-(require 'svg-lib)
-(add-to-list 'svg-lib-icon-collections
-             (cons "local" "file:///home/trevdev/.config/emacs/%s.svg"))
-
-(defun tdm/god-mode-icon ()
-  "Retrieve the hammer of the gods."
-  (svg-lib-icon "mjolnir"
-                `(:collection "local"
-                              :stroke 0
-                              :foreground ,(face-foreground 'warning)
-                              :background ,(face-background 'mode-line))))
-
 (defun tdm/meow-state ()
   "Retrieve the meow-state for the mode-line."
   (when (featurep 'meow)
@@ -606,41 +564,120 @@ Accepts 'ARGS' but does not use them."
   (when (featurep 'evil)
     (concat (alist-get evil-state tdm/evil-states)
             " ")))
+#+end_src
 
-(defun tdm/god-state ()
-  "Get the god-mode state for the mode-line."
-  (when (featurep 'god-mode)
-    (format "%s " (if god-local-mode
-                      (propertize "God" 'display (tdm/god-mode-icon))
-                    ""))))
+*** God mode indicator
 
+This is where we use =svg-lib= to bring the thunder.
+
+#+begin_src elisp
+(require 'svg-lib)
+
+(add-to-list 'svg-lib-icon-collections
+             (cons "local" "file:///home/trevdev/.config/emacs/%s.svg"))
+
+(defvar tdm/god-mode-icon (propertize "God" 'face '(:foreground "#FFCA41" :weight bold))
+  "The hammer of the gods, but only if you are worthy.")
+
+(defun tdm/god-mode-icon--make-icon ()
+  (propertize
+   "  " 'display (svg-lib-icon
+                  "mjolnir"
+                  `(:collection "local"
+                    :stroke 0
+                    :padding 0
+                    :width 20
+                    :foreground ,(face-foreground 'warning)
+                    :background ,(face-background 'mode-line)))))
+
+(defun tdm/god-mode-icon--set-icon ()
+  "Set the `tdm/god-mode-icon' as an svg icon in graphical displays."
+  (when (display-graphic-p)
+    (setq tdm/god-mode-icon (tdm/god-mode-icon--make-icon))))
+
+(defun tdm/god-mode-window-setup-hook ()
+  "Set up the `tdm/god-mode-icon' as late as possible in the init process.
+
+The reasoning for this is because if the window's not ready to go, an SVG
+icon renders incorrectly."
+  (tdm/god-mode-icon--set-icon)
+  (tdm/god-mode-indicator--update-cached))
+
+(defun tdm/god-mode-daemon-setup-hook ()
+  "Set up the `tdm/god-mode-icon' after the first toggle of `god-local-mode'.
+This is the work-around for displaying the icon in a client frame."
+  (when (display-graphic-p)
+    (tdm/god-mode-window-setup-hook)
+    (remove-hook 'god-local-mode-hook #'tdm/god-mode-daemon-setup-hook)))
+
+(if (daemonp)
+    (add-hook 'god-local-mode-hook #'tdm/god-mode-daemon-setup-hook)
+  (add-hook 'window-setup-hook #'tdm/god-mode-window-setup-hook))
+
+(defvar-local tdm/god-mode-indicator--cached ""
+  "The cached state of the `god-local-mode' indicator for the mode-line.")
+
+(put 'tdm/god-mode-indicator--cached 'risky-local-variable t)
+
+(defun tdm/god-mode-indicator--update-cached ()
+  "A hook function for setting `tdm/god-mode-indicator'."
+  (setq tdm/god-mode-indicator--cached (format
+                                        "%s" (if (bound-and-true-p god-local-mode)
+                                                 tdm/god-mode-icon
+                                               ""))))
+
+(defun tdm/god-mode-indicator ()
+  "Display `td/god-mode-indicator--cached' in the mode-line."
+  tdm/god-mode-indicator--cached)
+
+(add-hook 'god-local-mode-hook #'tdm/god-mode-indicator--update-cached)
+#+end_src
+
+*** Buffer related info
+
+Numerous functions to help appreciate what's going on with a buffer inclding status flags for read-only, modified or in a client frame.
+
+#+begin_src elisp
 (defun tdm/status-flag (on face)
   "Produce a status flag based on some `PRED'icate test and give it a `FACE'."
   (format "%s" (if on
                    (propertize "▰" 'face `(:inherit ,face :weight bold))
                  "-")))
 
-(defun tdm/buffer-position ()
+(defun tdm/line-number-indicator--update ()
   "Display the mode-line buffer position."
-  (concat "  %l:%c"
-        (propertize " %p" 'face '(:inherit font-lock-comment-face))))
+  (setq tdm/line-number-indicator
+        (if line-number-mode
+            (concat "  %l:%c"
+                    (propertize " %p" 'face '(:inherit font-lock-comment-face)))
+          "")))
 
-(defun tdm/buffer-size ()
-  "Display the mode-line buffer size."
-  (format "%s" (propertize " (%I)" 'face '(:inherit font-lock-comment-face))))
+(defvar-local tdm/line-number-indicator (tdm/line-number-indicator--update)
+  "Display buffer position in the mode-line.")
 
-(defun tdm/split-format (left right)
-  "Format a mode-line with a `LEFT' and `RIGHT' justified list of elements.
-The modeline should fit the `window-width' with space between the lists."
-  (let ((reserve (length right)))
-    (concat left
-            " "
-            (propertize " "
-                        'display
-                        `((space :align-to
-                                 (- right (- 0 right-margin) ,reserve))))
-            right)))
+(add-hook 'line-number-mode-hook #'tdm/line-number-indicator--update)
 
+(defun tdm/buffer-size--update ()
+  "Update the `tdm/buffer-size' mode-line variable."
+  (setq tdm/buffer-size
+        (if size-indication-mode
+            (format
+             "%s" (propertize " (%I)" 'face '(:inherit font-lock-comment-face)))
+          "")))
+
+(defvar-local tdm/buffer-size (tdm/buffer-size--update)
+  "Display the buffer size in the mode-line.")
+
+(put 'risky-local-variable-p 'tdm/buffer-size t)
+
+(add-hook 'size-indication-mode-hook #'tdm/buffer-size--update)
+#+end_src
+
+*** Various other package indicators
+
+Flycheck Flymake, the built in misc info, etc.
+
+#+begin_src elisp
 (defun tdm/flycheck ()
   "Get the flycheck status for the buffer, if LSP mode is not doing so."
   (when (and (bound-and-true-p flycheck-mode)
@@ -660,8 +697,7 @@ The modeline should fit the `window-width' with space between the lists."
 
 (defun tdm/flymake ()
   "Display the flymake status for the buffer."
-  (when (bound-and-true-p flymake-mode)
-    " "
+  (when (bound-and-true-p flymake-mode) " "
     flymake-mode-line-title
     flymake-mode-line-exception
     flymake-mode-line-counters))
@@ -678,13 +714,34 @@ The modeline should fit the `window-width' with space between the lists."
     (format "%s" (propertize
                   "λ" 'face '(:inherit bold :foreground "#C792EA")))))
 
+(defun tdm/anzu-indicator ()
+  (when (bound-and-true-p anzu-mode)
+    (concat " " (anzu--update-mode-line))))
+#+end_src
+
+*** Render a split-view mode-line
+
+This is not a very efficient way to render a modeline but it's the best way I could figure out how to make the columns. On the left side are the stats/flags for the buffer itself. On the right are all of the major/minor mode features
+
+#+begin_src elisp
+(defun tdm/split-format (left right)
+  "Format a mode-line with a `LEFT' and `RIGHT' justified list of elements.
+The modeline should fit the `window-width' with space between the lists."
+  (let ((reserve (length right)))
+    (concat left
+            " "
+            (propertize " "
+                        'display
+                        `((space :align-to
+                                 (- right (- 0 right-margin) ,reserve))))
+            right)))
+
 (setq-default mode-line-format
               '((:eval
                  (tdm/split-format
                   ;; Left
                   (format-mode-line
                    '(" "
-                     (:eval (tdm/meow-state))
                      (:eval (tdm/status-flag buffer-read-only 'error))
                      (:eval (tdm/status-flag (buffer-modified-p) 'warning))
                      (:eval (if (not (eq
@@ -695,18 +752,70 @@ The modeline should fit the `window-width' with space between the lists."
                      " "
                      (:eval (tdm/project))
                      mode-line-buffer-identification
-                     (:eval (tdm/buffer-size))
-                     (:eval (tdm/buffer-position))))
+                     tdm/line-number-indicator
+                     (:eval (tdm/anzu-indicator))
+                     tdm/buffer-size))
                   ;; Right
                   (format-mode-line
-                   '((:eval (tdm/god-state))
+                   '((:eval (tdm/god-mode-indicator))
                      (:eval (tdm/macro-indicator))
                      (:eval (tdm/flycheck))
-                     (:eval (tdm/vc))
+                     tdm/git-status-indicator
                      (:eval (tdm/misc))
                      "  "
                      mode-line-modes))))))
 #+END_SRC
+
+*** Diminish the minor-mode-alist
+
+The =diminish= package reduces the output from the =minor-mode-alist= in the minibuffer. Due to how lazy-loading works, we want to make sure we have diminish early on.
+
+This greatly reduces noise in the mode-line while being aware of important contextual minor-modes.
+
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+"emacs-diminish"
+#+end_src
+
+#+begin_src elisp
+(defun tdm/diminish-lsp-lighter ()
+  "Display the LSP status in the `mode-line-modes'."
+  (let* ((lsp-up lsp--buffer-workspaces)
+         (color (if lsp-up '(:inherit success :weight bold)
+                  '(:inherit warning :weight bold))))
+    `(:propertize " LSP" face ,color)))
+
+(dolist (mode '(("company" 'company-mode)
+                ("hideshow" 'hs-minor-mode)
+                ("undo-tree" 'undo-tree-mode)
+                ("whitespace" 'whitespace-mode)
+                ("yasnippet" 'yas-minor-mode)
+                ("which-key" 'which-key-mode)
+                ("org-indent" 'org-indent-mode)
+                ("simple" 'visual-line-mode)
+                ("eldoc" 'eldoc-mode)
+                ("evil-org" 'evil-org-mode)
+                ("flycheck" 'flycheck-mode)
+                ("flymake" 'flymake-mode)
+                ("tree-sitter" 'tree-sitter-mode "TS")
+                ("lsp-mode" 'lsp-mode '(:eval (tdm/diminish-lsp-lighter)))
+                ("god-mode" 'god-local-mode)
+                ("beacon" 'beacon-mode)
+                ("evil-goggles" 'evil-goggles-mode)
+                ("evil-commentary" 'evil-commentary-mode)
+                ("goggles" 'goggles-mode)))
+  (eval-after-load (car mode)
+    `(diminish ,(cadr mode) ,(caddr mode))))
+
+(diminish 'defining-kbd-macro)
+
+(with-eval-after-load 'meow
+  (dolist (mode (list 'meow-normal-mode
+                      'meow-insert-mode
+                      'meow-motion-mode
+                      'meow-keypad-mode
+                      'meow-beacon-mode))
+    (diminish mode)))
+#+end_src
 
 ** Utility Packages
 :PROPERTIES:
@@ -718,7 +827,7 @@ Configurations for packages that enrich the Emacs experience. Some packages are 
 *** Avy
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-avy
+"emacs-avy"
 #+end_src
 
 #+begin_src elisp
@@ -727,16 +836,75 @@ emacs-avy
 (avy-setup-default)
 #+end_src
 
-*** CTRLF
-
-CTRLF greatly enhances isearch.
+*** Anzu
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-ctrlf
+"emacs-anzu"
 #+end_src
-  
+
 #+begin_src elisp
-(ctrlf-mode 1)
+(require 'anzu)
+(global-anzu-mode +1)
+
+(custom-set-variables
+ '(anzu-mode-lighter "")
+ '(anzu-deactivate-region t)
+ '(anzu-search-threshold 1000)
+ '(anzu-replace-threshold 50)
+ '(anzu-replace-to-string-separator " => "))
+
+(setq anzu-cons-mode-line-p nil)
+
+(define-key
+  isearch-mode-map [remap isearch-query-replace]  #'anzu-isearch-query-replace)
+(define-key
+  isearch-mode-map
+  [remap isearch-query-replace-regexp] #'anzu-isearch-query-replace-regexp)
+#+end_src
+
+*** COMMENT Awesome Tray
+
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+"emacs-svg-lib"
+#+end_src
+
+#+begin_src elisp
+(add-to-list 'load-path (expand-file-name "~/Projects/awesome-tray"))
+(require 'awesome-tray)
+(require 'svg-lib)
+
+(add-to-list 'svg-lib-icon-collections
+             (cons "local" "file:///home/trevdev/.config/emacs/%s.svg"))
+
+(defvar tdm/god-mode-icon
+  (propertize
+   "  " 'display (svg-lib-icon
+                   "mjolnir"
+                   `(:collection "local"
+                     :stroke 0
+                     :padding 0
+                     :foreground ,(face-foreground 'warning))))
+  "The hammer of the gods.")
+
+(defun awesome-tray-god-mode-indicator ()
+  "A god-mode indicator for awesome-tray."
+  (if (bound-and-true-p god-local-mode)
+      tdm/god-mode-icon
+    ""))
+
+(add-to-list 'awesome-tray-module-alist
+             '("god-mode" . (awesome-tray-god-mode-indicator)))
+
+(setq awesome-tray-active-modules '("god-mode"
+                                    "anzu"
+                                    "git"
+                                    "buffer-name"
+                                    "buffer-read-only"
+                                    "clock"
+                                    "mode-name"
+                                    "location")
+      awesome-tray-info-padding-right 2)
+(awesome-tray-mode 1)
 #+end_src
 
 *** Completions
@@ -746,7 +914,7 @@ A combination of packages to enhance completions.
 Completions at point/region.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-company
+"emacs-company"
 #+end_src
 
 #+begin_src elisp
@@ -773,11 +941,22 @@ emacs-company
 **** Icomplete mode
 
 #+begin_src elisp
-(icomplete-mode 1)
+(icomplete-vertical-mode 1)
 (setq icomplete-show-matches-on-no-input t)
+
+(defun td/toggle-flex-completion ()
+  "Toggle flex completion."
+  (interactive)
+  (if (member 'flex completion-styles)
+      (progn (message "Flex Off")
+             (setq-local completion-styles (remove 'flex completion-styles)))
+    (message "Flex On")
+    (setq-local completion-styles `(flex ,@completion-styles))))
+
 (td/bind-keys '(("C-n"        . icomplete-forward-completions)
                 ("C-p"        . icomplete-backward-completions)
-                ("S-<return>" . icomplete-force-complete-and-exit))
+                ("S-<return>" . icomplete-force-complete-and-exit)
+                ("C-c f"      . td/toggle-flex-completion))
               icomplete-minibuffer-map)
 #+end_src
 
@@ -789,6 +968,45 @@ Save history for Vertico to look at later.
 (savehist-mode)
 #+end_src
 
+*** Denote
+
+Denote is Protesilaos's solution for note-taking. It's dependency free, makes good use of the built-in Emacs conventions and it keeps your notes highly portable.
+
+For more information, visit the [[https://protesilaos.com/emacs/denote][denote manual]].
+
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+"emacs-denote"
+#+end_src
+
+#+begin_src elisp
+(require 'denote)
+(setq denote-directory (expand-file-name "~/Org/denote/")
+      denote-file-type 'org
+      denote-known-keywords '("journal" "programming" "foss" "idea")
+      denote-prompts '(title keywords)
+      denote-link-fontify-backlinks t)
+
+(add-hook 'dired-mode-hook #'denote-dired-mode)
+
+(defun td/denote-journal ()
+  "Create an entry tagged 'journal', while prompting for a title."
+  (interactive)
+  (denote
+   (denote--title-prompt)
+   '("journal")))
+
+(with-eval-after-load 'org-capture
+  (setq denote-org-capture-specifiers "%l\n%i\n%?")
+  (add-to-list 'org-capture-templates
+               '("n" "New note (with denote.el)" plain
+                 (file denote-last-path)
+                 #'denote-org-capture
+                 :no-save t
+                 :immediate-finish nil
+                 :kill-buffer t
+                 :jump-to-captured t)))
+#+end_src
+
 *** Docker
 
 Docker support is provided by:
@@ -798,9 +1016,9 @@ Docker support is provided by:
 - emacs-docker-compose-mode
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-docker
-emacs-dockerfile-mode
-emacs-docker-compose-mode
+"emacs-docker"
+"emacs-dockerfile-mode"
+"emacs-docker-compose-mode"
 #+end_src
 
 *** Diff-hl
@@ -808,7 +1026,7 @@ emacs-docker-compose-mode
 Show me the diffs in the fringe!
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-diff-hl
+"emacs-diff-hl"
 #+end_src
 
 #+begin_src elisp
@@ -832,7 +1050,7 @@ I enjoy using tiling window managers. It serves me better to avoid having a sepa
 RSS Reader :D
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-elfeed
+"emacs-elfeed"
 #+end_src
 
 #+begin_src elisp
@@ -844,7 +1062,7 @@ emacs-elfeed
 Emacs Multi-Media System
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-emms
+"emacs-emms"
 #+end_src
 
 #+begin_src elisp
@@ -977,8 +1195,8 @@ for pair."
 A Matrix client for Emacs.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-ement
-pantalaimon
+"emacs-ement"
+"pantalaimon"
 #+end_src
 
 #+begin_src elisp
@@ -1009,7 +1227,7 @@ pantalaimon
 *** Eshell
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-eshell-syntax-highlighting
+"emacs-eshell-syntax-highlighting"
 #+end_src
 
 #+begin_src elisp
@@ -1023,7 +1241,7 @@ emacs-eshell-syntax-highlighting
 *** COMMENT Evil
 
 #+begin_src elisp :noweb-ref packages :tangle no
-evil
+"evil"
 #+end_src
 
 **** Keybinds
@@ -1217,7 +1435,7 @@ Here apply our evil configurations and set up our hooks.
 It just makes selecting text between sexps easy.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-expand-region
+"emacs-expand-region"
 #+end_src
 
 #+begin_src elisp
@@ -1254,7 +1472,7 @@ God mode is an amazing package. It automatically translates key-chords into sing
 Because it has its own keymap, I can add utility functions to god-mode. This turns it into sort of a pseudo-modal editing mode. However, unlike other modal packages, it does not require as much key re-binding, thanks to key-chord translation.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-god-mode
+"emacs-god-mode"
 #+end_src
 
 **** Functions
@@ -1469,6 +1687,8 @@ Declare key-bindings to be applied in the next section.
                        ("N" . td/forward-chunk)
                        ("(" . kmacro-start-macro)
                        (")" . kmacro-end-or-call-macro)
+                       ("{" . backward-paragraph)
+                       ("}" . forward-paragraph)
                        ("q" . quit-window)
                        ("z" . repeat)
                        ("," . er/keymap)))
@@ -1524,7 +1744,7 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
 Extra feedback for text changes.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-goggles
+"emacs-goggles"
 #+end_src
 
 #+begin_src elisp
@@ -1542,7 +1762,7 @@ emacs-goggles
 Meow is a pretty special and ambitious modal editing project. It takes inspiration from Vim, Kakuone and god-mode to create a selection first, complete modal experience.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-meow
+"emacs-meow"
 #+end_src
 
 #+begin_src elisp
@@ -1672,7 +1892,7 @@ meow
 Magit is one of the biggest reasons why I fell in love with emacs. It's the best keyboard driven "TUI" abstraction of the git command line anywere, period. Better than Fugitive by far. Sorry, Tim Pope.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-magit
+"emacs-magit"
 #+end_src
 
 #+begin_src elisp
@@ -1684,7 +1904,7 @@ emacs-magit
 Toot.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-mastodon
+"emacs-mastodon"
 #+end_src
 
 #+begin_src elisp
@@ -1697,7 +1917,7 @@ emacs-mastodon
 *** Multiple Cursors
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-multiple-cursors
+"emacs-multiple-cursors"
 #+end_src
 
 #+begin_src elisp
@@ -1859,6 +2079,7 @@ Some fairly self-explanatory utility functions.
                            ("contacts.org" :maxlevel . 1))
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
       org-timer-default-timer "25"
+      org-clock-string-limit 30
       org-agenda-custom-commands td/org-agenda-commands
       org-stuck-projects '("/PROJ-DONE" ("TODO" "NEXT") nil "- \\[ \\]")
       org-capture-templates td/capture-templates
@@ -1897,7 +2118,7 @@ Libnotify alerts for Agenda alerts.
 [[https://github.com/Chobbes/org-chef][Org-chef]] is a must have if you enjoy cooking. You can just use =M-x org-chef-insert-recipe= in whatever cookbook file, or the capture templates.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-org-chef
+"emacs-org-chef"
 #+end_src
 
 #+begin_src elisp
@@ -1917,7 +2138,7 @@ emacs-org-chef
 Get access to Github Flavored Markdown
 
 #+begin_src scheme packages :noweb-ref packages :tangle no :exports none
-emacs-ox-gfm
+"emacs-ox-gfm"
 #+end_src
 
 #+begin_src elisp
@@ -1930,7 +2151,7 @@ emacs-ox-gfm
 I like org-publish, but there are some files (like my cookbook) that I would like to keep in one document, as it is a capture file, and be able to easily publish it into a list of "posts".
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-ox-hugo
+"emacs-ox-hugo"
 #+end_src
 
 #+begin_src elisp
@@ -1938,29 +2159,12 @@ emacs-ox-hugo
   (require 'ox-hugo))
 #+end_src
 
-***** COMMENT org-modern
-
-#+begin_src lisp :noweb-ref packages :tangle no
-org-modern
-#+end_src
-
-#+begin_src lisp
-(setq org-pretty-entities t
-      org-ellipsis "…"
-      org-agenda-current-time-string "⭠ now ────────────────────────────"
-      org-hide-emphasis-markers t
-      org-auto-align-tags nil
-      org-tags-column 0
-      org-auto-align-tags nil)
-(global-org-modern-mode)
-#+end_src
-
 ***** org-present
 
 A tiny package for presenting with org-mode.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-org-present
+"emacs-org-present"
 #+end_src
 
 #+begin_src elisp
@@ -1987,12 +2191,12 @@ emacs-org-present
                 org-present-mode-keymap))
 #+end_src
 
-***** org-roam
+***** COMMENT org-roam
 
 Org roam is an incredible thought capture system, inspired by roam research. I'm not sure this one's for me, but I am giving it a try.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-org-roam
+"emacs-org-roam"
 #+end_src
 
 #+begin_src elisp
@@ -2036,6 +2240,9 @@ emacs-org-roam
                                      (direction . right)
                                      (window-width . 0.33)
                                      (window-height . fit-window-to-buffer)))
+
+
+
 (with-eval-after-load 'org-roam
   (org-roam-db-autosync-mode))
 #+end_src
@@ -2044,8 +2251,11 @@ emacs-org-roam
 
 A fancy, web-based user interface for reviewing your org-roam notes and how they connect to one-another.
 
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+"emacs-org-roam-ui"
+#+end_src
+
 #+begin_src elisp
-(straight-use-package 'org-roam-ui)
 (setq org-roam-ui-sync-theme t
       org-roam-ui-follow t
       org-roam-ui-update-on-save t
@@ -2065,6 +2275,10 @@ Knowing what resources you have at your disposal and learning how to budget are 
 
 Note: this is probably built into the Guix ledger package. If something breaks, check into that.
 
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+"emacs-ledger-mode"
+#+end_src
+
 #+begin_src elisp
 (setq ledger-use-native-highlighting t)
 #+end_src
@@ -2074,9 +2288,9 @@ Note: this is probably built into the Guix ledger package. If something breaks, 
 A "normal" terminal for Emacs. This package is currently installed by the guix system.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-vterm
-emacs-vterm-toggle
-emacs-multi-vterm
+"emacs-vterm"
+"emacs-vterm-toggle"
+"emacs-multi-vterm"
 #+end_src
 
 #+begin_src elisp
@@ -2092,8 +2306,8 @@ emacs-multi-vterm
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-notmuch
-emacs-notmuch
+"notmuch"
+"emacs-notmuch"
 #+end_src
 
 **** Built In Mail Settings
@@ -2183,20 +2397,20 @@ emacs-notmuch
 (add-hook 'notmuch-mua-send-hook #'td/specify-msmtp-account)
 #+end_src
 
-**** COMMENT ol-notmuch
+**** ol-notmuch
 
-This adds the ability to create links to notmuch messages in org-mode
+The *emacs-ol-notmuch* package gives me the ability to link notmuch message files in org-mode.
 
-#+begin_src elisp
-(straight-use-package 'ol-notmuch)
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+"emacs-ol-notmuch"
 #+end_src
 
 **** org-mime
 
-Edit messages using org-mode.
+Edit messages in Orgdown and transform them into multipart html messages with the *org-mime* package.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-org-mime
+"emacs-org-mime"
 #+end_src
 
 #+begin_src elisp
@@ -2228,7 +2442,7 @@ Organize contacts with org-mode.
 *** Password Store
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-password-store
+"emacs-password-store"
 #+end_src
 
 #+begin_src elisp
@@ -2268,7 +2482,7 @@ Inspired from a script written by [[https://anirudhsasikumar.net/blog/2005.01.21
 *** RG
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-rg
+"emacs-rg"
 #+end_src
 
 #+begin_src elisp
@@ -2280,7 +2494,6 @@ emacs-rg
 A simple package for highlighting a marked area or region prior to transposing it with some other marked area or region. It makes the built-in =transpose-region= sane.
 
 #+begin_src elisp
-(straight-use-package 'transpose-mark)
 (global-set-key (kbd "C-c t") #'transpose-mark)
 #+end_src
 
@@ -2289,7 +2502,7 @@ A simple package for highlighting a marked area or region prior to transposing i
 Creates a fake "fill column" to wrap text around. Makes reading documents more visually appealing without breaking text into newlines.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-visual-fill-column
+"emacs-visual-fill-column"
 #+end_src
 
 #+begin_src elisp
@@ -2309,7 +2522,7 @@ emacs-visual-fill-column
 What the heck was that keybind again? If you can remember how it starts, which-key can help you find the rest.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-which-key
+"emacs-which-key"
 #+end_src
 
 #+begin_src elisp
@@ -2365,8 +2578,8 @@ This section is all about enhancing support for programming languages. Some of t
 Clojure is supported by =clojure-mode= and =cider=.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-clojure-mode
-emacs-cider
+"emacs-clojure-mode"
+"emacs-cider"
 #+end_src
 
 #+begin_src elisp
@@ -2381,8 +2594,8 @@ This configuration has enhanced support for the following dialects:
 - Guile Scheme with the =geiser-guile= REPL package
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-sly
-emacs-geiser-guile
+"emacs-sly"
+"emacs-geiser-guile"
 #+end_src
 
 *** CSS/SCSS
@@ -2397,7 +2610,7 @@ emacs-geiser-guile
 Emmet is its own snippet engine for expanding html tags and nesting and is made possible by =emmet-mode=.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-emmet-mode
+"emacs-emmet-mode"
 #+end_src
 
 #+begin_src elisp
@@ -2414,7 +2627,7 @@ emacs-emmet-mode
 The popular =flycheck= package helps me lint various files. I use this in conjunction with [[* LSP Mode][lsp-mode]] as the two are meant to work together.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-flycheck
+"emacs-flycheck"
 #+end_src
 
 #+begin_src elisp
@@ -2429,8 +2642,8 @@ emacs-flycheck
 LSP support is delivered by =lsp-mode= and =lsp-ui=.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-lsp-mode
-emacs-lsp-ui
+"emacs-lsp-mode-with-plists"
+"emacs-lsp-ui"
 #+end_src
 
 #+begin_src elisp
@@ -2479,7 +2692,7 @@ emacs-lsp-ui
 The free software documentation language of the Internet. Markdown support is made better with =markdown-mode=.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-markdown-mode
+"emacs-markdown-mode"
 #+end_src
 
 #+begin_src elisp
@@ -2499,7 +2712,7 @@ emacs-markdown-mode
 The =paredit= package brings a sort of strictness to lisp/scheme editing while providing useful tools for manipulating lists as trees.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-paredit
+"emacs-paredit"
 #+end_src
 
 #+begin_src elisp
@@ -2515,7 +2728,7 @@ emacs-paredit
 PHP support is made better with the =php-mode= package.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-php-mode
+"emacs-php-mode"
 #+end_src
 
 #+begin_src elisp
@@ -2546,7 +2759,7 @@ emacs-php-mode
 An opinionated way to clean up my web-dev code quickly. Prettier is made possible with the =prettier= package.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-prettier
+"emacs-prettier"
 #+end_src
 
 *** Python
@@ -2554,7 +2767,7 @@ emacs-prettier
 Python support is enhanced with the =pyvenv= package. It helps manage virtualenvs.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-pyvenv
+"emacs-pyvenv"
 #+end_src
 
 *** Rainbow Delimiters
@@ -2562,7 +2775,7 @@ emacs-pyvenv
 The =rainbow-delimeters= package makes nested scopes much easier to follow.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-rainbow-delimiters
+"emacs-rainbow-delimiters"
 #+end_src
 
 #+begin_src elisp
@@ -2574,7 +2787,7 @@ emacs-rainbow-delimiters
 The =rainbow-mode= package makes color names and hex codes pop with their actual colors.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-rainbow-mode
+"emacs-rainbow-mode"
 #+end_src
 
 *** Ruby
@@ -2582,8 +2795,8 @@ emacs-rainbow-mode
 Ruby support is made better with Solargraph (installed separately with Guix) and the =inf-ruby= package as a built-n REPL.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-ruby-solargraph
-emacs-inf-ruby
+"ruby-solargraph"
+"emacs-inf-ruby"
 #+end_src
 
 *** Rust
@@ -2591,7 +2804,7 @@ emacs-inf-ruby
 Enhanced Rust support comes from the =rust-mode= package.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-rust-mode
+"emacs-rust-mode"
 #+end_src
 
 #+begin_src elisp
@@ -2610,10 +2823,6 @@ emacs-rust-mode
 Enhance support for Shopify's own templating language. LSP support requires the use of Shopify's theme-check language server. I install this using Guix and my own personal channel for the gems required to build [[https://git.sr.ht/~trevdev/guix-channel/tree/main/item/trevdev/packages/ruby.scm#L100][shopify-cli]].
 
 All of this brings me full Shopify developer support in Emacs.
-
-#+begin_src scheme :noweb-ref packages :tangle no :exports none
-ruby-shopify-cli
-#+end_src
 
 #+begin_src elisp
 (define-derived-mode shopify-mode web-mode "Shopify"
@@ -2665,7 +2874,7 @@ Tree-sitter is an impressive project. It delivers exceptionally rich syntax high
 I prefer the more minimal =typescript-mode= package for enhanced typescript syntax. The of my JS is handled by the built in =js-mode= and the typescript-language-server.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-typescript-mode
+"emacs-typescript-mode"
 #+end_src
 
 #+begin_src elisp
@@ -2691,7 +2900,7 @@ There isn't a much better catch-all for web template syntax support than web-mod
 I don't like all of it's default tab-width settings so I override those.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-web-mode
+"emacs-web-mode"
 #+end_src
 
 #+begin_src elisp
@@ -2710,7 +2919,7 @@ emacs-web-mode
 YAML configurationf files are highlighted by =yaml-mode=.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-yaml-mode
+"emacs-yaml-mode"
 #+end_src
 
 #+begin_src elisp
@@ -2722,8 +2931,8 @@ emacs-yaml-mode
 Snippets are provided by the =yasnippet= and =yasnippet-snippets= packages.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-emacs-yasnippet
-emacs-yasnippet-snippets
+"emacs-yasnippet"
+"emacs-yasnippet-snippets"
 #+end_src
 
 #+begin_src elisp
@@ -2745,13 +2954,22 @@ Load the file we created for custom vars in the [[* General Settings][general se
 
 ** Guix Package Module
 :PROPERTIES:
-:header-args: :tangle emacs-d.scm :comments link
+:header-args: :tangle ~/.config/guix/home/tdev/emacs.scm
 :END:
 
-This section generates the Guile Scheme module that creates a Guix package for this emacs init. It uses the =noweb= feature to tangle up the relevant package dependencies.
+This section generates the Guile Scheme module that creates a Guix
+package for this emacs init. It uses the =noweb= feature to tangle up
+the relevant package dependencies.
 
 #+begin_src scheme :noweb yes
-(define-module (emacs-d)
+;;; Guix Package Module
+;;
+;; This module was generated by tangling my literate emacs config
+;; with org-mode.
+;;
+;; See: https://sr.ht/~trevdev/emacs.d/
+
+(define-module (tdev emacs)
   #:use-module (gnu packages)
   #:use-module (guix packages)
   #:use-module (guix gexp)
@@ -2765,7 +2983,13 @@ This section generates the Guile Scheme module that creates a Guix package for t
   #:use-module (gnu packages fonts)
   #:use-module (gnu packages mail)
   #:use-module (gnu packages ruby)
-  #:export (emacs-init))
+  #:export (emacs-init
+            emacs-package-list))
+
+(define emacs-package-list
+  (list
+   "emacs"
+   <<packages>>))
 
 (define emacs-init
   (package
@@ -2780,9 +3004,7 @@ This section generates the Guile Scheme module that creates a Guix package for t
        (file-name (git-file-name name version))
        (sha256
         (base32 "1bjzadgliy52kmc47kgxw3bpc451ky8989v1lp5r1pw9zfa5xqzk"))))
-    (inputs (list
-             emacs
-             <<packages>>))
+    (inputs emacs-packages)
     (build-system trivial-build-system)
     (arguments
      (list
