@@ -1531,7 +1531,7 @@ I want some way to intuitively leave god mode one character over from where I sc
 This comes in handy because sometimes words separated by non-word characters can put you in a spot where if you could move just one character "over", you could be right where you want to land without having to move a whole word/thing over the mark and back again.
 
 #+begin_src elisp
-(defvar god/ahead-direction 1
+(defvar-local god/ahead-direction 1
   "A cached value of the presumed `god/insert-ahead' direction.")
 
 (defun god/set-ahead-direction (&optional dir)
