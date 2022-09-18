@@ -647,10 +647,7 @@ Numerous functions to help appreciate what's going on with a buffer inclding sta
 (defun tdm/line-number-indicator--update ()
   "Display the mode-line buffer position."
   (setq tdm/line-number-indicator
-        (if line-number-mode
-            (concat "  %l:%c"
-                    (propertize " %p" 'face '(:inherit font-lock-comment-face)))
-          "")))
+        (if line-number-mode (list "  %l:%c") "")))
 
 (defvar-local tdm/line-number-indicator (tdm/line-number-indicator--update)
   "Display buffer position in the mode-line.")
@@ -661,14 +658,11 @@ Numerous functions to help appreciate what's going on with a buffer inclding sta
   "Update the `tdm/buffer-size' mode-line variable."
   (setq tdm/buffer-size
         (if size-indication-mode
-            (format
-             "%s" (propertize " (%I)" 'face '(:inherit font-lock-comment-face)))
+            '(:propertize " (%I)" :face '(:inherit font-lock-comment-face))
           "")))
 
 (defvar-local tdm/buffer-size (tdm/buffer-size--update)
   "Display the buffer size in the mode-line.")
-
-(put 'risky-local-variable-p 'tdm/buffer-size t)
 
 (add-hook 'size-indication-mode-hook #'tdm/buffer-size--update)
 #+end_src
@@ -754,7 +748,8 @@ The modeline should fit the `window-width' with space between the lists."
                      mode-line-buffer-identification
                      tdm/line-number-indicator
                      (:eval (tdm/anzu-indicator))
-                     tdm/buffer-size))
+                     tdm/buffer-size
+                     (:propertize " %p%%" face (:inherit font-lock-comment-face))))
                   ;; Right
                   (format-mode-line
                    '((:eval (tdm/god-mode-indicator))
