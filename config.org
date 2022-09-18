@@ -499,25 +499,34 @@ When used as a window hook, receive the `FRAME' as an argument."
 *** Project indicator
 
 #+begin_src elisp
-(defcustom td/custom-project-name nil
+(defcustom tdm/custom-project-name nil
   "A custom directory-local name for a project.el project."
   :type 'string)
 
+(defvar-local tdm/project-mode-line-name ""
+  "Project the current buffer belogns to.")
+
+(put 'tdm/project-mode-line-name 'risky-local-variable t)
+
 (defun tdm/project ()
   "Display the current project name, or path."
-  (when (project-current)
-    (concat (propertize (if (stringp td/custom-project-name)
-                     td/custom-project-name
-                   (file-name-nondirectory
-                    (directory-file-name
-                     (project-root (project-current)))))
-                 'face 'success
-                 'help-echo "Switch project"
-                 'mouse-face '(:box 1)
-                 'local-map (make-mode-line-mouse-map
-                             'mouse-1 #'project-switch-project))
-            (propertize ":" 'face
-                        '(:inherit font-lock-comment-face)))))
+  (let ((pc (project-current))
+        (pname-not-set (string= tdm/project-mode-line-name "")))
+    (if (and pc pname-not-set)
+        (setq tdm/project-mode-line-name
+              (format-mode-line
+               (list
+                `(:propertize ,(or tdm/custom-project-name
+                                   (file-name-nondirectory
+                                    (directory-file-name
+                                     (project-root pc))))
+                              face success
+                              help-echo "Switch project"
+                              mouse-face (:box 1)
+                              local-map ,(make-mode-line-mouse-map
+                                          'mouse-1 #'project-switch-project))
+                '(:propertize ":" face (:inherit font-lock-comment-face)))))
+      tdm/project-mode-line-name)))
 #+end_src
 
 *** Modal mode indicators
