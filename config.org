@@ -576,7 +576,7 @@ This is where we use =svg-lib= to bring the thunder.
 (add-to-list 'svg-lib-icon-collections
              (cons "local" "file:///home/trevdev/.config/emacs/%s.svg"))
 
-(defvar tdm/god-mode-icon (propertize "God" 'face '(:foreground "#FFCA41" :weight bold))
+(defvar tdm/god-mode-icon (propertize "<G>" 'face '(:foreground "#FFCA41" :weight bold))
   "The hammer of the gods, but only if you are worthy.")
 
 (defun tdm/god-mode-icon--make-icon ()
