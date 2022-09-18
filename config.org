@@ -1490,12 +1490,6 @@ These functions enhance editing while allowing me to "drop out" of god-mode in u
   (back-to-indentation)
   (god/exit-god-local))
 
-(defun god/forward-insert ()
-  "Move the cursor over one char and exit god mode."
-  (interactive)
-  (forward-char)
-  (god/exit-god-local))
-
 (defun god/change ()
   "Kill char/region and exit god mode."
   (interactive)
