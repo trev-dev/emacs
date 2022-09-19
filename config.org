@@ -1086,7 +1086,24 @@ Emacs Multi-Media System
   (add-to-list 'emms-info-functions 'emms-info-mpd)
 
   (emms-mode-line-mode -1)
-  (emms-player-mpd-connect))
+  (emms-player-mpd-connect)
+
+  (defvar emms-keymap
+    (let ((m (make-sparse-keymap)))
+      (td/bind-keys '(("e" . emms)
+                      ("b" . emms-smart-browse)
+                      ("P" . emms-pause)
+                      ("n" . emms-next)
+                      ("p" . emms-previous)
+                      ("f" . emms-seek-forward)
+                      ("b" . emms-seek-backward)
+                      ("s" . emms-start)
+                      ("k" . emms-stop))
+                    m)
+      m)
+    "Keybindings for EMMS.")
+  (fset 'emms-keymap emms-keymap)
+  (global-set-key (kbd "C-c e") #'emms-keymap))
 #+end_src
 
 *** Surround
