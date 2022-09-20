@@ -460,22 +460,20 @@ With some effort I have been able to make a somewhat reliable, accurate status i
 
 (defvar tdm/git-status-plist '(unregistered ("  ⁈" . (:foreground "#C792EA"))
                                edited ("  ±" . (:foreground "#82AAFF"))
-                               up-to-date ("  ✔" . success)
-                               ignored ("  ।" . warning)))
+                               up-to-date ("  ✔" . success)))
 
 (defun tdm/git-create-indicator (buffer)
   "Create a git status indicator using a `BUFFER'."
   (let* ((status (vc-state-refresh buffer 'git))
          (icon-and-color (plist-get tdm/git-status-plist status))
-         (branch (cond (vc-mode (substring vc-mode 5))
-                       ((eq status 'unregistered) "untracked")
-                       ((eq status 'ignored) "ignored")
+         (branch (cond ((eq status 'unregistered) "untracked")
+                       ((or vc-mode (progn (vc-refresh-state) vc-mode))
+                        (substring vc-mode 5))
                        (t ""))))
     (propertize
      (concat
       (car icon-and-color) " " branch)
      'face (cdr icon-and-color))))
-
 
 (defun tdm/git-cache-status (&optional frame)
   "Set local buffer's git cache status.
