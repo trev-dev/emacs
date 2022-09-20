@@ -1106,7 +1106,8 @@ Emacs Multi-Media System
       m)
     "Keybindings for EMMS.")
   (fset 'emms-keymap emms-keymap)
-  (global-set-key (kbd "C-c e") #'emms-keymap))
+  (global-set-key (kbd "C-c e") #'emms-keymap)
+  (emms-librefm-scrobbler-enable))
 #+end_src
 
 *** Surround
