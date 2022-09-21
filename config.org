@@ -1732,6 +1732,7 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
 (setq god-mode-alist '((nil . "C-")
                        ("m" . "M-")
                        ("M" . "C-M-")))
+(setq god-mode-enable-function-key-translation nil)
 
 (with-eval-after-load 'god-mode
   (add-hook 'after-init-hook #'god-mode)
