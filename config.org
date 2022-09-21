@@ -1755,7 +1755,7 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
   (with-eval-after-load 'which-key
     (which-key-enable-god-mode-support)))
 
-(global-set-key (kbd "C-c G") #'god-mode)
+(global-set-key (kbd "C-c G") #'god-mode-all)
 (global-set-key (kbd "C-c g") #'god-local-mode)
 #+end_src
 
