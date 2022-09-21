@@ -2107,7 +2107,6 @@ Some fairly self-explanatory utility functions.
                            ("contacts.org" :maxlevel . 1))
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
       org-timer-default-timer "25"
-      org-clock-string-limit 30
       org-agenda-custom-commands td/org-agenda-commands
       org-stuck-projects '("/PROJ-DONE" ("TODO" "NEXT") nil "- \\[ \\]")
       org-capture-templates td/capture-templates
