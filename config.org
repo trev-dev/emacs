@@ -1113,7 +1113,7 @@ Emacs Multi-Media System
   (defvar emms-keymap
     (let ((m (make-sparse-keymap)))
       (td/bind-keys '(("e" . emms)
-                      ("b" . emms-smart-browse)
+                      ("B" . emms-smart-browse)
                       ("P" . emms-pause)
                       ("n" . emms-next)
                       ("p" . emms-previous)
