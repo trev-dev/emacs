@@ -849,14 +849,13 @@ Configurations for packages that enrich the Emacs experience. Some packages are 
   (require 'anzu)
   (global-anzu-mode +1)
 
-  (custom-set-variables
-   '(anzu-mode-lighter "")
-   '(anzu-deactivate-region t)
-   '(anzu-search-threshold 1000)
-   '(anzu-replace-threshold 50)
-   '(anzu-replace-to-string-separator " => "))
-
-  (setq anzu-cons-mode-line-p nil))
+  (setq anzu-mode-lighter ""
+        anzu-deactivate-region t
+        anzu-search-threshold 1000
+        anzu-replace-threshold 50
+        anzu-cons-mode-line-p nil)
+  (global-set-key [remap query-replace] #'anzu-query-replace)
+  (global-set-key [remap query-replace-regexp] #'anzu-query-replace-regexp))
 #+end_src
 
 *** COMMENT Awesome Tray
