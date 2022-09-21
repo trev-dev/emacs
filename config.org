@@ -981,12 +981,42 @@ For more information, visit the [[https://protesilaos.com/emacs/denote][denote m
       denote-prompts '(title keywords)
       denote-link-fontify-backlinks t)
 
-(defun td/denote-journal ()
+(defun denote/journal ()
   "Create an entry tagged 'journal', while prompting for a title."
   (interactive)
   (denote
    (denote--title-prompt)
    '("journal")))
+
+(defun denote/jump-to-denote-directory ()
+  "Open dired in the `denote-directory'."
+  (interactive)
+  (dired denote-directory))
+
+(defvar denote/keymap
+  (let ((m (make-sparse-keymap)))
+    (td/bind-keys '(("n" . denote)
+                    ("j" . denote/journal)
+                    ("t" . denote-template)
+                    ("i" . denote-link)
+                    ("I" . denote-link-add-links)
+                    ("f" . denote-link-find-file)
+                    ("b" . denote-link-backlinks)
+                    ("r" . denote-rename-file)
+                    ("R" . denote-rename-file-using-front-matter)
+                    ("j"   . denote/jump-to-denote-directory)
+                    ("l"   . denote-link))
+                  m)
+    m))
+
+(global-set-key (kbd "C-c n") denote/keymap)
+
+(with-eval-after-load 'dired
+    (td/bind-keys '(("C-c n i" . denote-link-dired-marked-notes)
+                    ("C-c n r" . denote-dired-rename-marked-files)
+                    ("C-c n R" .
+                     denote-dired-rename-marked-files-using-front-matter))
+                  dired-mode-map))
 
 (with-eval-after-load 'org-capture
   (setq denote-org-capture-specifiers "%l\n%i\n%?")
@@ -999,6 +1029,7 @@ For more information, visit the [[https://protesilaos.com/emacs/denote][denote m
                  :kill-buffer t
                  :jump-to-captured t)))
 
+(add-hook 'find-file-hook #'denote-link-buttonize-buffer)
 (add-hook 'dired-mode-hook #'denote-dired-mode)
 #+end_src
 
