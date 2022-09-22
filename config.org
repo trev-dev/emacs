@@ -1745,8 +1745,9 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
                `((god-local-mode . ,god-local-mode-map)))
 
   (td/bind-keys god/keybinds god-local-mode-map)
-  (define-key isearch-mode-map (kbd "C-c g") #'god-mode-isearch-activate)
-  (define-key god-mode-isearch-map (kbd "C-c g") #'god-mode-isearch-disable)
+
+  (define-key isearch-mode-map (kbd "<escape>") #'god-mode-isearch-activate)
+  (define-key god-mode-isearch-map (kbd "<escape>") #'god-mode-isearch-disable)
 
   (god/cursor-toggle)
   (add-hook 'post-command-hook #'god/cursor-toggle)
@@ -1754,8 +1755,9 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
   (with-eval-after-load 'which-key
     (which-key-enable-god-mode-support)))
 
-(global-set-key (kbd "C-c G") #'god-mode-all)
-(global-set-key (kbd "C-c g") #'god-local-mode)
+(td/bind-keys '(("C-c G"    . god-mode-all)
+                ("C-c g"    . god-local-mode) ; Non-graphical fallback.
+                ("<escape>" . god-local-mode)))
 #+end_src
 
 *** Goggles
