@@ -1727,7 +1727,6 @@ I would prefer to keep god mode on, or off, on a buffer-to-buffer basis. I use ~
 
 God has no intermediary mode for non-editing buffers. I feel like it's better to have to turn it on explicitly for quicker navigation or firing off commands.
 
-  (setq god-mode-enable-function-key-translation nil)
 #+begin_src elisp
 (setq god-mode-alist '((nil . "C-")
                        ("m" . "M-")
