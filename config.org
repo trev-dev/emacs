@@ -2377,6 +2377,11 @@ Notmuch is a really impressive way to read and organize mail via tagging files. 
                                       :count-query "tag:work and tag:unread"
                                       :key "w"
                                       :sort-order newest-first)
+                               (:name "lists"
+                                      :query "tag:list"
+                                      :count-query "tag:list and tag:unread"
+                                      :key "l"
+                                      :sort-order newest-first)
                                (:name "drafts"
                                       :query "tag:draft"
                                       :key "d"
