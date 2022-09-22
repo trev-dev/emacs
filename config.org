@@ -175,7 +175,7 @@ Set up the dictionary and preferred browser.
       ispell-dictionary "en"
       ispell-alternate-dictionary (concat (getenv "HOME") "/Documents/wordlist"))
 
-(add-hook 'text-mode-hook #'flyspell-mode)
+(define-key text-mode-map (kbd "C-c f") #'flyspell-mode)
 
 ;; Browser
 (setq browse-url-generic-program "/usr/bin/firefox")
@@ -2671,7 +2671,7 @@ The popular =flycheck= package helps me lint various files. I use this in conjun
 
 #+begin_src elisp
 (td/add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
-(global-set-key (kbd "C-c f") #'flycheck-mode)
+(define-key prog-mode-map (kbd "C-c f") #'flycheck-mode)
 (with-eval-after-load 'flycheck
   (setq flycheck-checker-error-threshold 1000))
 #+end_src
