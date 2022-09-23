@@ -1760,6 +1760,8 @@ Declare key-bindings to be applied in the next section.
                        (")" . kmacro-end-or-call-macro)
                        ("{" . backward-paragraph)
                        ("}" . forward-paragraph)
+                       ("u" . undo)
+                       ("U" . undo-redo)
                        ("q" . quit-window)
                        ("z" . repeat)
                        ("," . er/keymap)))
