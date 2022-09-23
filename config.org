@@ -2758,6 +2758,7 @@ LSP support is delivered by =lsp-mode= and =lsp-ui=.
       lsp-modeline-code-actions-segments '(count)
       lsp-signature-doc-lines 1
       lsp-enable-folding nil
+      lsp-completon-provider :none
       lsp-clients-typescript-server-args '("--stdio"
                                            "--tsserver-log-file"
                                            "/dev/stderr")
