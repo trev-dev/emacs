@@ -2608,7 +2608,7 @@ Creates a fake "fill column" to wrap text around. Makes reading documents more v
   (visual-fill-column-mode 1))
 
 (with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-c v") #'visual-fill-column-mode))
+  (define-key org-mode-map (kbd "C-c M-v") #'visual-fill-column-mode))
 
 (add-hook 'org-mode-hook #'td/visual-fill-setup)
 #+end_src
