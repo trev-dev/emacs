@@ -1850,8 +1850,6 @@ Meow is a pretty special and ambitious modal editing project. It takes inspirati
    '("j" . meow-next)
    '("k" . meow-prev)
    '("l" . meow-right)
-   '("e" . forward-word)
-   '("b" . backward-word)
    '("<escape>" . ignore))
   (meow-leader-define-key
    ;; Set up fallbacks for motion state.
@@ -1859,8 +1857,6 @@ Meow is a pretty special and ambitious modal editing project. It takes inspirati
    '("j" . "H-j")
    '("k" . "H-k")
    '("l" . "H-l")
-   '("e" . "H-e")
-   '("b" . "H-b")
    ;; Use SPC (0-9) for digit arguments.
    '("1" . meow-digit-argument)
    '("2" . meow-digit-argument)
@@ -1875,7 +1871,6 @@ Meow is a pretty special and ambitious modal editing project. It takes inspirati
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet)
    '("w" . td/windmove-map)
-   '("H" . display-local-help)
    ;; Custom keybinds
    (cons "P" project-prefix-map))
   (meow-normal-define-key
@@ -1948,21 +1943,24 @@ Meow is a pretty special and ambitious modal editing project. It takes inspirati
    '("=" . er/expand-region)
    '(":" . avy-goto-char-timer)))
 
-(require 'meow)
-(setq meow-use-cursor-position-hack t
-      meow-cursor-type-region-cursor '(bar . 4)
-      meow-cursor-type-insert '(bar . 4))
+(defun meow/start ()
+  (require 'meow)
+  (setq meow-use-cursor-position-hack t
+        meow-cursor-type-region-cursor '(bar . 4)
+        meow-cursor-type-insert '(bar . 4))
 
-(defun meow/auto-insert-mode (&rest args)
-  "An advice function for entering insert mode."
-  (meow-insert))
+  (defun meow/auto-insert-mode (&rest args)
+    "An advice function for entering insert mode."
+    (meow-insert))
 
-(advice-add 'org-meta-return :after #'meow/auto-insert-mode)
-(advice-add 'org-insert-todo-heading :after #'meow/auto-insert-mode)
-(advice-add 'org-insert-heading-respect-content :after #'meow/auto-insert-mode)
+  (advice-add 'org-meta-return :after #'meow/auto-insert-mode)
+  (advice-add 'org-insert-todo-heading :after #'meow/auto-insert-mode)
+  (advice-add 'org-insert-heading-respect-content :after #'meow/auto-insert-mode)
 
-(meow-setup)
-(meow-global-mode 1)
+  (meow-setup)
+  (meow-global-mode 1))
+
+(add-hook 'after-init-hook #'meow/start)
 #+end_src
 
 *** Magit
