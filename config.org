@@ -907,34 +907,6 @@ Configurations for packages that enrich the Emacs experience. Some packages are 
 *** Completions
 A combination of packages to enhance completions.
 
-**** Company
-Completions at point/region.
-
-#+begin_src scheme :noweb-ref packages :tangle no :exports none
-"emacs-company"
-#+end_src
-
-#+begin_src elisp
-(defun td/company-prog-hook ()
-  "Completions for programming."
-  (company-mode)
-  (setq-local company-backends
-              '(company-capf :with
-                             company-yasnippet
-                             company-dabbrev-code
-                             company-files)))
-
-(defun td/company-text-hook ()
-  "Completions for writing."
-  (company-mode))
-
-(add-hook 'prog-mode-hook #'td/company-prog-hook)
-(add-hook 'text-mode-hook #'td/company-text-hook)
-
-(setq company-files-exclusions '(".git/")
-      company-idle-delay 0.3)
-#+end_src
-
 **** Icomplete mode
 
 #+begin_src elisp
@@ -955,6 +927,75 @@ Completions at point/region.
                 ("S-<return>" . icomplete-force-complete-and-exit)
                 ("C-c f"      . td/toggle-flex-completion))
               icomplete-minibuffer-map)
+#+end_src
+
+**** Corfu & Cape
+
+#+begin_src scheme packages :noweb-ref packages :tangle no :exports none
+"emacs-corfu"
+"emacs-corfu-terminal"
+"emacs-cape"
+#+end_src
+
+#+begin_src elisp
+(defun corfu/start ()
+  (require 'corfu)
+  (setq corfu-cycle t
+        corfu-auto t
+        corfu-auto-prefix 3
+        corfu-auto-delay 0.3)
+
+  (defun corfu-enable-in-minibuffer ()
+  "Enable Corfu in the minibuffer if `completion-at-point' is bound."
+  (when (where-is-internal #'completion-at-point (list (current-local-map)))
+    ;; (setq-local corfu-auto nil) Enable/disable auto completion
+    (corfu-mode 1)))
+
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
+
+  (global-corfu-mode 1)
+
+  (unless (display-graphic-p)
+    (corfu-terminal-mode 1))
+
+  (with-eval-after-load 'god-mode
+    (add-hook 'god-local-mode-hook #'corfu-quit))
+
+  (require 'cape)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'text-mode-hook
+            #'(lambda ()
+                (add-to-list 'completion-at-point-functions #'cape-ispell)))
+
+  ;; Silence the pcomplete capf, no errors or messages!
+  ;; Important for corfu
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+
+  ;; Ensure that pcomplete does not write to the buffer
+  ;; and behaves as a pure `completion-at-point-function'.
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+  (add-hook 'eshell-mode-hook
+            (lambda () (setq-local corfu-quit-at-boundary t
+                                   corfu-quit-no-match t
+                                   corfu-auto nil)
+              (corfu-mode))))
+
+(add-hook 'after-init-hook #'corfu/start)
+#+end_src
+
+**** Orderless
+
+#+begin_src scheme :noweb-ref packages :tangle no :exports none
+"emacs-orderless"
+#+end_src
+
+#+begin_src elisp
+(with-eval-after-load 'icomplete
+  (require 'orderless)
+  (setq completion-styles '(orderless basic)
+        completion-category-overrides
+        '((file (styles basic partial-completion)))))
 #+end_src
 
 **** Savehist
