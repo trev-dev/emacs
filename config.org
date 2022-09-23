@@ -1786,7 +1786,8 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
   (require 'god-mode-isearch)
   (dolist (mode '(notmuch-hello-mode
                   notmuch-search-mode
-                  notmuch-show-mode))
+                  notmuch-show-mode
+                  vterm-mode))
     (add-to-list 'god-exempt-major-modes mode))
 
   (add-to-list 'emulation-mode-map-alists
