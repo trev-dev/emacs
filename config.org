@@ -1339,7 +1339,7 @@ Evil requires a lot of key re-binding in order to get going. You may still find 
   "Create some extra evil bindings."
   (evil-set-leader 'normal (kbd "SPC"))
   ;; Avy
-  (evil-define-key 'normal 'global (kbd "<leader>s") 'avy-goto-char-timer)
+  (evil-define-key 'normal 'global (kbd "<leader>;") 'avy-goto-char-timer)
   ;; General
   (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
@@ -1471,7 +1471,7 @@ It does add a lot of package bloat, however. Without it, many major modes dump y
 (evil-collection-init)
 #+end_src
 
-***** evil-org
+***** COMMENT evil-org
 
 Evil-org /greatly/ improves the org-mode experience in evil-mode Emacs.
 
@@ -1492,13 +1492,17 @@ Evil-org /greatly/ improves the org-mode experience in evil-mode Emacs.
 Here apply our evil configurations and set up our hooks.
 
 #+begin_src elisp
-(setq evil-want-C-u-scroll t)
-(require 'evil)
-(setq evil-visual-state-cursor 'hbar
-      evil-insert-state-cursor '(bar . 4))
-(customize-save-variable 'evil-undo-system 'undo-redo)
-(td/evil-bind-keys)
-(evil-mode 1)
+(defun evil/start ()
+  "Start evil-mode."
+  (setq evil-want-C-u-scroll t)
+  (require 'evil)
+  (setq evil-visual-state-cursor 'hbar
+        evil-insert-state-cursor '(bar . 4))
+  (customize-save-variable 'evil-undo-system 'undo-redo)
+  (td/evil-bind-keys)
+  (evil-mode 1))
+
+(add-hook 'after-init-hook #'evil/start)
 #+end_src
 
 *** Expand Region
