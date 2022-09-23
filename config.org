@@ -2158,6 +2158,7 @@ Some fairly self-explanatory utility functions.
       org-todo-keywords td/todo-keywords
       org-refile-use-outline-path 'file
       org-refile-allow-creating-parent-nodes t
+      org-outline-path-complete-in-steps t
       org-refile-targets '((org-agenda-files :maxlevel . 4)
                            ("contacts.org" :maxlevel . 1))
       org-clock-sound "~/.config/emacs/inspectorj_bell.wav"
