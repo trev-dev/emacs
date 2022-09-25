@@ -2632,7 +2632,7 @@ transpose-mark
 (global-set-key (kbd "C-c t") #'transpose-mark)
 #+end_src
 
-*** Tree Sitter
+*** Tree-Sitter
 
 #+begin_src elisp :noweb-ref packages :tangle no :exports none
 tree-sitter
@@ -2999,26 +2999,6 @@ I extend [[* Web Mode][web-mode]] to enhance the syntax highlighting for =.svelt
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
 #+end_src
 
-*** COMMENT Treesitter
-
-Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
-
-#+begin_src elisp
-(straight-use-package 'tree-sitter)
-(straight-use-package 'tree-sitter-langs)
-
-(defun td/start-tree-sitter ()
-  "Fires up tree-sitter for select modes"
-  (tree-sitter-mode)
-  (tree-sitter-hl-mode))
-
-(td/add-hooks '(js-mode
-                typescript-mode
-                css-mode
-                rust-mode)
-              #'td/start-tree-sitter)
-#+end_src
-
 *** TypeScript & JavaScript
 
 I prefer the more minimal =typescript-mode= package for enhanced typescript syntax. The of my JS is handled by the built in =js-mode= and the typescript-language-server.
@@ -3028,6 +3008,8 @@ typescript-mode
 #+end_src
 
 #+begin_src elisp
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
+
 (setq js-indent-level 2)
 (setq typescript-indent-level 2)
 #+end_src
