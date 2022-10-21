@@ -214,6 +214,7 @@ Set up the dictionary and preferred browser.
 ;; Spelling
 (setq ispell-personal-dictionary "~/.config/emacs/personal-dict.pwd"
       ispell-dictionary "en"
+      ispell-program-name "aspell"
       ispell-alternate-dictionary (concat (getenv "HOME") "/Documents/wordlist"))
 
 (define-key text-mode-map (kbd "C-c f") #'flyspell-mode)
@@ -239,12 +240,6 @@ Move custom variable settings to somewhere other that =init.el=.
 
 #+begin_src elisp
 (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-#+end_src
-
-Start the pinentry service
-
-#+begin_src elisp
-(pinentry-start)
 #+end_src
 
 ** Helper Functions
@@ -328,8 +323,8 @@ Change some of the built-in keybinds & bind some of the useful unbound functions
   (previous-line 20))
 
 (td/bind-keys '(("M-j" . join-line)
-                ("M-n" . td/forward-chunk)
-                ("M-p" . td/backward-chunk)))
+                ("M-n" . scroll-up-line)
+                ("M-p" . scroll-down-line)))
 #+end_src
 
 ** Prog Mode
@@ -670,7 +665,7 @@ icon renders incorrectly."
   (require 'svg-lib)
 
   (add-to-list 'svg-lib-icon-collections
-               (cons "local" "file:///home/trevdev/.config/emacs/%s.svg"))
+               (cons "local" "file:///home/trev/.config/emacs/%s.svg"))
   (tdm/god-mode-setup-icon)
   (add-hook 'god-local-mode-hook #'tdm/god-mode-indicator--update-cached))
 #+end_src
@@ -863,7 +858,7 @@ diminish
 
 Configurations for packages that enrich the Emacs experience. Some packages are internal, many are external.
 
-*** Avy
+*** COMMENT Avy
 
 #+begin_src elisp :noweb-ref packages :tangle no :exports none
 avy
@@ -907,7 +902,7 @@ svg-lib
 (require 'svg-lib)
 
 (add-to-list 'svg-lib-icon-collections
-             (cons "local" "file:///home/trevdev/.config/emacs/%s.svg"))
+             (cons "local" "file:///home/trev/.config/emacs/%s.svg"))
 
 (defvar tdm/god-mode-icon
   (propertize
@@ -947,7 +942,7 @@ A combination of packages to enhance completions.
 Completions at point/region.
 
 #+begin_src scheme :noweb-ref packages :tangle no :exports none
-"emacs-company"
+company
 #+end_src
 
 #+begin_src elisp
@@ -993,6 +988,58 @@ Completions at point/region.
               icomplete-minibuffer-map)
 #+end_src
 
+**** COMMENT Corfu & Cape
+
+#+begin_src elisp packages :noweb-ref packages :tangle no :exports none
+corfu
+corfu-terminal
+cape
+#+end_src
+
+#+begin_src elisp
+(require 'corfu)
+(setq corfu-cycle t
+      corfu-auto t
+      corfu-auto-prefix 3
+      corfu-auto-delay 0.3)
+
+(defun corfu-enable-in-minibuffer ()
+  "Enable Corfu in the minibuffer if `completion-at-point' is bound."
+  (when (where-is-internal #'completion-at-point (list (current-local-map)))
+    ;; (setq-local corfu-auto nil) Enable/disable auto completion
+    (corfu-mode 1)))
+
+(add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
+
+(global-corfu-mode 1)
+
+(unless (or (daemonp) (display-graphic-p))
+  (corfu-terminal-mode 1))
+
+(with-eval-after-load 'god-mode
+  (add-hook 'god-local-mode-hook #'corfu-quit))
+
+(require 'cape)
+(add-to-list 'completion-at-point-functions #'cape-file)
+(add-to-list 'completion-at-point-functions #'cape-dabbrev)
+(add-hook 'text-mode-hook
+          #'(lambda ()
+              (add-to-list 'completion-at-point-functions #'cape-ispell)))
+
+;; Silence the pcomplete capf, no errors or messages!
+;; Important for corfu
+(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+
+;; Ensure that pcomplete does not write to the buffer
+;; and behaves as a pure `completion-at-point-function'.
+(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+(add-hook 'eshell-mode-hook
+          (lambda () (setq-local corfu-quit-at-boundary t
+                                 corfu-quit-no-match t
+                                 corfu-auto nil)
+            (corfu-mode)))
+#+end_src
+
 **** Orderless
 
 #+begin_src elisp :noweb-ref packages :tangle no :exports none
@@ -1015,7 +1062,7 @@ Save history for Vertico to look at later.
 (savehist-mode)
 #+end_src
 
-*** Denote
+*** COMMENT Denote
 
 Denote is Protesilaos's solution for note-taking. It's dependency free, makes good use of the built-in Emacs conventions and it keeps your notes highly portable.
 
@@ -1334,13 +1381,14 @@ eshell-syntax-highlighting
 (add-hook 'eshell-mode-hook #'td/eshell-extras)
 #+end_src
 
-*** COMMENT Evil
+*** Evil
 
 #+begin_src elisp :noweb-ref packages :tangle no
 evil
 #+end_src
 
 **** Keybinds
+
 
 Evil requires a lot of key re-binding in order to get going. You may still find yourself using =M-x= from time to time, looking for some keybind and discovering it's something like =C-c C-x M-o q r s= and think "yeah, that's easy!" Just kidding. You'll want to create mode-specific (or global) leader, normal or motion mapping.
 
@@ -1352,8 +1400,9 @@ Evil requires a lot of key re-binding in order to get going. You may still find 
   (evil-define-key 'normal 'global (kbd "<leader>;") 'avy-goto-char-timer)
   ;; General
   (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
-  (evil-define-key 'normal 'global (kbd "<leader>fg") 'project-find-file)
-  (evil-define-key 'normal 'global (kbd "<leader>b") 'consult-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>bb") 'switch-to-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>bn") 'next-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>bp") 'previous-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>x") 'execute-extended-command)
   ;; LSP
   (evil-define-key 'normal lsp-mode-map (kbd "K") 'lsp-ui-doc-glance)
@@ -1362,6 +1411,8 @@ Evil requires a lot of key re-binding in order to get going. You may still find 
   (evil-define-key 'normal org-mode-map (kbd "<leader>co") 'org-clock-out)
   (evil-define-key 'normal org-mode-map (kbd "<leader>'") 'org-edit-special)
   (evil-define-key 'normal org-src-mode-map (kbd "<leader>'") 'org-edit-special)
+  (evil-define-key 'motion org-agenda-mode-map (kbd "sf") 'org-agenda-filter)
+
   (evil-define-key 'normal 'global (kbd "<leader>a") 'org-agenda)
   (evil-define-key 'normal 'global (kbd "<leader>i") 'td/eldoc-box-help)
   (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
@@ -1416,7 +1467,7 @@ evil-surround
 (global-evil-surround-mode 1)
 #+end_src
 
-***** COMMENT evil-snipe
+***** evil-snipe
 
 #+begin_src elisp :noweb-ref packages :tangle no :exports none
 evil-snipe
@@ -1438,6 +1489,25 @@ evil-exchange
 
 #+begin_src elisp :noweb-ref after-load-evil :tangle no :exports none
 (evil-exchange-install)
+#+end_src
+
+***** evil-goggles
+
+#+begin_src elisp :noweb-ref packages :tangle no :exports none
+evil-goggles
+#+end_src
+
+#+begin_src elisp :noweb-ref after-load-evil :tangle no :exports none
+(setq evil-goggles-pulse t)
+(defun evil-goggles-start-later ()
+  "Load goggles later so that it works better in a client frame."
+  (evil-goggles-mode))
+
+(add-hook 'evil-insert-state-entry-hook #'evil-goggles-start-later)
+(add-hook 'evil-insert-state-exit-hook
+          #'(lambda ()
+              (remove-hook
+               'evil-insert-state-entry-hook 'evil-goggles-start-later)))
 #+end_src
 
 ***** evil-multiedit
@@ -1467,7 +1537,7 @@ evil-commentary
 (add-hook 'prog-mode-hook #'evil-commentary-mode)
 #+end_src
 
-***** COMMENT evil-collection
+***** evil-collection
 
 This package is _massive_. It is a collaborative, community effort to bring sane evil keybinds to as many major modes as possible. Its goal is to keep things consistent and as predictable as possible.
 
@@ -1481,7 +1551,7 @@ evil-collection
 (evil-collection-init)
 #+end_src
 
-***** COMMENT evil-org
+***** evil-org
 
 Evil-org /greatly/ improves the org-mode experience in evil-mode Emacs.
 
@@ -1505,6 +1575,7 @@ Here apply our evil configurations and set up our hooks.
 (defun evil/start ()
   "Start evil-mode."
   (setq evil-want-C-u-scroll t)
+  (setq evil-want-keybind nil)
   (require 'evil)
   (setq evil-visual-state-cursor 'hbar
         evil-insert-state-cursor '(bar . 4))
@@ -1552,7 +1623,7 @@ expand-region
 (add-hook 'after-init-hook #'td/setup-expand-region)
 #+end_src
 
-*** God Mode
+*** COMMENT God Mode
 
 God mode is an amazing package. It automatically translates key-chords into single-key bindings and toggled modifiers.
 
@@ -1819,7 +1890,7 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
                 ("<escape>" . god-local-mode)))
 #+end_src
 
-*** Goggles
+*** COMMENT Goggles
 
 Extra feedback for text changes.
 
@@ -1985,22 +2056,7 @@ magit
 (global-set-key (kbd "C-c m") #'magit-status)
 #+end_src
 
-*** Mastodon
-
-Toot.
-
-#+begin_src elisp :noweb-ref packages :tangle no :exports none
-mastodon
-#+end_src
-
-#+begin_src elisp
-(setq mastodon-instance-url "https://mastodon.technology"
-      mastodon-active-user "trevdev"
-      mastodon-tl--show-avatars t
-      mastodon-media--avatar-height 30)
-#+end_src
-
-*** Multiple Cursors
+*** COMMENT Multiple Cursors
 
 #+begin_src elisp :noweb-ref packages :tangle no :exports none
 multiple-cursors
@@ -2119,9 +2175,9 @@ Some fairly self-explanatory utility functions.
   "Enlarge org levels for more readability."
   (interactive)
   (let ((scaled (or enable (not td/org-scale-levels-enable))))
-    (dolist (face '((org-level-1 . (if scaled 1.2 1.0))
-                    (org-level-2 . (if scaled 1.1 1.0))
-                    (org-level-3 . (if scaled 1.05 1.0))))
+    (dolist (face `((org-level-1 . (if ,scaled 1.2 1.0))
+                    (org-level-2 . (if ,scaled 1.1 1.0))
+                    (org-level-3 . (if ,scaled 1.05 1.0))))
       (set-face-attribute (car face) nil :weight 'semi-bold :height (eval (cdr face))))
     (setq td/org-scale-levels-enable scaled)))
 
@@ -2288,7 +2344,7 @@ org-present
                 org-present-mode-keymap))
 #+end_src
 
-***** COMMENT org-roam
+***** org-roam
 
 Org roam is an incredible thought capture system, inspired by roam research. I'm not sure this one's for me, but I am giving it a try.
 
@@ -2344,7 +2400,7 @@ org-roam
   (org-roam-db-autosync-mode))
 #+end_src
 
-***** COMMENT org-roam-ui
+***** org-roam-ui
 
 A fancy, web-based user interface for reviewing your org-roam notes and how they connect to one-another.
 
@@ -2380,24 +2436,6 @@ ledger-mode
 (setq ledger-use-native-highlighting t)
 #+end_src
 
-*** Vterm
-
-A "normal" terminal for Emacs. This package is currently installed by the guix system.
-
-#+begin_src elisp :noweb-ref packages :tangle no :exports none
-vterm
-vterm-toggle
-multi-vterm
-#+end_src
-
-#+begin_src elisp
-(td/bind-keys '(("C-c v t" . multi-vterm)
-                ("C-c v n" . multi-vterm-next)
-                ("C-c v p" . multi-vterm-prev)
-                ("C-c v d" . multi-vterm-dedicated-toggle)
-                ("C-c v P" . multi-vterm-project)))
-#+end_src
-
 *** Notmuch
 
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
@@ -2410,7 +2448,7 @@ notmuch
 
 #+begin_src elisp
 (setq send-mail-function 'sendmail-send-it
-      sendmail-program "~/.guix-home/profile/bin/msmtp"
+      sendmail-program "~/.nix-profile/bin/msmtp"
       message-directory "~/.local/share/mail"
       mail-specify-envelope-from t
       mail-envelope-from 'header
@@ -2593,7 +2631,7 @@ rg
 (rg-enable-default-bindings)
 #+end_src
 
-*** Transpose Mark
+*** COMMENT Transpose Mark
 
 A simple package for highlighting a marked area or region prior to transposing it with some other marked area or region. It makes the built-in =transpose-region= sane.
 
@@ -2605,7 +2643,7 @@ transpose-mark
 (global-set-key (kbd "C-c t") #'transpose-mark)
 #+end_src
 
-*** Tree Sitter
+*** Tree-Sitter
 
 #+begin_src elisp :noweb-ref packages :tangle no :exports none
 tree-sitter
@@ -2811,6 +2849,20 @@ lsp-ui
                '(shopify-mode . "shopify")))
 #+end_src
 
+*** Lispy
+
+#+begin_src elisp :noweb-ref packages :tangle no :exports none
+lispy
+#+end_src
+
+#+begin_src elisp
+(td/add-hooks '(lisp-mode
+                scheme-mode
+                clojure-mode
+                emacs-lisp-mode)
+              #'lispy-mode)
+#+end_src
+
 *** Markdown
 
 The free software documentation language of the Internet. Markdown support is made better with =markdown-mode=.
@@ -2831,7 +2883,15 @@ markdown-mode
 (straight-use-package 'nim-mode)
 #+end_src
 
-*** Paredit
+*** Nix Mode
+
+Syntax highlighting for Nix configuration files.
+
+#+begin_src elisp :noweb-ref packages :tangle no :exports none
+nix-mode
+#+end_src
+
+*** COMMENT Paredit
 
 The =paredit= package brings a sort of strictness to lisp/scheme editing while providing useful tools for manipulating lists as trees.
 
@@ -2972,26 +3032,6 @@ I extend [[* Web Mode][web-mode]] to enhance the syntax highlighting for =.svelt
 (add-to-list 'auto-mode-alist '("\\.svelte\\'" . svelte-mode))
 #+end_src
 
-*** COMMENT Treesitter
-
-Tree-sitter is an impressive project. It delivers exceptionally rich syntax highlighting for things like emacs/vim. A little tricky to theme, though, as it has a billion font lock faces and every tree-sitter syntax config may or may not use them the same way. I try to avoid looking a gift horse in the mouth.
-
-#+begin_src elisp
-(straight-use-package 'tree-sitter)
-(straight-use-package 'tree-sitter-langs)
-
-(defun td/start-tree-sitter ()
-  "Fires up tree-sitter for select modes"
-  (tree-sitter-mode)
-  (tree-sitter-hl-mode))
-
-(td/add-hooks '(js-mode
-                typescript-mode
-                css-mode
-                rust-mode)
-              #'td/start-tree-sitter)
-#+end_src
-
 *** TypeScript & JavaScript
 
 I prefer the more minimal =typescript-mode= package for enhanced typescript syntax. The of my JS is handled by the built in =js-mode= and the typescript-language-server.
@@ -3001,6 +3041,8 @@ typescript-mode
 #+end_src
 
 #+begin_src elisp
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
+
 (setq js-indent-level 2)
 (setq typescript-indent-level 2)
 #+end_src
