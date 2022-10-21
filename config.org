@@ -1559,7 +1559,7 @@ Here apply our evil configurations and set up our hooks.
 (defun evil/start ()
   "Start evil-mode."
   (setq evil-want-C-u-scroll t)
-  (setq evil-want-keybind nil)
+  (setq evil-want-keybinding nil)
   (require 'evil)
   (setq evil-visual-state-cursor 'hbar
         evil-insert-state-cursor '(bar . 4))
