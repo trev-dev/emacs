@@ -713,9 +713,7 @@ Flycheck Flymake, the built in misc info, etc.
 (defun tdm/flymake ()
   "Display the flymake status for the buffer."
   (when (bound-and-true-p flymake-mode) " "
-    flymake-mode-line-title
-    flymake-mode-line-exception
-    flymake-mode-line-counters))
+    (list "  " flymake-mode-line-counters)))
 
 (defun tdm/misc ()
   "Get a trimmed version of the `mode-line-misc-info'."
