@@ -775,8 +775,8 @@ The modeline should fit the `window-width' with space between the lists."
                   (format-mode-line
                    '((:eval (tdm/god-mode-indicator))
                      (:eval (tdm/macro-indicator))
-                     (:eval (tdm/flycheck))
                      tdm/git-status-indicator
+                     (:eval (tdm/flymake))
                      (:eval (tdm/misc))
                      "  "
                      mode-line-modes))))))
