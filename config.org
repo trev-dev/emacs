@@ -1177,6 +1177,14 @@ elfeed
 (global-set-key (kbd "<f6>") #'elfeed)
 #+end_src
 
+*** Eldoc
+
+#+begin_src elisp
+(setq eldoc-echo-area-use-multiline-p 2
+      eldoc-echo-area-display-truncation-message nil
+      eldoc-echo-area-prefer-doc-buffer t)
+#+end_src
+
 *** EMMS
 
 Emacs Multi-Media System
