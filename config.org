@@ -2765,6 +2765,41 @@ geiser-guile
       tab-width 2)
 #+end_src
 
+*** Eglot
+
+#+begin_src elisp :noweb-ref packages :tangle no :exports none
+eglot
+#+end_src
+
+#+begin_src elisp
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(php-mode . ("intelephense" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(svelte-mode . ("svelteserver" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(shopify-mode
+                 . ("shopify" "store" "language-server")))
+
+  (defvar td/eglot-funcs
+    (let ((map (make-sparse-keymap)))
+      (td/bind-keys '(("r"   . eglot-rename)
+                      ("d"   . eglot-find-typeDefinition)
+                      ("S-d" . eglot-find-declaration)
+                      ("f"   . eglot-format)
+                      ("S-f" . eglot-format-buffer)
+                      ("S-r" . eglot-reconnect))
+                    map)
+      map)
+    "Custom keybinds for eglot functions. \\{td/eglot-funcs}")
+  (fset 'td/eglot-funcs td/eglot-funcs)
+  (define-key eglot-mode-map (kbd "C-c e") 'td/eglot-funcs)
+
+  (setq eglot-events-buffer-size 0
+        eglot-send-changes-idle-time 0.7
+        eglot-autoshutdown t))
+#+end_src
+
 *** Emmet
 
 Emmet is its own snippet engine for expanding html tags and nesting and is made possible by =emmet-mode=.
@@ -2782,7 +2817,7 @@ emmet-mode
               #'emmet-mode)
 #+end_src
 
-*** Flycheck
+*** COMMENT Flycheck
 
 The popular =flycheck= package helps me lint various files. I use this in conjunction with [[* LSP Mode][lsp-mode]] as the two are meant to work together.
 
@@ -2797,7 +2832,7 @@ flycheck
   (setq flycheck-checker-error-threshold 1000))
 #+end_src
 
-*** LSP Mode
+*** COMMENT LSP Mode
 
 LSP support is delivered by =lsp-mode= and =lsp-ui=.
 
