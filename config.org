@@ -842,7 +842,7 @@ diminish
 
 Configurations for packages that enrich the Emacs experience. Some packages are internal, many are external.
 
-*** COMMENT Avy
+*** Avy
 
 #+begin_src elisp :noweb-ref packages :tangle no :exports none
 avy
@@ -1365,7 +1365,7 @@ eshell-syntax-highlighting
 (add-hook 'eshell-mode-hook #'td/eshell-extras)
 #+end_src
 
-*** Evil
+*** COMMENT Evil
 
 #+begin_src elisp :noweb-ref packages :tangle no
 evil
@@ -1398,7 +1398,6 @@ Evil requires a lot of key re-binding in order to get going. You may still find 
   (evil-define-key 'motion org-agenda-mode-map (kbd "sf") 'org-agenda-filter)
 
   (evil-define-key 'normal 'global (kbd "<leader>a") 'org-agenda)
-  (evil-define-key 'normal 'global (kbd "<leader>i") 'td/eldoc-box-help)
   (evil-define-key 'normal 'global (kbd "<leader>cg") 'org-clock-goto)
   ;; Magit
   (evil-define-key 'normal 'global (kbd "gs") 'magit))
@@ -1874,7 +1873,7 @@ God has no intermediary mode for non-editing buffers. I feel like it's better to
                 ("<escape>" . god-local-mode)))
 #+end_src
 
-*** COMMENT Goggles
+*** Goggles
 
 Extra feedback for text changes.
 
@@ -2066,6 +2065,7 @@ org
 #+end_src
 
 The greatest part of using Emacs is org-mode. It handles my agenda, my todo list, helps me prioritize tasks, track time and invoice clients.
+
 
 **** Key Variables
 
@@ -2417,7 +2417,6 @@ ledger-mode
 #+begin_src elisp
 (setq ledger-use-native-highlighting t)
 #+end_src
-
 *** Notmuch
 
 Notmuch is a really impressive way to read and organize mail via tagging files. It works really quickly and the configuration is really flexible.
@@ -2613,7 +2612,7 @@ rg
 (rg-enable-default-bindings)
 #+end_src
 
-*** COMMENT Transpose Mark
+*** Transpose Mark
 
 A simple package for highlighting a marked area or region prior to transposing it with some other marked area or region. It makes the built-in =transpose-region= sane.
 
@@ -2831,7 +2830,7 @@ lsp-ui
                '(shopify-mode . "shopify")))
 #+end_src
 
-*** Lispy
+*** COMMENT Lispy
 
 #+begin_src elisp :noweb-ref packages :tangle no :exports none
 lispy
@@ -2859,7 +2858,7 @@ markdown-mode
                 ("\\.markdown\\'" . markdown-mode)))
 #+end_src
 
-*** COMMENT Nim
+*** Nim
 
 #+begin_src elisp
 (straight-use-package 'nim-mode)
@@ -2873,7 +2872,7 @@ Syntax highlighting for Nix configuration files.
 nix-mode
 #+end_src
 
-*** COMMENT Paredit
+*** Paredit
 
 The =paredit= package brings a sort of strictness to lisp/scheme editing while providing useful tools for manipulating lists as trees.
 
@@ -3098,7 +3097,7 @@ Load the file we created for custom vars in the [[* General Settings][general se
 
 ** Installation
 
-If you've decided to fork this repository and wish to use it as-is, here are the steps you'll need to take.
+If you've decided to fork this sitory and wish to use it as-is, here are the steps you'll need to take.
 
 1. Clone this repository somewhere.
 2. Tangle =config.org=. The resulting configuration files should be output to =.emacs.d/*.el=
