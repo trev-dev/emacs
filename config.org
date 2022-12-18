@@ -2425,6 +2425,19 @@ A custom table formatter for invoicing.
 (load-file "~/Projects/org-invoice-table/org-invoice-table.el")
 #+end_src
 
+***** org-view-mode
+A fancy, web-based user interface for reviewing your org-roam notes and how they connect to one-another.
+
+#+begin_src elisp :noweb-ref packages :tangle no :exports none
+org-view-mode
+#+end_src
+
+#+begin_src elisp
+(with-eval-after-load 'org
+  (require 'org-view-mode)
+  (setq org-view-font-enable t)
+  (add-to-list 'org-view-font-remaps '(default . (:family "Carlito"))))
+#+end_src
 *** Ledger
 Knowing what resources you have at your disposal and learning how to budget are powerful things.
 
