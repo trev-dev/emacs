@@ -948,7 +948,7 @@ company
       company-idle-delay 0.3)
 #+end_src
 
-**** Icomplete mode
+**** COMMENT Icomplete mode
 
 #+begin_src elisp
 (icomplete-vertical-mode 1)
@@ -1029,7 +1029,7 @@ orderless
 #+end_src
 
 #+begin_src elisp
-(with-eval-after-load 'icomplete
+(with-eval-after-load 'vertico
   (require 'orderless)
   (setq completion-styles '(orderless basic)
         completion-category-overrides
@@ -1042,6 +1042,18 @@ Save history for Vertico to look at later.
 
 #+begin_src elisp
 (savehist-mode)
+#+end_src
+
+**** Vertico & Marginalia
+
+#+begin_src elisp :noweb-ref packages :tangle no :exports none
+vertico
+marginalia
+#+end_src
+
+#+begin_src elisp
+(vertico-mode)
+(marginalia-mode)
 #+end_src
 
 *** COMMENT Denote
