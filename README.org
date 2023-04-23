@@ -1,10 +1,10 @@
-# My Emacs
+* My Emacs
 
-This repository contains my Emacs init. My goal is to keep my Emacs relatively simple and reasonably modular. The goal was to go "lighter weight" as well but I still have something like [60 packages](./lisp/td-packages.el) installed. So much for that.
+This repository contains my Emacs init.  My goal is to keep my Emacs relatively simple and reasonably modular.  The goal was to go "lighter weight" as well but I still have something like [[file:lisp/td-packages.el][60 packages]] installed.  So much for that.
 
 Anyway, here how things are laid out:
 
-```shell
+#+begin_src shell
 ├── README.org <- You are here! Yay!
 ├── early-init.el # Stuff that happens just before init
 ├── init.el # The Emacs init file
@@ -23,4 +23,4 @@ Anyway, here how things are laid out:
 │   └── td-syntax.el # Syntax specific settings and related package configs
 ├── mjolnir.svg # The hammer of the gods
 └── yasnippets # Take a snippet, leave a snippet
-```
+#+end_src
