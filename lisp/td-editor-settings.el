@@ -18,6 +18,7 @@
       initial-scratch-message ""
       history-length 25
       sentence-end-double-space nil
+      frame-resize-pixelwise t
       visible-bell t
       enable-local-variables t)
 (global-visual-line-mode 1)
