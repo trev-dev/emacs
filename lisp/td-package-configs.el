@@ -79,7 +79,7 @@
 (add-to-list 'completion-at-point-functions #'cape-dabbrev)
 (add-hook 'text-mode-hook
           #'(lambda ()
-              (add-to-list 'completion-at-point-functions #'cape-ispell)))
+              (add-to-list 'completion-at-point-functions #'cape-dict)))
 
 ;; Silence the pcomplete capf, no errors or messages!
 ;; Important for corfu
