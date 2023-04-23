@@ -39,7 +39,19 @@
 (define-key isearch-mode-map (kbd "C-:") #'avy-isearch)
 (avy-setup-default)
 
-;;; Cape and Corfu
+;;; Minadverse
+;; Completions provided by one pretty brilliant dev. Thanks Minad!
+;;
+;; Snippets
+(defun tempel-setup-capf ()
+  "Add the Tempel Capf to `completion-at-point-functions'."
+  (setq-local completion-at-point-functions
+              (cons #'tempel-expand
+                    completion-at-point-functions)))
+(add-hook 'prog-mode-hook 'tempel-setup-capf)
+(add-hook 'text-mode-hook 'tempel-setup-capf)
+
+;; Completions
 (require 'corfu)
 (setq corfu-cycle t
       corfu-auto t
@@ -241,12 +253,6 @@
 
 ;;; Which Key
 (which-key-mode)
-
-;;; Yasnippet
-(with-eval-after-load 'yasnippet
-  (global-set-key (kbd "C-c ,") #'yas-expand)
-  (setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
-  (yas-reload-all))
 
 (add-hook 'prog-mode-hook #'yas-minor-mode)
 (add-hook 'text-mode-hook #'yas-minor-mode)

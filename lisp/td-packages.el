@@ -62,6 +62,8 @@
     rainbow-mode
     rg
     tangonov-theme
+    tempel
+    tempel-collection
     transpose-mark
     tree-sitter
     tree-sitter-langs
@@ -69,9 +71,7 @@
     vertico
     web-mode
     which-key
-    yaml-mode
-    yasnippet
-    yasnippet-snippets))
+    yaml-mode))
 
 (dolist (pkg td-package-manifest)
   (unless (package-installed-p pkg)
