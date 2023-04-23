@@ -2,6 +2,9 @@
 
 This repository contains my Emacs init. My goal is to keep my Emacs relatively simple and reasonably modular. The goal was to go "lighter weight" as well but I still have something like [60 packages](./lisp/td-packages.el) installed. So much for that.
 
+**Note:** This repository is a mirror and may be out of date.  I encourage you
+to check out [sourcehut](https://git.sr.ht/~trevdev/emacs.d)
+
 Anyway, here how things are laid out:
 
 ```shell
