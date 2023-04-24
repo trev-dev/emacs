@@ -53,6 +53,8 @@
      :empty-lines 1))
   "Base org-capture-templates.")
 
+(global-set-key (kbd "C-c M-a") #'org-capture)
+
 (defun td-org-append-templates (templates)
   "Append `TEMPLATES' to `org-capture-templates'."
   (setq org-capture-templates (append org-capture-templates templates)))
