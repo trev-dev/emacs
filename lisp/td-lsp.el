@@ -27,7 +27,6 @@
       lsp-modeline-code-actions-segments '(count)
       lsp-signature-doc-lines 1
       lsp-enable-folding nil
-      lsp-completon-provider :none
       lsp-keep-workspace-alive nil)
 
 (with-eval-after-load 'lsp-mode

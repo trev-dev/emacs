@@ -39,60 +39,8 @@
 (define-key isearch-mode-map (kbd "C-:") #'avy-isearch)
 (avy-setup-default)
 
-;;; Minadverse
-;; Completions provided by one pretty brilliant dev. Thanks Minad!
-;;
-;; Snippets
-(defun tempel-setup-capf ()
-  "Add the Tempel Capf to `completion-at-point-functions'."
-  (setq-local completion-at-point-functions
-              (cons #'tempel-expand
-                    completion-at-point-functions)))
-(add-hook 'prog-mode-hook 'tempel-setup-capf)
-(add-hook 'text-mode-hook 'tempel-setup-capf)
-
-;; Completions
-(require 'corfu)
-(setq corfu-cycle t
-      corfu-auto t
-      corfu-auto-prefix 3
-      corfu-auto-delay 0.3)
-
-(defun corfu-enable-in-minibuffer ()
-  "Enable Corfu in the minibuffer if `completion-at-point' is bound."
-  (when (where-is-internal #'completion-at-point (list (current-local-map)))
-    ;; (setq-local corfu-auto nil) Enable/disable auto completion
-    (corfu-mode 1)))
-
-(add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
-
-(global-corfu-mode 1)
-
-(unless (or (daemonp) (display-graphic-p))
-  (corfu-terminal-mode 1))
-
-(with-eval-after-load 'god-mode
-  (add-hook 'god-local-mode-hook #'corfu-quit))
-
-(require 'cape)
-(add-to-list 'completion-at-point-functions #'cape-file)
-(add-to-list 'completion-at-point-functions #'cape-dabbrev)
-(add-hook 'text-mode-hook
-          #'(lambda ()
-              (add-to-list 'completion-at-point-functions #'cape-dict)))
-
-;; Silence the pcomplete capf, no errors or messages!
-;; Important for corfu
-(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-
-;; Ensure that pcomplete does not write to the buffer
-;; and behaves as a pure `completion-at-point-function'.
-(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
-(add-hook 'eshell-mode-hook
-          (lambda () (setq-local corfu-quit-at-boundary t
-                                 corfu-quit-no-match t
-                                 corfu-auto nil)
-            (corfu-mode)))
+;;; Company
+(add-hook 'after-init-hook 'global-company-mode)
 
 ;;; dap-mode
 (with-eval-after-load 'lsp-mode
@@ -253,6 +201,12 @@
 
 ;;; Which Key
 (which-key-mode)
+
+;;; Yasnippet
+(with-eval-after-load 'yasnippet
+  (global-set-key (kbd "C-c ,") #'yas-expand)
+  (setq yas-snippet-dirs '("~/.emacs.d/yasnippets"))
+  (yas-reload-all))
 
 (add-hook 'prog-mode-hook #'yas-minor-mode)
 (add-hook 'text-mode-hook #'yas-minor-mode)

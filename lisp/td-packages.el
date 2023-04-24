@@ -16,11 +16,10 @@
     all-the-icons-dired
     anzu
     avy
-    cape
-    corfu
-    corfu-terminal
     cider
     clojure-mode
+    company
+    consult
     dap-mode
     diff-hl
     diminish
@@ -57,7 +56,6 @@
     paredit
     password-store
     pinentry
-    projectile
     rainbow-delimiters
     rainbow-mode
     rg
@@ -71,7 +69,9 @@
     vertico
     web-mode
     which-key
-    yaml-mode))
+    yaml-mode
+    yasnippet
+    yasnippet-snippets))
 
 (dolist (pkg td-package-manifest)
   (unless (package-installed-p pkg)
