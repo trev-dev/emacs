@@ -49,6 +49,12 @@
 ;;; Direnv
 (direnv-mode)
 
+;;; Exec Path From Shell
+(require 'exec-path-from-shell)
+(dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG"))
+  (add-to-list 'exec-path-from-shell-variables var))
+(exec-path-from-shell-initialize)
+
 ;;; Ligature
 (with-eval-after-load 'ligature
   (ligature-set-ligatures

@@ -26,6 +26,7 @@
     direnv
     emmet-mode
     eshell-syntax-highlighting
+    exec-path-from-shell
     expand-region
     flycheck
     geiser-guile
