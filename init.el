@@ -44,6 +44,7 @@
 (require 'td-notmuch)
 (require 'td-commands)
 (require 'td-god)
+(require 'td-modeline)
 
 (load-theme 'modus-vivendi t)
 

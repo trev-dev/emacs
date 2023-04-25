@@ -40,7 +40,6 @@
     magit
     marginalia
     markdown-mode
-    mood-line
     modus-themes
     multiple-cursors
     nim-mode
@@ -67,6 +66,7 @@
     tree-sitter
     tree-sitter-langs
     typescript-mode
+    svg-lib ; td-modeline.el
     vertico
     web-mode
     which-key
