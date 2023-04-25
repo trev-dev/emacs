@@ -199,6 +199,10 @@
 ;;; Sensitive Mode
 (require 'sensitive-mode)
 
+;;; Surround
+(require 'surround)
+(global-set-key (kbd "C-S-s") #'surround)
+
 ;;; RG
 (rg-enable-default-bindings)
 
