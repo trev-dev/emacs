@@ -43,6 +43,7 @@
 (require 'td-org)
 (require 'td-notmuch)
 (require 'td-commands)
+(require 'td-god)
 
 (load-theme 'modus-vivendi t)
 
