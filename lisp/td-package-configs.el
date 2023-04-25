@@ -18,9 +18,6 @@
 (require 'priority-mode)
 (priority-mode)
 
-;;; mood-line
-(mood-line-mode)
-
 ;;; Anzu
 (with-eval-after-load 'isearch
   (require 'anzu)
