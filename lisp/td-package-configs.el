@@ -46,6 +46,46 @@
 (with-eval-after-load 'lsp-mode
   (dap-auto-configure-mode))
 
+;;; Diminish
+(defun td-diminish-lsp-lighter ()
+  "Display the LSP status in the `mode-line-modes'."
+  (let* ((lsp-up lsp--buffer-workspaces)
+         (color (if lsp-up '(:inherit success :weight bold)
+                  '(:inherit warning :weight bold))))
+    `(:propertize " LSP" face ,color)))
+
+(dolist (mode '(("company" 'company-mode)
+                ("hideshow" 'hs-minor-mode)
+                ("undo-tree" 'undo-tree-mode)
+                ("whitespace" 'whitespace-mode)
+                ("yasnippet" 'yas-minor-mode)
+                ("which-key" 'which-key-mode)
+                ("org-indent" 'org-indent-mode)
+                ("simple" 'visual-line-mode)
+                ("eldoc" 'eldoc-mode)
+                ("evil-org" 'evil-org-mode)
+                ("flycheck" 'flycheck-mode)
+                ("flymake" 'flymake-mode)
+                ("tree-sitter" 'tree-sitter-mode "TS")
+                ("lsp-mode" 'lsp-mode '(:eval (td-diminish-lsp-lighter)))
+                ("god-mode" 'god-local-mode)
+                ("beacon" 'beacon-mode)
+                ("evil-goggles" 'evil-goggles-mode)
+                ("evil-commentary" 'evil-commentary-mode)
+                ("goggles" 'goggles-mode)))
+  (eval-after-load (car mode)
+    `(diminish ,(cadr mode) ,(caddr mode))))
+
+(diminish 'defining-kbd-macro)
+
+(with-eval-after-load 'meow
+  (dolist (mode (list 'meow-normal-mode
+                      'meow-insert-mode
+                      'meow-motion-mode
+                      'meow-keypad-mode
+                      'meow-beacon-mode))
+    (diminish mode)))
+
 ;;; Direnv
 (direnv-mode)
 
