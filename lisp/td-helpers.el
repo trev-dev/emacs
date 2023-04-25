@@ -36,5 +36,16 @@ Adds '-hook' onto the end of the symbols for brevity."
   (dolist (mode modes)
     (add-to-list 'auto-mode-alist mode)))
 
+(defun td-filter-nil (seq)
+  "Filter out nil items from sequence `SEQ'."
+  (seq-filter #'(lambda (item) item) seq))
+
+(defun td-is-file-buffer (buffer)
+  "Test if a `BUFFER' belongs to a file on the system.
+Return non-nil if it does."
+  (let ((file (buffer-file-name buffer)))
+    (when file
+      (file-exists-p file))))
+
 (provide 'td-helpers)
 ;;; td-helpers.el ends here
