@@ -61,8 +61,6 @@
     rainbow-mode
     rg
     tangonov-theme
-    tempel
-    tempel-collection
     transpose-mark
     tree-sitter
     tree-sitter-langs

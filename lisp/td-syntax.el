@@ -58,6 +58,10 @@
 
 (add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
 
+;;; Java
+(add-hook 'java-mode-hook #'(lambda () (setq-local indent-tabs-mode nil
+                                                   tab-width 2)))
+
 ;;; Svelte
 (define-derived-mode svelte-mode web-mode "Svelte"
   "I just want web-mode highlighting with .svelte files.")
