@@ -6,11 +6,6 @@
 ;;
 ;;; Code:
 
-(defun td-toggle-indent-tabs-mode ()
-  "Toggle `indent-tabs-mode'."
-  (interactive)
-  (setq-local indent-tabs-mode (not indent-tabs-mode)))
-
 (defun td-tree-sitter-start ()
   "Start up tree-sitter."
   (interactive)
