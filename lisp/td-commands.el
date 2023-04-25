@@ -12,5 +12,13 @@
   (global-tree-sitter-mode)
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
+(defun td-forward-chunk ()
+  (interactive)
+  (next-line 20))
+
+(defun td-backward-chunk ()
+  (interactive)
+  (previous-line 20))
+
 (provide 'td-commands)
 ;; td-commands.el ends here
