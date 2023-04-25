@@ -229,9 +229,10 @@
 ;;; Pinentry
 (pinentry-start)
 
-;;; Projectile
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+;;; Project X
+(require 'project-x)
+(setq project-x-local-identifier '("pom.xml" "package.json" ".git" ".project"))
+(project-x-mode)
 
 ;;; Sensitive Mode
 (require 'sensitive-mode)
