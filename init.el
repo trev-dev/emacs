@@ -42,6 +42,7 @@
 (require 'td-syntax)
 (require 'td-lsp)
 (require 'td-org)
+(require 'td-denote)
 (require 'td-notmuch)
 (require 'td-god)
 (require 'td-modeline)
