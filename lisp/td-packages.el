@@ -29,6 +29,7 @@
     exec-path-from-shell
     expand-region
     flycheck
+    god-mode
     geiser-guile
     goggles
     highlight-indent-guides
