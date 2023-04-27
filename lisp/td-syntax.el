@@ -19,9 +19,9 @@
                 svelte-mode)
               #'emmet-mode)
 
-;;; Flycheck
-(td-add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
-(define-key prog-mode-map (kbd "C-c f") #'flycheck-mode)
+;;; Flymake
+(td-add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flymake-mode)
+(define-key prog-mode-map (kbd "C-c f") #'flymake-mode)
 (with-eval-after-load 'flycheck
   (setq flycheck-checker-error-threshold 1000
         flycheck-emacs-lisp-load-path load-path))

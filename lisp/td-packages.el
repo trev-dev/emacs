@@ -25,19 +25,18 @@
     diminish
     direnv
     emmet-mode
+    eglot
+    eglot-java
     eshell-syntax-highlighting
     exec-path-from-shell
     expand-region
-    flycheck
+    flymake
     god-mode
     geiser-guile
     goggles
     highlight-indent-guides
     ledger-mode
     ligature
-    lsp-mode
-    lsp-java
-    lsp-ui
     magit
     marginalia
     markdown-mode
