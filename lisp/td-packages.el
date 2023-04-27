@@ -21,6 +21,7 @@
     company
     consult
     dap-mode
+    denote
     diff-hl
     diminish
     direnv
