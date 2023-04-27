@@ -61,8 +61,6 @@
                 ("simple" 'visual-line-mode)
                 ("eldoc" 'eldoc-mode)
                 ("evil-org" 'evil-org-mode)
-                ("flycheck" 'flycheck-mode)
-                ("flymake" 'flymake-mode)
                 ("tree-sitter" 'tree-sitter-mode "TS")
                 ("lsp-mode" 'lsp-mode '(:eval (td-diminish-lsp-lighter)))
                 ("god-mode" 'god-local-mode)

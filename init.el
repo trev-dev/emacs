@@ -45,7 +45,6 @@
 (require 'td-denote)
 (require 'td-notmuch)
 (require 'td-god)
-(require 'td-modeline)
 
 (load-theme 'modus-vivendi t)
 
