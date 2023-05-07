@@ -43,10 +43,9 @@
 (require 'td-eglot)
 (require 'td-org)
 (require 'td-denote)
-(require 'td-notmuch)
-(require 'td-god)
+(require 'td-evil)
 
-(load-theme 'modus-vivendi t)
+(load-theme 'tangonov t)
 
 (add-hook 'after-init-hook #'td-report-init-time)
 (add-hook 'emacs-startup-hook

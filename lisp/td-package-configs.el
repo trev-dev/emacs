@@ -63,7 +63,6 @@
                 ("evil-org" 'evil-org-mode)
                 ("tree-sitter" 'tree-sitter-mode "TS")
                 ("lsp-mode" 'lsp-mode '(:eval (td-diminish-lsp-lighter)))
-                ("god-mode" 'god-local-mode)
                 ("beacon" 'beacon-mode)
                 ("evil-goggles" 'evil-goggles-mode)
                 ("evil-commentary" 'evil-commentary-mode)
@@ -118,6 +117,9 @@
      "Fl"  "Tl"  "fi"  "fj"  "fl"  "ft"
      "{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^=")))
 (global-ligature-mode t)
+
+;;; Mood Line
+(mood-line-mode)
 
 ;;; Orderless
 (require 'orderless)
@@ -197,12 +199,8 @@
 
 (add-hook 'after-init-hook #'td-setup-expand-region)
 
-;;; Goggles
-(td-add-hooks '(text-mode prog-mode) #'goggles-mode)
-(setq-default goggles-pulse t)
-
 ;;; Highlight Indent Guides
-(setq highlight-indent-guides-method 'bitmap
+(setq highlight-indent-guides-method 'character
       highlight-indent-guides-auto-character-face-perc 25
       highlight-indent-guides-responsive 'top)
 
@@ -212,38 +210,17 @@
 ;;; Magit
 (global-set-key (kbd "C-c m") #'magit-status)
 
-;;; Multiple Cursors
-(td-bind-keys '(("C-S-l"   . mc/edit-lines)
-                ("C->"     . mc/mark-next-like-this)
-                ("C-<"     . mc/mark-previous-like-this)
-                ("C-M->"   . mc/skip-to-next-like-this)
-                ("C-M-<"   . mc/skip-to-previous-like-this)
-                ("C-c C-?" . mc/mark-all-like-this-dwim)
-                ("C-c C-/" . mc/mark-all-in-region)
-                ("C-M-n"   . mc/insert-numbers)
-                ("C-M-a"   . mc/insert-letters))
-              priority-mode-map)
-
 ;;; Pinentry
 (pinentry-start)
 
-;;; Project X
-(require 'project-x)
-(setq project-x-local-identifier '("pom.xml" "package.json" ".git" ".project"))
-(project-x-mode)
+;;; Project
+(setq project-vc-extra-root-markers '("pom.xml" "package.json"))
 
 ;;; Sensitive Mode
 (require 'sensitive-mode)
 
-;;; Surround
-(require 'surround)
-(global-set-key (kbd "C-S-s") #'surround)
-
 ;;; RG
 (rg-enable-default-bindings)
-
-;;; Transpose Mark
-(global-set-key (kbd "C-c t") #'transpose-mark)
 
 ;;; Which Key
 (which-key-mode)

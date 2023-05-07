@@ -15,6 +15,9 @@
   (add-to-list 'eglot-server-programs
                '(shopify-mode
                  . ("shopify" "store" "language-server")))
+  (add-to-list 'eglot-server-programs
+               '(vue-mode
+                 . (eglot-volar . ("vue-language-server" "--stdio"))))
 
   (defvar td/eglot-funcs
     (let ((map (make-sparse-keymap)))

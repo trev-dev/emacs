@@ -20,7 +20,6 @@
     clojure-mode
     company
     consult
-    dap-mode
     denote
     diff-hl
     diminish
@@ -29,12 +28,19 @@
     eglot
     eglot-java
     eshell-syntax-highlighting
+    evil
+    evil-collection
+    evil-commentary
+    evil-exchange
+    evil-matchit
+    evil-org
+    evil-goggles
+    evil-surround
     exec-path-from-shell
     expand-region
     flymake
-    god-mode
+    mood-line
     geiser-guile
-    goggles
     highlight-indent-guides
     ledger-mode
     ligature
@@ -42,7 +48,6 @@
     marginalia
     markdown-mode
     modus-themes
-    multiple-cursors
     nim-mode
     notmuch
     ol-notmuch
@@ -61,11 +66,9 @@
     rainbow-mode
     rg
     tangonov-theme
-    transpose-mark
     tree-sitter
     tree-sitter-langs
     typescript-mode
-    svg-lib ; td-modeline.el
     vertico
     web-mode
     which-key
