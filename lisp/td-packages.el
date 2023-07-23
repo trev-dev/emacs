@@ -42,6 +42,7 @@
     markdown-mode
     modus-themes
     nim-mode
+    nix-mode
     notmuch
     ol-notmuch
     orderless
