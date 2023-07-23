@@ -60,12 +60,9 @@
                 ("org-indent" 'org-indent-mode)
                 ("simple" 'visual-line-mode)
                 ("eldoc" 'eldoc-mode)
-                ("evil-org" 'evil-org-mode)
                 ("tree-sitter" 'tree-sitter-mode "TS")
                 ("lsp-mode" 'lsp-mode '(:eval (td-diminish-lsp-lighter)))
                 ("beacon" 'beacon-mode)
-                ("evil-goggles" 'evil-goggles-mode)
-                ("evil-commentary" 'evil-commentary-mode)
                 ("goggles" 'goggles-mode)))
   (eval-after-load (car mode)
     `(diminish ,(cadr mode) ,(caddr mode))))
@@ -80,8 +77,9 @@
                       'meow-beacon-mode))
     (diminish mode)))
 
-;;; Direnv
-(direnv-mode)
+;;; Goggles
+(add-hook 'text-mode-hook #'goggles-mode)
+(add-hook 'prog-mode-hook #'goggles-mode)
 
 ;;; Exec Path From Shell
 (require 'exec-path-from-shell)

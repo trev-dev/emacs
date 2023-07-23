@@ -28,17 +28,10 @@
     eglot
     eglot-java
     eshell-syntax-highlighting
-    evil
-    evil-collection
-    evil-commentary
-    evil-exchange
-    evil-matchit
-    evil-org
-    evil-goggles
-    evil-surround
     exec-path-from-shell
     expand-region
     flymake
+    goggles
     mood-line
     geiser-guile
     highlight-indent-guides

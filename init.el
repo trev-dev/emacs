@@ -43,7 +43,6 @@
 (require 'td-eglot)
 (require 'td-org)
 (require 'td-denote)
-(require 'td-evil)
 
 (load-theme 'tangonov t)
 
