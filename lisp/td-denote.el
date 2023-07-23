@@ -1,13 +1,8 @@
-;;; td-denote.el --- LSP configuraton -*- lexical-binding: t -*-
+;;; td-denote.el --- Notes configuraton -*- lexical-binding: t -*-
 ;;
 ;;; Commentary:
 ;;
-;; My bespoke god-mode configuration.  It includes numerous features:
-;;
-;; - Seeking with "f" and "t", similar to vim
-;; - Insert "after" the character at point. Adapts to the direction the point
-;;   moved last
-;; - Helpful advice
+;; Prot has many brilliant ideas.  I enjoy Denote as one of my favorites.
 ;;
 ;;; Code:
 
