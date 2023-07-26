@@ -7,6 +7,29 @@
 ;;; Code:
 (require 'td-helpers)
 
+(defun eglot-volar-find-typescript ()
+  "Get the global npm typescript location."
+  (string-trim-right
+   (shell-command-to-string
+    "npm list --global --parseable typescript | head -n1")))
+
+(defun eglot-volar-init-options ()
+  "Get the vue-language-server initOptions."
+  (let ((tsdk-path (expand-file-name "lib" (eglot-volar-find-typescript))))
+    `(:typescript (:tsdk ,tsdk-path
+                   :languageFeatures (:completion
+                                      (:defaultTagNameCase "both"
+                                       :defaultAttrNameCase "kebabCase"
+                                       :getDocumentNameCasesRequest nil
+                                       :getDocumentSelectionRequest nil)
+                                      :diagnostics
+                                      (:getDocumentVersionRequest nil))
+                   :documentFeatures (:documentFormatting
+                                      (:defaultPrintWidth 100
+                                       :getDocumentPrintWidthRequest nil)
+                                      :documentSymbol t
+                                      :documentColor t)))))
+
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
                '(php-mode . ("intelephense" "--stdio")))
@@ -16,8 +39,10 @@
                '(shopify-mode
                  . ("shopify" "store" "language-server")))
   (add-to-list 'eglot-server-programs
-               '(vue-mode
-                 . (eglot-volar . ("vue-language-server" "--stdio"))))
+               `(vue-mode . ("vue-language-server"
+                             "--stdio"
+                             :initializationOptions
+                             ,(eglot-volar-init-options))))
 
   (defvar td/eglot-funcs
     (let ((map (make-sparse-keymap)))
@@ -35,6 +60,7 @@
 
   (setq eglot-events-buffer-size 0
         eglot-send-changes-idle-time 0.7
+        eglot-connect-timeout 120
         eglot-autoshutdown t))
 
 (add-hook 'java-mode-hook 'eglot-java-mode)
