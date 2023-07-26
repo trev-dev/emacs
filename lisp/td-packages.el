@@ -60,8 +60,6 @@
     rainbow-mode
     rg
     tangonov-theme
-    tree-sitter
-    tree-sitter-langs
     typescript-mode
     vertico
     web-mode

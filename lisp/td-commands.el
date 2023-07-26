@@ -6,12 +6,6 @@
 ;;
 ;;; Code:
 
-(defun td-tree-sitter-start ()
-  "Start up tree-sitter."
-  (interactive)
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
-
 (defun td-forward-chunk ()
   (interactive)
   (next-line 20))

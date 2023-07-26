@@ -64,7 +64,7 @@
         eglot-connect-timeout 120
         eglot-autoshutdown t))
 
-(add-hook 'java-mode-hook 'eglot-java-mode)
+(add-hook 'java-ts-mode-hook 'eglot-java-mode)
 (add-hook 'eglot-java-mode-hook
           #'(lambda ()
               (td-bind-keys '(("C-c e n" . eglot-java-file-new)

@@ -60,7 +60,6 @@
                 ("org-indent" 'org-indent-mode)
                 ("simple" 'visual-line-mode)
                 ("eldoc" 'eldoc-mode)
-                ("tree-sitter" 'tree-sitter-mode "TS")
                 ("lsp-mode" 'lsp-mode '(:eval (td-diminish-lsp-lighter)))
                 ("beacon" 'beacon-mode)
                 ("goggles" 'goggles-mode)))
