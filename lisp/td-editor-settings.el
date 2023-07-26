@@ -13,8 +13,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (blink-cursor-mode 1)
-(setq display-line-numbers-type 'relative
-      inhibit-startup-screen t
+(setq inhibit-startup-screen t
       initial-scratch-message ""
       history-length 25
       sentence-end-double-space nil
