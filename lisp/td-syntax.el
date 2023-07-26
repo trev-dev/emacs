@@ -60,7 +60,8 @@
 
 ;;; Java
 (add-hook 'java-mode-hook #'(lambda () (setq-local indent-tabs-mode nil
-                                                   tab-width 2)))
+                                                   c-basic-offset 2
+                                                   fill-column 120)))
 
 ;;; Svelte
 (define-derived-mode svelte-mode web-mode "Svelte"
