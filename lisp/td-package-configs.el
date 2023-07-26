@@ -152,6 +152,9 @@
   (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
+;;; Eldoc
+(setq eldoc-echo-area-use-multiline-p nil)
+
 ;;; ERC
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat" "#emacs" "#systemcrafters" "#stumpwm")))
@@ -165,7 +168,7 @@
                              :password (password-store-get
                                         "Biz/libera.chat")))
 
-;;; eshell:
+;;; eshell
 (add-hook 'eshell-mode-hook #'eshell-syntax-highlighting-mode)
 
 ;;; Expand Region:
