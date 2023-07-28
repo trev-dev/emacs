@@ -60,4 +60,4 @@
                 ("M-p" . scroll-down-line)))
 
 (provide 'td-editor-settings)
-;; td-editor-settings.el ends here
+;;; td-editor-settings.el ends here

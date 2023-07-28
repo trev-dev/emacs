@@ -44,4 +44,4 @@ Set `indent-tabs-mode' accordingly."
 (add-hook 'prog-mode-hook #'td-setup-prog-mode)
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 (provide 'td-prog-mode)
-;; td-prog-mode.el ends here
+;;; td-prog-mode.el ends here

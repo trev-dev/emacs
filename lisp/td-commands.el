@@ -37,4 +37,4 @@
   (global-set-key (kbd "C-c w p") #'wsl-paste))
 
 (provide 'td-commands)
-;; td-commands.el ends here
+;;; td-commands.el ends here
