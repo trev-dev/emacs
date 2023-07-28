@@ -38,7 +38,7 @@
       (todo "TODO"
             ((org-agenda-overriding-header "Other Actionables")
              (org-agenda-skip-function
-              '(org-agenda-skip-entry-if 'scheduled 'deadline))))))
+              '(org-agenda-skip-entry-if 'scheduled))))))
     ("l" "Backburner of low priority tasks"
      ((todo "LOW"
            ((org-agenda-overriding-header "Someday/Maybe"))))))
