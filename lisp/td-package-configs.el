@@ -129,6 +129,11 @@
 (vertico-mode)
 (marginalia-mode)
 
+;;; Visual Fill
+(add-hook 'org-mode-hook #'(lambda ()
+                             (setq-local fill-column 100)
+                             (visual-fill-column-mode)))
+
 ;;; Dired
 (setq dired-dwim-target t)
 (with-eval-after-load 'dired

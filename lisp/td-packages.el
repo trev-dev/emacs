@@ -62,6 +62,7 @@
     tangonov-theme
     typescript-mode
     vertico
+    visual-fill-column
     web-mode
     which-key
     yaml-mode
