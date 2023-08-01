@@ -105,8 +105,7 @@
 
 ;;; Treesit
 ;; Handles syntaxes for multiple languages with a fancy new parser.
-(setq major-mode-remap-alist '((yaml-mode . yaml-ts-mode)
-                               (bash-mode . bash-ts-mode)
+(setq major-mode-remap-alist '((bash-mode . bash-ts-mode)
                                (typescript-mode . typescript-ts-mode)
                                (javascript-mode . js-ts-mode)
                                (json-mode . js-ts-mode)
