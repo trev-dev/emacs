@@ -32,7 +32,6 @@
     expand-region
     flymake
     goggles
-    mood-line
     geiser-guile
     highlight-indent-guides
     ledger-mode

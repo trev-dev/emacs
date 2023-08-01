@@ -115,9 +115,6 @@
      "{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^=")))
 (global-ligature-mode t)
 
-;;; Mood Line
-(mood-line-mode)
-
 ;;; Orderless
 (require 'orderless)
 (setq completion-styles '(orderless basic)
