@@ -145,5 +145,10 @@
   (setq org-view-font-enable t)
   (add-to-list 'org-view-font-remaps '(default . (:family "Carlito"))))
 
+;;; Org Babel
+
+(with-eval-after-load 'org
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((sql . t))))
 (provide 'td-org)
 ;;; td-org.el ends here
