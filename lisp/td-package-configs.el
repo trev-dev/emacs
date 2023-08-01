@@ -146,6 +146,9 @@
     "Attach files from Dired to the current Message buffer." t)
   (define-key dired-mode-map (kbd "C-c C-m C-a") #'gnus-dired-attach))
 
+;;; Direnv
+(direnv-mode t)
+
 ;;; diff-hl
 (setq diff-hl-show-staged-changes nil)
 (global-diff-hl-mode)
