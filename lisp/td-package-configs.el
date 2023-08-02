@@ -146,9 +146,6 @@
      "{|"  "[|"  "]#"  "(*"  "}#"  "$>"  "^=")))
 (global-ligature-mode t)
 
-;;; Mood Line
-(mood-line-mode)
-
 ;;; Orderless
 (require 'orderless)
 (setq completion-styles '(orderless basic)
@@ -179,6 +176,9 @@
   (autoload 'gnus-dired-attach "gnus-dired.el"
     "Attach files from Dired to the current Message buffer." t)
   (define-key dired-mode-map (kbd "C-c C-m C-a") #'gnus-dired-attach))
+
+;;; Direnv
+(direnv-mode t)
 
 ;;; diff-hl
 (setq diff-hl-show-staged-changes nil)
