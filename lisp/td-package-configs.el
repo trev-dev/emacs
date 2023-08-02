@@ -36,8 +36,39 @@
 (define-key isearch-mode-map (kbd "C-:") #'avy-isearch)
 (avy-setup-default)
 
-;;; Company
-(add-hook 'after-init-hook 'global-company-mode)
+;;; Corfu
+
+(setq corfu-auto t
+      corfu-quit-no-match 'separator)
+
+(global-corfu-mode)
+
+(defun corfu-enable-in-minibuffer ()
+  "Enable Corfu in the minibuffer if `completion-at-point' is bound."
+  (when (where-is-internal #'completion-at-point (list (current-local-map)))
+    ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
+    (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+                corfu-popupinfo-delay nil)
+    (corfu-mode 1)))
+(add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
+
+(add-hook 'eshell-mode-hook
+          (lambda ()
+            (setq-local corfu-auto nil)
+            (corfu-mode)))
+
+(defun corfu-send-shell (&rest _)
+  "Send completion candidate when inside comint/eshell."
+  (cond
+   ((and (derived-mode-p 'eshell-mode) (fboundp 'eshell-send-input))
+    (eshell-send-input))
+   ((and (derived-mode-p 'comint-mode)  (fboundp 'comint-send-input))
+    (comint-send-input))))
+
+(advice-add #'corfu-insert :after #'corfu-send-shell)
+
+(td-bind-keys '(("SPC" . corfu-insert-separator))
+              corfu-map)
 
 ;;; dap-mode
 (with-eval-after-load 'lsp-mode

@@ -18,8 +18,8 @@
     avy
     cider
     clojure-mode
-    company
     consult
+    corfu
     denote
     diff-hl
     diminish
