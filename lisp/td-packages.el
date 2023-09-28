@@ -18,25 +18,26 @@
     avy
     cider
     clojure-mode
+    company
     consult
-    corfu
-    corfu-terminal
     denote
     diff-hl
     diminish
     direnv
     emmet-mode
-    eglot
-    eglot-java
     eshell-syntax-highlighting
     exec-path-from-shell
     expand-region
-    flymake
+    flycheck
     goggles
     geiser-guile
     highlight-indent-guides
     ledger-mode
     ligature
+    dap-mode
+    lsp-mode
+    lsp-java
+    lsp-ui
     magit
     marginalia
     markdown-mode
