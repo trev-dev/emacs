@@ -16,19 +16,7 @@
 (defun eglot-volar-init-options ()
   "Get the vue-language-server initOptions."
   (let ((tsdk-path (expand-file-name "lib" (eglot-volar-find-typescript))))
-    `(:typescript (:tsdk ,tsdk-path
-                   :languageFeatures (:completion
-                                      (:defaultTagNameCase "both"
-                                       :defaultAttrNameCase "kebabCase"
-                                       :getDocumentNameCasesRequest nil
-                                       :getDocumentSelectionRequest nil)
-                                      :diagnostics
-                                      (:getDocumentVersionRequest nil))
-                   :documentFeatures (:documentFormatting
-                                      (:defaultPrintWidth 100
-                                       :getDocumentPrintWidthRequest nil)
-                                      :documentSymbol t
-                                      :documentColor t)))))
+    `(:typescript (:tsdk ,tsdk-path))))
 
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
