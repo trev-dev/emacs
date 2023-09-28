@@ -43,6 +43,9 @@
 
 (global-corfu-mode)
 
+(unless (display-graphic-p)
+  (corfu-terminal-mode +1))
+
 (defun corfu-enable-in-minibuffer ()
   "Enable Corfu in the minibuffer if `completion-at-point' is bound."
   (when (where-is-internal #'completion-at-point (list (current-local-map)))

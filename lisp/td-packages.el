@@ -20,6 +20,7 @@
     clojure-mode
     consult
     corfu
+    corfu-terminal
     denote
     diff-hl
     diminish
