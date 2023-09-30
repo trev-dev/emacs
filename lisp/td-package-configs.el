@@ -18,9 +18,6 @@
 (require 'priority-mode)
 (priority-mode)
 
-;;; mood-line
-(mood-line-mode)
-
 ;;; Anzu
 (with-eval-after-load 'isearch
   (require 'anzu)
@@ -39,55 +36,56 @@
 (define-key isearch-mode-map (kbd "C-:") #'avy-isearch)
 (avy-setup-default)
 
-;;; Cape and Corfu
-(require 'corfu)
-(setq corfu-cycle t
-      corfu-auto t
-      corfu-auto-prefix 3
-      corfu-auto-delay 0.3)
-
-(defun corfu-enable-in-minibuffer ()
-  "Enable Corfu in the minibuffer if `completion-at-point' is bound."
-  (when (where-is-internal #'completion-at-point (list (current-local-map)))
-    ;; (setq-local corfu-auto nil) Enable/disable auto completion
-    (corfu-mode 1)))
-
-(add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
-
-(global-corfu-mode 1)
-
-(unless (or (daemonp) (display-graphic-p))
-  (corfu-terminal-mode 1))
-
-(with-eval-after-load 'god-mode
-  (add-hook 'god-local-mode-hook #'corfu-quit))
-
-(require 'cape)
-(add-to-list 'completion-at-point-functions #'cape-file)
-(add-to-list 'completion-at-point-functions #'cape-dabbrev)
-(add-hook 'text-mode-hook
-          #'(lambda ()
-              (add-to-list 'completion-at-point-functions #'cape-ispell)))
-
-;; Silence the pcomplete capf, no errors or messages!
-;; Important for corfu
-(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-
-;; Ensure that pcomplete does not write to the buffer
-;; and behaves as a pure `completion-at-point-function'.
-(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
-(add-hook 'eshell-mode-hook
-          (lambda () (setq-local corfu-quit-at-boundary t
-                                 corfu-quit-no-match t
-                                 corfu-auto nil)
-            (corfu-mode)))
+;;; Company
+(add-hook 'after-init-hook #'global-company-mode)
 
 ;;; dap-mode
 (with-eval-after-load 'lsp-mode
-  (dap-auto-configure-mode))
+  (dap-auto-configure-mode)
+  (require 'dap-java))
 
-;;; Direnv
-(direnv-mode)
+;;; Diminish
+(defun td-diminish-lsp-lighter ()
+  "Display the LSP status in the `mode-line-modes'."
+  (let* ((lsp-up lsp--buffer-workspaces)
+         (color (if lsp-up '(:inherit success :weight bold)
+                  '(:inherit warning :weight bold))))
+    `(:propertize " LSP" face ,color)))
+
+(dolist (mode '(("company" 'company-mode)
+                ("hideshow" 'hs-minor-mode)
+                ("undo-tree" 'undo-tree-mode)
+                ("whitespace" 'whitespace-mode)
+                ("yasnippet" 'yas-minor-mode)
+                ("which-key" 'which-key-mode)
+                ("org-indent" 'org-indent-mode)
+                ("simple" 'visual-line-mode)
+                ("eldoc" 'eldoc-mode)
+                ("lsp-mode" 'lsp-mode '(:eval (td-diminish-lsp-lighter)))
+                ("beacon" 'beacon-mode)
+                ("goggles" 'goggles-mode)))
+  (eval-after-load (car mode)
+    `(diminish ,(cadr mode) ,(caddr mode))))
+
+(diminish 'defining-kbd-macro)
+
+(with-eval-after-load 'meow
+  (dolist (mode (list 'meow-normal-mode
+                      'meow-insert-mode
+                      'meow-motion-mode
+                      'meow-keypad-mode
+                      'meow-beacon-mode))
+    (diminish mode)))
+
+;;; Goggles
+(add-hook 'text-mode-hook #'goggles-mode)
+(add-hook 'prog-mode-hook #'goggles-mode)
+
+;;; Exec Path From Shell
+(require 'exec-path-from-shell)
+(dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO" "LANG"))
+  (add-to-list 'exec-path-from-shell-variables var))
+(exec-path-from-shell-initialize)
 
 ;;; Ligature
 (with-eval-after-load 'ligature
@@ -129,6 +127,11 @@
 (vertico-mode)
 (marginalia-mode)
 
+;;; Visual Fill
+(add-hook 'org-mode-hook #'(lambda ()
+                             (setq-local fill-column 100)
+                             (visual-fill-column-mode)))
+
 ;;; Dired
 (setq dired-dwim-target t)
 (with-eval-after-load 'dired
@@ -144,12 +147,18 @@
     "Attach files from Dired to the current Message buffer." t)
   (define-key dired-mode-map (kbd "C-c C-m C-a") #'gnus-dired-attach))
 
+;;; Direnv
+(direnv-mode t)
+
 ;;; diff-hl
 (setq diff-hl-show-staged-changes nil)
 (global-diff-hl-mode)
 (with-eval-after-load 'magit
   (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+
+;;; Eldoc
+(setq eldoc-echo-area-use-multiline-p nil)
 
 ;;; ERC
 (setq erc-autojoin-channels-alist
@@ -164,7 +173,7 @@
                              :password (password-store-get
                                         "Biz/libera.chat")))
 
-;;; eshell:
+;;; eshell
 (add-hook 'eshell-mode-hook #'eshell-syntax-highlighting-mode)
 
 ;;; Expand Region:
@@ -196,12 +205,8 @@
 
 (add-hook 'after-init-hook #'td-setup-expand-region)
 
-;;; Goggles
-(td-add-hooks '(text-mode prog-mode) #'goggles-mode)
-(setq-default goggles-pulse t)
-
 ;;; Highlight Indent Guides
-(setq highlight-indent-guides-method 'bitmap
+(setq highlight-indent-guides-method 'character
       highlight-indent-guides-auto-character-face-perc 25
       highlight-indent-guides-responsive 'top)
 
@@ -211,24 +216,11 @@
 ;;; Magit
 (global-set-key (kbd "C-c m") #'magit-status)
 
-;;; Multiple Cursors
-(td-bind-keys '(("C-S-l"   . mc/edit-lines)
-                ("C->"     . mc/mark-next-like-this)
-                ("C-<"     . mc/mark-previous-like-this)
-                ("C-M->"   . mc/skip-to-next-like-this)
-                ("C-M-<"   . mc/skip-to-previous-like-this)
-                ("C-c C-?" . mc/mark-all-like-this-dwim)
-                ("C-c C-/" . mc/mark-all-in-region)
-                ("C-M-n"   . mc/insert-numbers)
-                ("C-M-a"   . mc/insert-letters))
-              priority-mode-map)
-
 ;;; Pinentry
 (pinentry-start)
 
-;;; Projectile
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+;;; Project
+(setq project-vc-extra-root-markers '("pom.xml" "package.json"))
 
 ;;; Sensitive Mode
 (require 'sensitive-mode)
@@ -236,16 +228,13 @@
 ;;; RG
 (rg-enable-default-bindings)
 
-;;; Transpose Mark
-(global-set-key (kbd "C-c t") #'transpose-mark)
-
 ;;; Which Key
 (which-key-mode)
 
 ;;; Yasnippet
 (with-eval-after-load 'yasnippet
   (global-set-key (kbd "C-c ,") #'yas-expand)
-  (setq yas-snippet-dirs '("~/.config/emacs/yasnippets"))
+  (setq yas-snippet-dirs '("~/.emacs.d/yasnippets"))
   (yas-reload-all))
 
 (add-hook 'prog-mode-hook #'yas-minor-mode)

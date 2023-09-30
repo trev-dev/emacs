@@ -36,15 +36,15 @@
 (add-to-list 'load-path (concat (getenv "HOME") "/.emacs.d/lisp/"))
 
 (require 'td-editor-settings)
+(require 'td-commands)
 (require 'td-prog-mode)
 (require 'td-package-configs)
 (require 'td-syntax)
 (require 'td-lsp)
 (require 'td-org)
-(require 'td-notmuch)
-(require 'td-commands)
+(require 'td-denote)
 
-(load-theme 'modus-vivendi t)
+(load-theme 'tangonov t)
 
 (add-hook 'after-init-hook #'td-report-init-time)
 (add-hook 'emacs-startup-hook

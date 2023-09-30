@@ -13,11 +13,11 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (blink-cursor-mode 1)
-(setq display-line-numbers-type 'relative
-      inhibit-startup-screen t
+(setq inhibit-startup-screen t
       initial-scratch-message ""
       history-length 25
       sentence-end-double-space nil
+      frame-resize-pixelwise t
       visible-bell t
       enable-local-variables t)
 (global-visual-line-mode 1)
@@ -52,7 +52,7 @@
 ;;; Font
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 12"))
+(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 9"))
 
 ;;; Generic bindings
 (td-bind-keys '(("M-j" . join-line)
@@ -60,4 +60,4 @@
                 ("M-p" . scroll-down-line)))
 
 (provide 'td-editor-settings)
-;; td-editor-settings.el ends here
+;;; td-editor-settings.el ends here

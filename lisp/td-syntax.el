@@ -58,6 +58,12 @@
 
 (add-hook 'shopify-mode-hook #'liquid-add-electric-pairs)
 
+;;; Java
+(add-hook 'java-ts-mode-hook #'(lambda ()
+                                 (setq-local indent-tabs-mode nil
+                                             java-ts-mode-indent-offset 2
+                                             fill-column 120)))
+
 ;;; Svelte
 (define-derived-mode svelte-mode web-mode "Svelte"
   "I just want web-mode highlighting with .svelte files.")
@@ -69,6 +75,7 @@
 
 (setq js-indent-level 2
       typescript-indent-level 2)
+(td-add-hooks '(typescript-ts-mode js-ts-mode) #'(lambda () (setq-local fill-column 120)))
 
 ;;; VueJS
 (define-derived-mode vue-mode web-mode "VueJS"
@@ -95,6 +102,15 @@
 
 (add-hook 'prog-mode-hook #'yas-minor-mode)
 (add-hook 'text-mode-hook #'yas-minor-mode)
+
+;;; Treesit
+;; Handles syntaxes for multiple languages with a fancy new parser.
+(setq major-mode-remap-alist '((bash-mode . bash-ts-mode)
+                               (typescript-mode . typescript-ts-mode)
+                               (javascript-mode . js-ts-mode)
+                               (json-mode . js-ts-mode)
+                               (java-mode . java-ts-mode)))
+
 
 (provide 'td-syntax)
 ;;; td-syntax.el ends here

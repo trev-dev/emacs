@@ -16,34 +16,34 @@
     all-the-icons-dired
     anzu
     avy
-    cape
-    corfu
-    corfu-terminal
     cider
     clojure-mode
-    dap-mode
+    company
+    consult
+    denote
     diff-hl
     diminish
     direnv
     emmet-mode
     eshell-syntax-highlighting
+    exec-path-from-shell
     expand-region
     flycheck
-    geiser-guile
     goggles
+    geiser-guile
     highlight-indent-guides
     ledger-mode
     ligature
+    dap-mode
     lsp-mode
     lsp-java
     lsp-ui
     magit
     marginalia
     markdown-mode
-    mood-line
     modus-themes
-    multiple-cursors
     nim-mode
+    nix-mode
     notmuch
     ol-notmuch
     orderless
@@ -57,16 +57,13 @@
     paredit
     password-store
     pinentry
-    projectile
     rainbow-delimiters
     rainbow-mode
     rg
     tangonov-theme
-    transpose-mark
-    tree-sitter
-    tree-sitter-langs
     typescript-mode
     vertico
+    visual-fill-column
     web-mode
     which-key
     yaml-mode

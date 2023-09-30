@@ -38,7 +38,7 @@
       (todo "TODO"
             ((org-agenda-overriding-header "Other Actionables")
              (org-agenda-skip-function
-              '(org-agenda-skip-entry-if 'scheduled 'deadline))))))
+              '(org-agenda-skip-entry-if 'scheduled))))))
     ("l" "Backburner of low priority tasks"
      ((todo "LOW"
            ((org-agenda-overriding-header "Someday/Maybe"))))))
@@ -52,6 +52,8 @@
      "* %^{Name: }\n:PROPERTIES:\n:email: %?\n:END:"
      :empty-lines 1))
   "Base org-capture-templates.")
+
+(global-set-key (kbd "C-c M-a") #'org-capture)
 
 (defun td-org-append-templates (templates)
   "Append `TEMPLATES' to `org-capture-templates'."
@@ -143,5 +145,10 @@
   (setq org-view-font-enable t)
   (add-to-list 'org-view-font-remaps '(default . (:family "Carlito"))))
 
+;;; Org Babel
+
+(with-eval-after-load 'org
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((sql . t))))
 (provide 'td-org)
 ;;; td-org.el ends here

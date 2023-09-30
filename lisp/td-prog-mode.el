@@ -5,6 +5,7 @@
 ;; This file contains universally helpful settings for programming modes.
 ;;
 ;;; Code:
+(require 'ansi-color)
 
 (defun td-infer-indentation-style ()
   "Figure out whether or not we are indenting with tabs or spaces.
@@ -41,6 +42,6 @@ Set `indent-tabs-mode' accordingly."
 (setq-default electric-indent-inhibit t)
 
 (add-hook 'prog-mode-hook #'td-setup-prog-mode)
-
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 (provide 'td-prog-mode)
-;; td-prog-mode.el ends here
+;;; td-prog-mode.el ends here

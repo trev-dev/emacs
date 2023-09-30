@@ -6,16 +6,35 @@
 ;;
 ;;; Code:
 
-(defun td-toggle-indent-tabs-mode ()
-  "Toggle `indent-tabs-mode'."
+(defun td-forward-chunk ()
+  "Move forward 20 lines."
   (interactive)
-  (setq-local indent-tabs-mode (not indent-tabs-mode)))
+  (next-line 20))
 
-(defun td-tree-sitter-start ()
-  "Start up tree-sitter."
+(defun td-backward-chunk ()
+  "Move backward 20 lines."
   (interactive)
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+  (previous-line 20))
+
+(defun wsl-copy (start end)
+  "Copy region `START' to `END' and put it in the Windows clipboard."
+  (interactive "r")
+  (shell-command-on-region start end "clip.exe")
+  (deactivate-mark))
+
+(defun wsl-paste ()
+  "Remove CLRF from Windows clipboard and paste it into the buffer."
+  (interactive)
+  (let ((clipboard
+         (shell-command-to-string
+          "powershell.exe -c Get-Clipboard 2> /dev/null")))
+    (setq clipboard (replace-regexp-in-string "\r" "" clipboard))
+    (setq clipboard (substring clipboard 0 -1))
+    (insert clipboard)))
+
+(when (string-match-p "Linux.*WSL2.*Linux" (shell-command-to-string "uname -a"))
+  (global-set-key (kbd "C-c w c") #'wsl-copy)
+  (global-set-key (kbd "C-c w p") #'wsl-paste))
 
 (provide 'td-commands)
-;; td-commands.el ends here
+;;; td-commands.el ends here

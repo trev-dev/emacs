@@ -27,8 +27,9 @@
       lsp-modeline-code-actions-segments '(count)
       lsp-signature-doc-lines 1
       lsp-enable-folding nil
-      lsp-completon-provider :none
-      lsp-keep-workspace-alive nil)
+      lsp-headerline-breadcrumb-enable nil
+      lsp-keep-workspace-alive nil
+      lsp-volar-take-over-mode t)
 
 (with-eval-after-load 'lsp-mode
   (define-key lsp-mode-map (kbd "C-S-H") #'lsp-ui-doc-glance)

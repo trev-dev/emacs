@@ -1,7 +1,5 @@
-config.el
-mu4e-config.el.bak
 custom-vars.el
-mu4e-contexts.el
 /eln-cache/
 personal-dict.pwd
 lisp/td-notmuch.el
+elpa/
