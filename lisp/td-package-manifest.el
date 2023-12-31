@@ -1,4 +1,4 @@
-;;; td-packages.el --- Package management -*- lexical-binding: t -*-
+;;; td-package-manifest.el --- Package management -*- lexical-binding: t -*-
 ;;
 ;;; Commentary:
 ;;
@@ -20,11 +20,13 @@
     clojure-mode
     company
     consult
+    dape
     denote
     diff-hl
     diminish
     direnv
     emmet-mode
+    flymake-eslint
     eshell-syntax-highlighting
     exec-path-from-shell
     expand-region
@@ -80,5 +82,5 @@ That way, any old packages can be easily autoremoved."
 (add-hook 'after-init-hook
           #'(lambda () (td-packages-cleanup td-package-manifest)))
 
-(provide 'td-packages)
-;;; td-packages.el ends here
+(provide 'td-package-manifest)
+;;; td-package-manifest.el ends here

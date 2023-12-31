@@ -11,7 +11,7 @@
 ;;
 ;;; Code:
 
-(require 'td-packages)
+(require 'td-package-manifest)
 (require 'td-helpers)
 
 ;;; Priority Mode
