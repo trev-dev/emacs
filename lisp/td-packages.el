@@ -28,16 +28,14 @@
     eshell-syntax-highlighting
     exec-path-from-shell
     expand-region
-    flycheck
     goggles
     geiser-guile
     highlight-indent-guides
     ledger-mode
     ligature
     dap-mode
-    lsp-mode
-    lsp-java
-    lsp-ui
+    eglot
+    eglot-java
     magit
     marginalia
     markdown-mode

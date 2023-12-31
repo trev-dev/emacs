@@ -52,7 +52,7 @@
 ;;; Font
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 9"))
+(add-to-list 'default-frame-alist '(font . "FiraCode Nerd Font 13"))
 
 ;;; Generic bindings
 (td-bind-keys '(("M-j" . join-line)

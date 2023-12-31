@@ -20,13 +20,6 @@
 
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
-               '(php-mode . ("intelephense" "--stdio")))
-  (add-to-list 'eglot-server-programs
-               '(svelte-mode . ("svelteserver" "--stdio")))
-  (add-to-list 'eglot-server-programs
-               '(shopify-mode
-                 . ("shopify" "store" "language-server")))
-  (add-to-list 'eglot-server-programs
                `(vue-mode . ("vue-language-server"
                              "--stdio"
                              :initializationOptions

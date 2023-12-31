@@ -19,13 +19,6 @@
                 svelte-mode)
               #'emmet-mode)
 
-;;; Flycheck
-(td-add-hooks '(emacs-lisp-mode prog-mode ledger-mode) #'flycheck-mode)
-(define-key prog-mode-map (kbd "C-c f") #'flycheck-mode)
-(with-eval-after-load 'flycheck
-  (setq flycheck-checker-error-threshold 1000
-        flycheck-emacs-lisp-load-path load-path))
-
 ;;; Markdown
 (td-auto-mode '(("README\\.md\\'" . gfm-mode)
                 ("\\.md\\'" . markdown-mode)
@@ -110,6 +103,14 @@
                                (javascript-mode . js-ts-mode)
                                (json-mode . js-ts-mode)
                                (java-mode . java-ts-mode)))
+
+(setq treesit-language-source-alist
+      '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript"
+                    "master"
+                    "typescript/source")
+        (json "https://github.com/tree-sitter/tree-sitter-json")
+        (java "https://github.com/tree-sitter/tree-sitter-java")))
 
 
 (provide 'td-syntax)
