@@ -110,7 +110,8 @@
                     "master"
                     "typescript/source")
         (json "https://github.com/tree-sitter/tree-sitter-json")
-        (java "https://github.com/tree-sitter/tree-sitter-java")))
+        (java "https://github.com/tree-sitter/tree-sitter-java")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript")))
 
 
 (provide 'td-syntax)
