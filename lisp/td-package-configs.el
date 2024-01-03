@@ -32,8 +32,8 @@
   (global-set-key [remap query-replace-regexp] #'anzu-query-replace-regexp))
 
 ;;; Avy
-(define-key priority-mode-map (kbd "C-:") #'avy-goto-char-timer)
-(define-key isearch-mode-map (kbd "C-:") #'avy-isearch)
+(define-key priority-mode-map (kbd "C-c ;") #'avy-goto-char-timer)
+(define-key isearch-mode-map (kbd "C-c ;") #'avy-isearch)
 (avy-setup-default)
 
 ;;; Company
@@ -180,7 +180,7 @@
 (defun td-setup-expand-region ()
   "Set up expand region."
   (require 'expand-region)
-  (td-bind-keys '(("C-=" . er/expand-region)))
+  n(td-bind-keys '(("C-c =" . er/expand-region)))
   (defvar er/keymap
     (let ((map (make-sparse-keymap "er/objects")))
       (td-bind-keys '(("w"   . er/mark-word)
@@ -201,7 +201,7 @@
     "A keymap for quickly calling expand region functions.
 \\{er/keymap}")
   (fset 'er/keymap er/keymap)
-  (define-key priority-mode-map (kbd "C-,") er/keymap))
+  (define-key priority-mode-map (kbd "C-c ,") er/keymap))
 
 (add-hook 'after-init-hook #'td-setup-expand-region)
 
