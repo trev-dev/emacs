@@ -24,6 +24,7 @@
                              "--stdio"
                              :initializationOptions
                              ,(eglot-volar-init-options))))
+  (setq eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider))
 
   (defvar td/eglot-funcs
     (let ((map (make-sparse-keymap)))
