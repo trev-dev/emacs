@@ -37,7 +37,8 @@ Set `indent-tabs-mode' accordingly."
       standard-indent 2
       backward-delete-char-untabify-method 'hungry
       ediff-window-setup-function 'ediff-setup-windows-plain
-      tab-width 2)
+      tab-width 2
+      compilation-scroll-output t)
 
 (setq-default electric-indent-inhibit t)
 
