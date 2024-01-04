@@ -25,6 +25,7 @@
     diff-hl
     diminish
     direnv
+    eldoc-box
     emmet-mode
     flymake-eslint
     eshell-syntax-highlighting

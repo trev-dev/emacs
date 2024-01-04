@@ -160,6 +160,9 @@
 ;;; Eldoc
 (setq eldoc-echo-area-use-multiline-p nil)
 
+;;; Eldoc Box
+(global-set-key (kbd "C-h .") #'eldoc-box-help-at-point)
+
 ;;; ERC
 (setq erc-autojoin-channels-alist
       '(("Libera.Chat" "#emacs" "#systemcrafters" "#stumpwm")))
