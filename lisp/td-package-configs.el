@@ -183,7 +183,7 @@
 (defun td-setup-expand-region ()
   "Set up expand region."
   (require 'expand-region)
-  n(td-bind-keys '(("C-c =" . er/expand-region)))
+  (td-bind-keys '(("C-c =" . er/expand-region)))
   (defvar er/keymap
     (let ((map (make-sparse-keymap "er/objects")))
       (td-bind-keys '(("w"   . er/mark-word)
