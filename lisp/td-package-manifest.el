@@ -36,7 +36,6 @@
     highlight-indent-guides
     ledger-mode
     ligature
-    dap-mode
     eglot
     eglot-java
     magit
