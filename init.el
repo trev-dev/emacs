@@ -34,6 +34,8 @@
   "When Emacs started init.el.")
 
 (add-to-list 'load-path (concat (getenv "HOME") "/.emacs.d/lisp/"))
+(add-to-list 'load-path (concat (getenv "HOME")
+                                "/.local/share/emacs/site-lisp/"))
 
 (require 'td-editor-settings)
 (require 'td-commands)
