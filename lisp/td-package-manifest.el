@@ -20,7 +20,6 @@
     clojure-mode
     company
     consult
-    dape
     denote
     diff-hl
     diminish
