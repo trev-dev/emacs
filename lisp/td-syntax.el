@@ -68,7 +68,8 @@
 
 (setq js-indent-level 2
       typescript-indent-level 2)
-(td-add-hooks '(typescript-ts-mode js-ts-mode) #'(lambda () (setq-local fill-column 120)))
+(td-add-hooks '(typescript-ts-mode js-ts-mode vue-mode)
+              #'(lambda () (setq-local fill-column 120)))
 
 ;;; VueJS
 (define-derived-mode vue-mode web-mode "VueJS"
