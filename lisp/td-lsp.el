@@ -10,13 +10,14 @@
 (td-add-hooks '(css-mode
                 scss-mode
                 html-mode
-                js-mode
+                js-ts-mode
                 json-mode
                 nim-mode
                 python-mode
                 php-mode
                 svelte-mode
-                typescript-mode
+                typescript-ts-mode
+                java-ts-mode
                 vue-mode
                 yaml-mode)
               #'lsp)
@@ -43,6 +44,12 @@
    'lsp-file-watch-ignored-directories "[/\\]env' [/\\]__pycache__'")
   (add-to-list 'lsp-language-id-configuration
                '(shopify-mode . "shopify")))
+
+(with-eval-after-load 'lsp-java
+  (when (featurep 'nix-deps)
+    (require 'nix-deps)
+    (add-to-list 'lsp-java-vmargs nix-deps-lombok-agent))
+  (require 'dap-java))
 
 (add-hook 'hack-local-variables-hook
           #'(lambda () (when (derived-mode-p 'java-mode) (lsp))))

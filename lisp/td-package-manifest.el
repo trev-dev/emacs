@@ -35,8 +35,10 @@
     highlight-indent-guides
     ledger-mode
     ligature
-    eglot
-    eglot-java
+    lsp-mode
+    lsp-java
+    lsp-ui
+    dap-mode
     magit
     marginalia
     markdown-mode

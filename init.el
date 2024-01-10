@@ -42,7 +42,9 @@
 (require 'td-prog-mode)
 (require 'td-package-configs)
 (require 'td-syntax)
-(require 'td-eglot)
+;; (require 'td-eglot)
+(require 'td-lsp)
+(require 'td-dap)
 (require 'td-org)
 (require 'td-denote)
 
