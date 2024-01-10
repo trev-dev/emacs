@@ -1,5 +1,26 @@
+# Transient Data
 custom-vars.el
 /eln-cache/
 personal-dict.pwd
-lisp/td-notmuch.el
 elpa/
+/history
+.cache/
+.lsp-session-v1
+auto-save-list/
+autosaves/
+backups/
+bookmarks
+eclipse.jdt.ls/
+eglot-java-eclipse-jdt-cache/
+eshell/
+places
+projects
+recentf
+share/
+tramp
+transient/
+tree-sitter/
+workspace/
+
+# Potentially Sensitive
+lisp/td-notmuch.el
