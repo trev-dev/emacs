@@ -24,6 +24,8 @@
                              "--stdio"
                              :initializationOptions
                              ,(eglot-volar-init-options))))
+  (add-to-list 'eglot-server-programs
+               '(nix-mode . ("rnix-lsp")))
   (setq eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider))
 
   (defvar td/eglot-funcs
